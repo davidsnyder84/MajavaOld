@@ -35,9 +35,13 @@ methods:
 	getFace - returns the face of the tile as a character
 	isRedDora - returns true if the tile is a red dora 5, false if not
 	getOrignalOwner - returns the wind of the original owner of the tile
-	isYaochuu - returns true if the tile is a terminal or an honor, false otherwise
+	isYaochuu - returns true if the tile is either a terminal or an honor, false otherwise
+	isHonor - returns true if the tile is an honor tile, false otherwise
+	isTerminal - returns true if the tile is a terminal, false otherwise
+	
 	nextTile - returns what the dora would be if this tile was a dora indicator
 	findHotTiles - returns a list of IDs of "hot tiles" (all tiles that could be in a meld with this tile)
+	
 	
 	other:
 	compareTo - compares the IDs of two tiles
@@ -62,6 +66,9 @@ public class Tile implements Comparable<Tile> {
 	public static final char SUIT_SOU = 'B';
 	public static final char SUIT_WIND = 'W';
 	public static final char SUIT_DRAGON = 'D';
+
+	public static final int ID_LAST_NON_HONOR_TILE = 27;
+	public static final int ID_FIRST_HONOR_TILE = ID_LAST_NON_HONOR_TILE + 1;
 	
 	private static final String STR_REPS_BY_ID = "M1M2M3M4M5M6M7M8M9C1C2C3C4C5C6C7C8C9B1B2B3B4B5B6B7B8B9WEWSWWWNDWDGDR";
 	
@@ -111,21 +118,11 @@ public class Tile implements Comparable<Tile> {
 	
 	
 	//accessors
-	public int getId(){
-		return mID;
-	}
-	public char getSuit(){
-		return mSuit;
-	}
-	public char getFace(){
-		return mFace;
-	}
-	public boolean isRedDora(){
-		return mRedDora;
-	}
-	public char getOrignalOwner(){
-		return mOriginalOwner;
-	}
+	public int getId(){return mID;}
+	public char getSuit(){return mSuit;}
+	public char getFace(){return mFace;}
+	public boolean isRedDora(){return mRedDora;}
+	public char getOrignalOwner(){return mOriginalOwner;}
 	
 	
 	
@@ -162,17 +159,13 @@ public class Tile implements Comparable<Tile> {
 		//a tile is always its own hot tile (pon/kan/pair)
 		hotTileIds.add(mID);
 		
-		//add possible chi partners, if suit is not honor
-		if (mSuit != SUIT_WIND && mSuit != SUIT_DRAGON)
+		//add possible chi partners, if tile is not an honor tile
+		if (!isHonor())
 		{
-			if (mFace != '1' && mFace != '2')
-				hotTileIds.add(mID - 2);
-			if (mFace != '1')
-				hotTileIds.add(mID - 1);
-			if (mFace != '9')
-				hotTileIds.add(mID + 1);
-			if (mFace != '8' && mFace != '9')
-				hotTileIds.add(mID + 2);
+			if (mFace != '1' && mFace != '2') hotTileIds.add(mID - 2);
+			if (mFace != '1') hotTileIds.add(mID - 1);
+			if (mFace != '9') hotTileIds.add(mID + 1);
+			if (mFace != '8' && mFace != '9') hotTileIds.add(mID + 2);
 		}
 		
 		//return list of integer IDs
@@ -206,14 +199,11 @@ public class Tile implements Comparable<Tile> {
 	
 	
 	//returns true if the tile is a terminal or honor, false otherwise
-	public boolean isYaochuu(){
-		if (mSuit == SUIT_WIND || mSuit == SUIT_DRAGON)
-			return true;
-		if (mFace == '1' || mFace == '9')
-			return true;
-		return false;
-	}
-	
+	public boolean isYaochuu(){return (isHonor() || isTerminal());}
+	//returns true if the tile is an honor tile, false if not
+	public boolean isHonor(){return (mID >= ID_FIRST_HONOR_TILE);}
+	//returns true if the tile is a terminal tile, false if not
+	public boolean isTerminal(){return (mFace == '1' || mFace == '9');}
 
 	
 	
@@ -222,10 +212,25 @@ public class Tile implements Comparable<Tile> {
 	
 
 	//compares the IDs of two tiles
+	//if they are both 5's, and one is a red dora, the red dora will "come after" the non-red tile
 	@Override
 	public int compareTo(Tile other){
 		
-		return (this.mID - other.mID);
+		//if the tiles have different id's, return the difference
+		if (mID != other.mID)
+			return (mID - other.mID);
+		
+		//at this point, both tiles have the same ID
+		//if both 5's, check if one is red dora
+		if (mFace == '5' && other.mFace == '5')
+		{
+			if (mRedDora && !other.mRedDora)
+				return 1;
+			else if (!mRedDora && other.mRedDora)
+				return -1;
+		}
+		//if the tiles are not 5's, or if both are red doras, return 0
+		return 0;
 	}
 	
 	//returns true if the tiles have the same ID
@@ -234,7 +239,7 @@ public class Tile implements Comparable<Tile> {
 		if (other == null || (other instanceof Tile) == false)
 			return false;
 		
-		return (((Tile)this).mID == ((Tile)other).mID);
+		return (mID == ((Tile)other).mID);
 	}
 	
 	//string representaiton of tile's suit/face

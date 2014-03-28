@@ -37,9 +37,15 @@ public class GenSort <T extends Comparable<T> > {
 	
 	
 	
-	//sorts mListToSort with a shitty selection sort
+	//sorts mListToSort with a shitty selection sort, ascending order
 	public void sort(){
-			
+		sortAscending();
+	}
+	
+
+	//sorts mListToSort with a shitty selection sort, ascending order
+	public void sortAscending(){
+		
 		int current, walker, smallest;
 		T temp;
 		
@@ -57,8 +63,6 @@ public class GenSort <T extends Comparable<T> > {
 		}
 		
 	}
-	
-	
 	
 	//sorts mListToSort with a shitty selection sort, descending order
 	public void sortDescending(){
@@ -88,14 +92,6 @@ public class GenSort <T extends Comparable<T> > {
 	//shuffles the elements of mListToSort in a random order
 	public void shuffle(){
 		
-		/*
-		int[] nums = new int[mListLength];
-		
-		int i;
-		for (i = 0; i < mListLength; i++)
-				;
-		*/
-				
 		Random random = new Random();
 		int swapIndex = -1;
 		T temp = null;

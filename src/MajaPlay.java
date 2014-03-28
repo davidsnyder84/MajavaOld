@@ -15,7 +15,7 @@ public class MajaPlay {
 		//testCalls();
 		
 		
-		//testCallPartners();
+		testCallPartners();
 		
 		
 		//testPlayerCall();
@@ -41,7 +41,7 @@ public class MajaPlay {
 		
 		//chiKamichaTest();
 		
-		finishingMovePre();
+		//finishingMovePre();
 		
 		
 		System.out.println();
@@ -106,61 +106,7 @@ public class MajaPlay {
 	
 	
 
-	public static void intArrayCopyTest(){
 
-		ArrayList<Integer> list1 = new ArrayList<Integer>(5);
-		list1.add(5);
-		list1.add(6);
-		list1.add(7);
-		list1.add(8);
-		list1.add(9);
-
-		System.out.print("List1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
-		
-		
-		ArrayList<Integer> list2 = list1;
-		System.out.print("\nList2: "); for (Integer i: list2) System.out.print(i.toString() + ", ");
-		
-		
-		
-		/*
-		//after list2 = list1
-		//BAD - XXXX - Removing an object from either list removes it from both lists
-		list2 = list1;
-		list2.remove(2);
-		System.out.print("\nList1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
-		System.out.print("\nList2: "); for (Integer i: list2) System.out.print(i.toString() + ", ");
-		*/
-		
-		
-		/*
-		//after list2 = list1.clone()
-		//GOOD - Removing an object from either list does NOT affect the other list
-		list2 = (ArrayList<Integer>)list1.clone();
-		list1.remove(3);
-		System.out.print("\n\nList1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
-		System.out.print("\nList2: "); for (Integer i: list2) System.out.print(i.toString() + ", ");
-		*/
-		
-		
-		/*
-		//after list2 = new arraylist(list1) copy constructor
-		//GOOD - Removing an object from either list does NOT affect the other list
-		list2 = new ArrayList<Integer>(list1);
-		list2.remove(4);
-		System.out.print("\n\nList1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
-		System.out.print("\nList2: "); for (Integer i: list2) System.out.print(i.toString() + ", ");
-		*/
-		
-
-		//after list2 = add 1 by 1 from list 1
-		//GOOD - Removing an object from either list does NOT affect the other list
-		list2 = new ArrayList<Integer>(0);for (int i = 0; i < list1.size(); i++) list2.add(list1.get(i));
-		list1.remove(2);
-		System.out.print("\n\nList1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
-		System.out.print("\nList2: "); for (Integer i: list2) System.out.print(i.toString() + ", ");
-	}
-	
 	public static void callableIdTest(){
 		
 		Hand h = new Hand();
@@ -212,35 +158,6 @@ public class MajaPlay {
 	
 	
 	
-	
-	
-	
-	
-
-	public static void sleepTest(){
-		
-		final int SLEEP_AMOUNT = 1000;
-		
-		System.out.println("Hello sir!");
-		try {Thread.sleep(SLEEP_AMOUNT);} 
-		catch (InterruptedException e) {}
-		
-		System.out.println("I am");
-		try {Thread.sleep(SLEEP_AMOUNT);}
-		catch (InterruptedException e) {}
-		
-		System.out.println("very");
-		try {Thread.sleep(SLEEP_AMOUNT);}
-		catch (InterruptedException e) {}
-		
-		System.out.println("very...");
-		try {Thread.sleep(SLEEP_AMOUNT);}
-		catch (InterruptedException e) {}
-		
-		System.out.println("sleepy!");
-		
-		
-	}
 	
 	
 	
@@ -413,11 +330,12 @@ public class MajaPlay {
 	
 	
 	public static void testCallPartners(){
-		
-		Tile q = null;
-		Hand h = new Hand();
-		
 
+		final char ONWER_SEAT = Player.SEAT_SOUTH;
+		Tile q = null;
+		Hand h = new Hand(ONWER_SEAT);
+
+		h.addTile(1);
 		h.addTile(2);
 		h.addTile(2);
 		h.addTile(3);
@@ -427,8 +345,8 @@ public class MajaPlay {
 		h.addTile(5);
 		h.addTile(6);
 		
-		
-		q = new Tile(5);
+		q = new Tile(4);
+		q.setOwner(Player.findKamichaOf(ONWER_SEAT));
 		
 		
 		h.checkCallableTile(q);
@@ -563,7 +481,84 @@ public class MajaPlay {
 			System.out.println(i);
 	}
 	
-	
+	public static void intArrayCopyTest(){
+
+		ArrayList<Integer> list1 = new ArrayList<Integer>(5);
+		list1.add(5);
+		list1.add(6);
+		list1.add(7);
+		list1.add(8);
+		list1.add(9);
+
+		System.out.print("List1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
+		
+		
+		ArrayList<Integer> list2 = list1;
+		System.out.print("\nList2: "); for (Integer i: list2) System.out.print(i.toString() + ", ");
+		
+		
+		
+		/*
+		//after list2 = list1
+		//BAD - XXXX - Removing an object from either list removes it from both lists
+		list2 = list1;
+		list2.remove(2);
+		System.out.print("\nList1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
+		System.out.print("\nList2: "); for (Integer i: list2) System.out.print(i.toString() + ", ");
+		*/
+		
+		
+		/*
+		//after list2 = list1.clone()
+		//GOOD - Removing an object from either list does NOT affect the other list
+		list2 = (ArrayList<Integer>)list1.clone();
+		list1.remove(3);
+		System.out.print("\n\nList1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
+		System.out.print("\nList2: "); for (Integer i: list2) System.out.print(i.toString() + ", ");
+		*/
+		
+		
+		/*
+		//after list2 = new arraylist(list1) copy constructor
+		//GOOD - Removing an object from either list does NOT affect the other list
+		list2 = new ArrayList<Integer>(list1);
+		list2.remove(4);
+		System.out.print("\n\nList1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
+		System.out.print("\nList2: "); for (Integer i: list2) System.out.print(i.toString() + ", ");
+		*/
+		
+
+		//after list2 = add 1 by 1 from list 1
+		//GOOD - Removing an object from either list does NOT affect the other list
+		list2 = new ArrayList<Integer>(0);for (int i = 0; i < list1.size(); i++) list2.add(list1.get(i));
+		list1.remove(2);
+		System.out.print("\n\nList1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
+		System.out.print("\nList2: "); for (Integer i: list2) System.out.print(i.toString() + ", ");
+	}
+	public static void sleepTest(){
+		
+		final int SLEEP_AMOUNT = 1000;
+		
+		System.out.println("Hello sir!");
+		try {Thread.sleep(SLEEP_AMOUNT);} 
+		catch (InterruptedException e) {}
+		
+		System.out.println("I am");
+		try {Thread.sleep(SLEEP_AMOUNT);}
+		catch (InterruptedException e) {}
+		
+		System.out.println("very");
+		try {Thread.sleep(SLEEP_AMOUNT);}
+		catch (InterruptedException e) {}
+		
+		System.out.println("very...");
+		try {Thread.sleep(SLEEP_AMOUNT);}
+		catch (InterruptedException e) {}
+		
+		System.out.println("sleepy!");
+		
+		
+	}
 	
 	
 	

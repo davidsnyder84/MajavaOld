@@ -1,4 +1,95 @@
 
+
+if (only one meld is possible for t) && (t cannot be a pair)
+	MUST make that meld with t
+	(this is the only meld t can be in)
+
+
+
+
+start with t = handtile(0)
+for (each tile t in hand)
+	
+	check which melds can be made with t
+	
+	//only one meld possible
+	if (only one meld is possible for t)
+	
+		if (only one meld is possible for t's meld partners)
+			then this is the only meld t can be in.
+			make the meld with t and its partners (probably temporary)
+		end if
+		
+	end if
+	
+	//no melds possible
+	if (t can not make ANY meld)
+		then t absolutely MUST be part of the pair
+		if (pairman not found yet, or pairman == t)
+			pairman = t
+		else
+			there exists a different tile (different face) that can't make a meld
+			now we have 2 tiles that can't be in any meld, and they can't BOTH be in the pair since they're different
+			return WE CAN'T WIN
+		end if
+	end if
+	
+	
+	//multiple melds possible
+	if (t can make multiple melds)
+		//have fun here
+		multiple melds are possible here
+		
+		either:
+		figure out which one is best (what?)
+		or
+		ask the user to explicitly specify (help me!)
+	end if
+	
+	
+end for
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+OLD:::::::::::::
+
 start with t = handtile(0)
 for (each tile t in hand)
 	

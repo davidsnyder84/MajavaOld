@@ -87,6 +87,18 @@ public class Meld {
 	public Meld(ArrayList<Tile> handTiles, int meldType){
 		this(new ArrayList<Tile>(handTiles.subList(0, handTiles.size() - 1)), handTiles.get(handTiles.size() - 1), meldType);
 	}
+	public Meld(Meld other){
+		
+		for (Tile t: other.mTiles) mTiles.add(t);
+		mOwnerSeatWind = other.mOwnerSeatWind;
+		
+		mClosed = other.mClosed;
+		mFu = other.mFu;
+		
+		mCompletedTile = other.mCompletedTile;
+		mPlayerResponsible = other.mPlayerResponsible;
+		
+	}
 	
 	
 	

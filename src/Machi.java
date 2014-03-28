@@ -12,6 +12,7 @@ public class Machi {
 	public static final int WAIT_TYPE_PON =  Meld.MELD_TYPE_KAN;
 	public static final int WAIT_TYPE_KAN =  Meld.MELD_TYPE_PAIR;
 	public static final int WAIT_TYPE_PAIR =  Meld.MELD_TYPE_CHI_L;
+	
 	public static final int WAIT_TYPE_UNKNOWN =  Meld.MELD_TYPE_UNKNOWN;
 	public static final int WAIT_TYPE_DEFAULT = WAIT_TYPE_UNKNOWN;
 	

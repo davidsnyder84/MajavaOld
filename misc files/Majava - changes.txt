@@ -17,4 +17,20 @@
 -fixed wall drawing at beginning of game (non-East players weren't drawing on their first turn)
 -kan draw seems to be working fine
 
+2013-10-14
+-restructured __canChi to be more concise
+-restructured __canPon, __canKan, and countHowManyInHand. __storePartnerIndices is explicitly called when it is needed
+-added __canPair function and corresponding flag/list. does not affect "isCallableTile" return value
+-added copy constructors to Hand and Meld
+-changed Tile's compareTo function so that Red 5's come after non-red 5's
+-added isHonor() and isTerminal() boolean methods to Tile
+
+
+
+
+
+
+
+
+
 

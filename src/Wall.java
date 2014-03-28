@@ -72,36 +72,32 @@ public class Wall {
 	*/
 	public void dealHands(Player p1, Player p2, Player p3, Player p4)
 	{
-		ArrayList<Tile> tilesE = new ArrayList<Tile>(14);
-		ArrayList<Tile> tilesS = new ArrayList<Tile>(13);
-		ArrayList<Tile> tilesW = new ArrayList<Tile>(13);
-		ArrayList<Tile> tilesN = new ArrayList<Tile>(13);
+		ArrayList<Tile> tilesE = new ArrayList<Tile>(Hand.MAX_HAND_SIZE);
+		ArrayList<Tile> tilesS = new ArrayList<Tile>(Hand.MAX_HAND_SIZE - 1);
+		ArrayList<Tile> tilesW = new ArrayList<Tile>(Hand.MAX_HAND_SIZE - 1);
+		ArrayList<Tile> tilesN = new ArrayList<Tile>(Hand.MAX_HAND_SIZE - 1);
 		
 		int i, j;
 		//each player takes 4, 3 times
 		for (i = 0; i < 3; i++)
 		{
 			//east takes 4
-			for (j = 0; j < 4; j++)
-			{
+			for (j = 0; j < 4; j++){
 				tilesE.add(mTiles.get(FIRST_TILE_IN_WALL));
 				mTiles.remove(FIRST_TILE_IN_WALL);
 			}
 			//south takes 4
-			for (j = 0; j < 4; j++)
-			{
+			for (j = 0; j < 4; j++){
 				tilesS.add(mTiles.get(FIRST_TILE_IN_WALL));
 				mTiles.remove(FIRST_TILE_IN_WALL);
 			}
 			//west takes 4
-			for (j = 0; j < 4; j++)
-			{
+			for (j = 0; j < 4; j++){
 				tilesW.add(mTiles.get(FIRST_TILE_IN_WALL));
 				mTiles.remove(FIRST_TILE_IN_WALL);
 			}
 			//north takes 4
-			for (j = 0; j < 4; j++)
-			{
+			for (j = 0; j < 4; j++){
 				tilesN.add(mTiles.get(FIRST_TILE_IN_WALL));
 				mTiles.remove(FIRST_TILE_IN_WALL);
 			}
@@ -109,8 +105,7 @@ public class Wall {
 		
 		
 		//east takes 2
-		for (j = 0; j < 2; j++)
-		{
+		for (j = 0; j < 2; j++){
 			tilesE.add(mTiles.get(FIRST_TILE_IN_WALL));
 			mTiles.remove(FIRST_TILE_IN_WALL);
 		}
@@ -170,14 +165,12 @@ public class Wall {
 	*/
 	private void __initialize()
 	{
-		//fill the wall with 4 of each tile
-		int i;
-		for (i = 1; i <= Tile.NUMBER_OF_DIFFERENT_TILES; i++)
-		{
-			mTiles.add(new Tile(i));
-			mTiles.add(new Tile(i));
-			mTiles.add(new Tile(i));
-			mTiles.add(new Tile(i));
+		//fill the wall with 4 of each tile, in sequential order
+		for (int id = 1; id <= Tile.NUMBER_OF_DIFFERENT_TILES; id++){
+			mTiles.add(new Tile(id));
+			mTiles.add(new Tile(id));
+			mTiles.add(new Tile(id));
+			mTiles.add(new Tile(id));
 		}
 		
 		//mark the red dora fives (1 in man, 2 in pin, 1 in sou)

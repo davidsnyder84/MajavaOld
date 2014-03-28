@@ -878,10 +878,10 @@ public class Player {
 	
 	
 	public static char findKamichaOf(char seat){
-		if (seat == SEAT_EAST)
-			return SEAT_NORTH;
-		else
-			return SEAT_WINDS.charAt(SEAT_WINDS.indexOf(seat) - 1);
+		if (SEAT_WINDS.indexOf(seat) == -1) return SEAT_UNDECIDED;
+		
+		if (seat == SEAT_EAST) return SEAT_NORTH;
+		else return SEAT_WINDS.charAt(SEAT_WINDS.indexOf(seat) - 1);
 	}
 	
 	
