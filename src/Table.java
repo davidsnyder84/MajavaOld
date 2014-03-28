@@ -149,25 +149,14 @@ public class Table {
 		mReaction = no reaction;
 		
 		//handle player turns here
-	 	if (it is p1's turn && game is not over)
-	 		do p1's turn
-	 	
-	 	if (it is p2's turn && no calls were made && game is not over)
-	 		do p2's turn
-	 		
-	 	if (it is p3's turn && no calls were made && game is not over)
-	 		do p3's turn
-	 		
-	 	if (it is p4's turn && no calls were made && game is not over)
-	 		do p4's turn
+	 	if (it is p1's turn && game is not over): do p1's turn
+	 	if (it is p2's turn && no calls were made && game is not over): do p2's turn
+	 	if (it is p3's turn && no calls were made && game is not over): do p3's turn
+	 	if (it is p4's turn && no calls were made && game is not over): do p4's turn
 
 
 	 	//handle reactions here
-	 	if (reaction)
-	 		check who reacted
-	 		handle the reaction
-	 		whoseTurn = whoever reacted
-	 	end if
+	 	if (reaction): handleReaction
 	end while
 	
 	display endgame result
@@ -181,7 +170,7 @@ public class Table {
 		
 
 		//------------------------------------------------DEBUG INFO
-		mWall.loadDebugWall();
+		//mWall.loadDebugWall();
 		System.out.println(mWall.toString() + "\n\n\n");
 		//------------------------------------------------DEBUG INFO
 		
@@ -241,6 +230,7 @@ public class Table {
 		}
 		
 		
+		//display endgame result
 		displayGameResult();
 		
 	}

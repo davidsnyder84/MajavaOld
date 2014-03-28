@@ -80,6 +80,7 @@ short todos:
 **********E Player called the tile (M9)! Chi!!!**********
 *********************************************************
 
+make sure you can only chi from your shimocha
 
 
 

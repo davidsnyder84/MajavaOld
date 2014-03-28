@@ -21,12 +21,83 @@ public class MajaPlay {
 		//subListPlay();
 		
 		
-		testMeldMaking();
+		//testMeldMaking();
 		
+		
+		//strToIdTest();
+		
+		//nextTileTest();
+		
+		sleepTest();
 		
 		
 		System.out.println();
 	}
+	
+
+	public static void sleepTest(){
+		
+		final int SLEEP_AMOUNT = 1000;
+		
+		System.out.println("Hello sir!");
+		try {Thread.sleep(SLEEP_AMOUNT);} 
+		catch (InterruptedException e) {}
+		
+		System.out.println("I am");
+		try {Thread.sleep(SLEEP_AMOUNT);}
+		catch (InterruptedException e) {}
+		
+		System.out.println("very");
+		try {Thread.sleep(SLEEP_AMOUNT);}
+		catch (InterruptedException e) {}
+		
+		System.out.println("very...");
+		try {Thread.sleep(SLEEP_AMOUNT);}
+		catch (InterruptedException e) {}
+		
+		System.out.println("sleepy!");
+		
+		
+	}
+	
+	
+	
+
+	public static void nextTileTest(){
+		
+		ArrayList<Tile> tiles = new ArrayList<Tile>(10);
+
+		tiles.add(new Tile("B2"));
+		tiles.add(new Tile("C6"));
+		tiles.add(new Tile("C9"));
+		tiles.add(new Tile("M1"));
+		tiles.add(new Tile("M9"));
+		tiles.add(new Tile("DG"));
+		tiles.add(new Tile("DR"));
+		tiles.add(new Tile("WN"));
+		tiles.add(new Tile("WE"));
+		tiles.add(new Tile("WW"));
+		
+		for (Tile t: tiles)
+			System.out.println(t.toStringAllInfo() + "\n");
+	}
+	
+	
+	
+	public static void strToIdTest(){
+		System.out.println("ID of M2: " + Tile.idOfStringRepr("M2"));
+		System.out.println("ID of M9: " + Tile.idOfStringRepr("M9"));
+		System.out.println("ID of M1: " + Tile.idOfStringRepr("M1"));
+		System.out.println("ID of C9: " + Tile.idOfStringRepr("C9"));
+		System.out.println("ID of WE: " + Tile.idOfStringRepr("WE"));
+		System.out.println("ID of WN: " + Tile.idOfStringRepr("WN"));
+		System.out.println("ID of DG: " + Tile.idOfStringRepr("DG"));
+		System.out.println("ID of DR: " + Tile.idOfStringRepr("DR"));
+		System.out.println("ID of BO: " + Tile.idOfStringRepr("BO"));
+	}
+	
+	
+	
 
 	public static void testMeldMaking(){
 		

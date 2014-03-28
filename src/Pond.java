@@ -3,11 +3,19 @@ import java.util.ArrayList;
 
 public class Pond {
 	
+	
+	public static final int SIZE_DEFAULT = 30;
+	
+	
+	
+	
 	private ArrayList<Tile> mTiles;
 	
 	
+	
+	
 	public Pond(){
-		mTiles = new ArrayList<Tile>(0);
+		mTiles = new ArrayList<Tile>(SIZE_DEFAULT);
 	}
 	
 	
@@ -26,7 +34,7 @@ public class Pond {
 	
 	
 	
-	
+	@Override
 	public String toString()
 	{
 		

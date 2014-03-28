@@ -175,15 +175,15 @@ public class Meld {
 	public void __formMeld(ArrayList<Tile> handTiles, Tile newTile, int meldType){
 		
 		//set the owner's seat wind
-		mOwnerSeatWind = handTiles.get(0).getOwner();
+		mOwnerSeatWind = handTiles.get(0).getOrignalOwner();
 		//check who is responsible for discarding the new tile
-		mPlayerResponsible = newTile.getOwner();
+		mPlayerResponsible = newTile.getOrignalOwner();
 		//set the new tile as the tile that completed the meld
 		mCompletedTile = newTile;
 		
 		//check if the new tile came from someone other than the owner
 		//closed = false if the tile came from someone else
-		if (newTile.getOwner() == mOwnerSeatWind)
+		if (mPlayerResponsible == mOwnerSeatWind)
 			mClosed = true;
 		else
 			mClosed = false;
