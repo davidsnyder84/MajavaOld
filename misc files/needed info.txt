@@ -1,0 +1,20 @@
+
+for endgame point calculation, hand needs to know:
+	round wind
+	list of dora
+	seat wind
+	
+for midgame scanning for yaku, hand needs to know:
+	round wind
+	seat wind
+	
+	
+things a "round info" class could contain
+	round wind
+	round type (hanchan, etc)
+	list of dora
+	
+	points
+
+
+

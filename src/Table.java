@@ -191,10 +191,7 @@ public class Table {
 		
 		//deal and sort hands
 		mWall.dealHands(p1, p2, p3, p4);
-		p1.sortHand();
-		p2.sortHand();
-		p3.sortHand();
-		p4.sortHand();
+		p1.sortHand(); p2.sortHand(); p3.sortHand(); p4.sortHand();
 		
 
 		//------------------------------------------------DEBUG INFO
@@ -254,53 +251,17 @@ public class Table {
 	
 	/*
 	method: handleReaction
-	handles a player's turn, and the other players' reactions to the player's turn
+	handles a call made on a discarded tile
 	
-	input: p is the player whose turn it is
-	
-	returns the tile that the player discarded
+	input: t is the discarded tile
 	
 	
-	if (player needs to draw)
-		take tile from wall or dead wall depending on what player needs
-		if (there were no tiles left in the wall to take)
-			gameIsOver = true, result = washout
-			return null
-		else
-			add the tile to the player's hand
-		end if
-	end if
+	callingPlayer = figure out who made the call (decide priority if >1 calls)
+	handle the call
+	show the result of the call
 	
- 	discardedTile = player's chosen discard
- 	display what the player discarded
- 	get the other players' reactions to the discarded tile
- 	(the players will "make a call", the call won't actually be handled yet)
- 	
-	whoseTurn++
-	return discardedTile
-	
-	
-	
-	
-	
-	
-	
-	can 2 players call pon?: no, not enough tiles
-	can 2 players call kan?: no, not enough tiles
-	can 2 players call chi?: no, only shimocha can chi
-	1 chi, 1 pon?: yes
-	1 chi, 1 kan?: yes
-	
-	can 2 players call ron?: yes
-	can 3 players call ron?: yes
-	1 chi, 1 ron?: yes
-	1 chi, 2 ron?: yes
-	1 chi, 1 pon, 1 ron?: yes
-	
-	ron > pon/kan > chi
-	pon/kan > chi
-	
-	2 rons: decide by closest seat order
+	whoseTurn = the player who made the call's turn
+	reaction = NO_REACTION
 	*/
 	private void handleReaction(Tile discardedTile){
 		
@@ -354,6 +315,27 @@ public class Table {
 	
 	
 	
+	
+	/*
+	method: whoCalled
+	decides who gets to call the tile
+	
+	
+	check if only one player tried to call
+	if (only one player made a call)
+		return that player
+	else (>1 player made a call)
+		return the player with greater priority
+		(ron > pon/kan > chi, break ron tie by seat order)
+	end if
+	
+	callingPlayer = figure out who made the call (decide priority if >1 calls)
+	handle the call
+	show the result of the call
+	
+	whoseTurn = the player who made the call's turn
+	reaction = NO_REACTION
+	*/
 	public Player whoCalled(){
 		
 		Player callingPlayer = null;
@@ -511,7 +493,7 @@ public class Table {
 		int drawNeeded = Player.DRAW_NONE;
 		Tile drawnTile = null;
 		
-		//handle drawing a tile
+		//////handle drawing a tile
 		drawNeeded = p.checkDrawNeeded();
 		//if the player needs to draw a tile, draw a tile
 		if (drawNeeded != Player.DRAW_NONE)
@@ -536,15 +518,15 @@ public class Table {
 			}
 		}
 		
-		//get player's discard
+		//////get player's discard (ankans, riichi, and such are handled inside here)
 		discardedTile = p.takeTurn();
-		System.out.println("\n\n\tTiles left: " + mWall.tilesLeftInWall());
+		System.out.println("\n\n\tTiles left: " + mWall.getNumTilesLeftInWall());
 		//show the discarded tile, and the discarder's pond
 		System.out.println("\t" + p.getSeatWind() + " Player's discard: " + discardedTile.toString());
 		p.showPond();
 		
 		
-		//get reactions from the other players
+		//////get reactions from the other players
 		mReaction += p.getShimocha().reactToDiscard(discardedTile);
 		mReaction += p.getToimen().reactToDiscard(discardedTile);
 		mReaction += p.getKamicha().reactToDiscard(discardedTile);
@@ -639,6 +621,11 @@ public class Table {
 	}
 	
 	
+	
+	/*
+	method: displayGameResult
+	displays the end game result
+	*/
 	public void displayGameResult(){
 
 		 if (mGameIsOver)

@@ -1,0 +1,51 @@
+
+make discard-only game to washout (done)
+
+add manual meld-checking (skip)
+add automatic meld-checking (done)
+
+present player with potential calls, ask their choice
+add meld-making
+
+add ability to win from melds
+
+
+add point calculation
+add manual han/yaku checking
+add automatic han/yaku checking
+
+
+give CPU AI ability to call/make melds
+give CPU AI ability to make "smart" discards
+
+
+
+
+
+
+
+CPU ideas
+	
+	always go for toitoi
+		never discard pairs, only single tiles
+		always call pons/kans when possible
+
+
+
+
+
+specifics
+
+	add ablility to win from Kokushi/Chiitoitsu
+	chankan?
+	nagashi mangan
+
+
+
+
+
+
+
+
+
+

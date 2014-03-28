@@ -4,15 +4,19 @@ import java.util.ArrayList;
 
 
 /*
- Class: Tile
- 
- data:
- 	id - 1 to 34
- 	mSuit - man, pin, sou,   wind, dragon
- 	mFace - 1-9, ESWN, white/green/red
- 
- methods:
+Class: Tile
+represents a single tile
+
+data:
+	mID - number ID of the tile, 1 to 34, same ID means same tile (ie, M2 has ID 2)
+	mSuit - man, pin, sou, wind, dragon (M,C,B,W,D)
+	mFace - 1-9, ESWN, white/green/red
+	mRedDora - if true, indicates that the tile is a Red Dora 5 tile 
 	
+	mDiscardedBy - holds the wind of the player who discarded the tile. NONE if no discard.
+	stringRepr - string representation of the suit and face. stored for convenience.
+	
+methods:
 	mutators:
  	setCardName
 	setCardEffect
@@ -38,7 +42,7 @@ public class Tile implements Comparable<Tile> {
 	public static final int DEFAULT_ID = 0;
 	public static final String CHAR_FOR_RED_DORA = "%";
 	
-	public static final char NO_DISCARD = 'N';
+	public static final char DISCARDER_NONE = 'N';
 
 	//private static final String STR_REPS_BY_ID_SPACES = "   M1 M2 M3 M4 M5 M6 M7 M8 M9 C1 C2 C3 C4 C5 C6 C7 C8 C9 B1 B2 B3 B4 B5 B6 B7 B8 B9 WE WS WN WW DW DG DR ";
 	//private static final String STR_REPS_BY_ID_SPACES = "M1 M2 M3 M4 M5 M6 M7 M8 M9 C1 C2 C3 C4 C5 C6 C7 C8 C9 B1 B2 B3 B4 B5 B6 B7 B8 B9 WE WS WN WW DW DG DR ";
@@ -72,7 +76,7 @@ public class Tile implements Comparable<Tile> {
 		mSuit = stringRepr.charAt(0);
 		mFace = stringRepr.charAt(1);
 
-		mDiscardedBy = NO_DISCARD;
+		mDiscardedBy = DISCARDER_NONE;
 		mRedDora = isRed;
 	}
 	//1-arg Constructor, takes tile ID
@@ -87,7 +91,7 @@ public class Tile implements Comparable<Tile> {
 		
 		//stringRepr = Character.toString(mSuit) + Character.toString(mFace);
 		stringRepr = stringReprOfId(mID);
-		mDiscardedBy = NO_DISCARD;
+		mDiscardedBy = DISCARDER_NONE;
 		mRedDora = false;
 	}
 	public Tile(char newSuit, char newFace){

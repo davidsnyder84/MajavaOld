@@ -1,6 +1,29 @@
 import java.util.ArrayList;
 
 
+/*
+Class: Meld
+represents a meld of tiles (chi, pon, kan, pair)
+
+data:
+	mTiles - list of tiles in the meld
+	mMeldType - the type of meld (chi, pon, kan, pair)
+	mClosed = if the meld is a closed meld, this will be true, false otherwise
+	mFu - the fu value of the meld
+	
+	mPlayerSeatWind - the seat wind of the owner of the meld (needed for checking fu of wind pairs)
+	
+methods:
+	constructors:
+
+	mutators:
+ 	
+ 	accessors:
+	
+	other:
+	
+	private:
+*/
 public class Meld {
 
 	public static final int MELD_TYPE_UNKNOWN = 0;
@@ -9,6 +32,9 @@ public class Meld {
 	public static final int MELD_TYPE_KAN = 3;
 	public static final int MELD_TYPE_PAIR = 5;
 	public static final int MELD_TYPE_GAY = 6;
+	public static final int MELD_TYPE_CHI_L = 11;
+	public static final int MELD_TYPE_CHI_M = 12;
+	public static final int MELD_TYPE_CHI_H = 13;
 
 	public static final boolean DEFAULT_CLOSED_STATUS = true;
 	public static final int DEFAULT_MELD_TYPE = MELD_TYPE_UNKNOWN;

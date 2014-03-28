@@ -1,6 +1,27 @@
 import java.util.ArrayList;
 
+/*
+Class: Player
+represents a single player in the game
 
+data:
+	mTiles - list of tiles in the dead wall
+	mNumKansMade - the number of kans made (affects kan draws and dora indicators)
+	
+methods:
+	constructors:
+	1-arg - takes a list of exactly 14 tiles, makes the dead wall out of those tiles
+
+	mutators:
+ 	takeTile - removes and returns a tile from the end of the dead wall (for a kan draw)
+ 	
+ 	accessors:
+ 	getSize - returns the number of tiles in the dead wall
+ 	getNumKansMade - returns the number of kans made
+	getDoraIndicators - returns a list of all dora indicators (as a list of tiles)
+	
+	other:
+*/
 public class DeadWall {
 	
 	
@@ -70,7 +91,7 @@ public class DeadWall {
 	
 	
 	
-	
+	//takes a tile from the end of the dead wall (for a kan draw)
 	public Tile takeTile(){
 		
 		//the tile will be drawn from the very end of the dead wall
@@ -93,7 +114,7 @@ public class DeadWall {
 	
 	
 	
-	public int numKansMade(){
+	public int getNumKansMade(){
 		//return MAX_SIZE_DEAD_WALL - mTiles.size();
 		return mNumKansMade;
 	}

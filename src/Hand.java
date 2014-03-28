@@ -75,9 +75,12 @@ public class Hand {
 		return mTiles.size();
 	}
 	
-	
 	public boolean isClosed(){
 		return mClosed;
+	}
+	
+	public int getNumMeldsMade(){
+		return mNumMeldsMade;
 	}
 	
 	
@@ -154,6 +157,161 @@ public class Hand {
 			return false;
 	
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//returns a list of IDs for all hot tiles for the hand
+	public ArrayList<Integer> findAllHotTiles(){
+
+		ArrayList<Integer> allHotTileIds = new ArrayList<Integer>(16);
+		ArrayList<Integer> singleTileHotTiles = null;
+		
+		//get hot tiles for each tile in the hand
+		for (Tile t: mTiles)
+		{
+			singleTileHotTiles = t.findHotTiles();
+			for (Integer i: singleTileHotTiles)
+				if (allHotTileIds.contains(i) == false)
+					allHotTileIds.add(i);
+		}
+		
+		//return list of integer IDs
+		return allHotTileIds;
+	}
+	
+	
+	
+
+	
+	public boolean canChiType(Tile t, int chiType){
+		
+		boolean can = false;
+		boolean impossible = false;
+
+		ArrayList<Tile> tempMeldList = null;
+		
+		
+		//can't chi on a wind or dragon
+		if (t.getSuit() == Tile.SUIT_WIND || t.getSuit() == Tile.SUIT_DRAGON)
+			return false;
+		
+		
+		
+		Tile partner1 = null, partner2 = null;
+		int desired1 = 0, desired2 = 0;
+		int tID = t.getId();
+		
+		//decide who the partners should be, based on chi type
+		if (chiType == Meld.MELD_TYPE_CHI_L)
+		{
+			impossible = (t.getFace() == '8' || t.getFace() == '9');
+			desired1 = tID + 1;
+			desired2 = tID + 2;
+		}
+		if (chiType == Meld.MELD_TYPE_CHI_M)
+		{
+			impossible = (t.getFace() == '1' || t.getFace() == '9');
+			desired1 = tID - 1;
+			desired2 = tID + 1;
+		}
+		if (chiType == Meld.MELD_TYPE_CHI_H)
+		{
+			impossible = (t.getFace() == '1' || t.getFace() == '2');
+			desired1 = tID - 2;
+			desired2 = tID - 1;
+		}
+		
+		//return false if a chi cannot be made with the tile 
+		if (impossible)
+			return false;
+		
+		
+		//search the hand for the desired chi partners
+		for (Tile handTile: mTiles)
+		{
+			if (handTile.getId() == desired1)
+				partner1 = handTile;
+			else if (handTile.getId() == desired2)
+				partner2 = handTile;
+		}
+		
+		
+		if (partner1 != null && partner2 != null)
+		{
+			//add the tiles to a temp meld list
+			tempMeldList = new ArrayList<Tile>(3);
+			tempMeldList.add(t);
+			tempMeldList.add(partner1);
+			tempMeldList.add(partner2);
+			//sort the meld list
+			GenSort<Tile> sorter = new GenSort<Tile>(tempMeldList);
+			sorter.sort();
+			
+			//return true, the player can chi
+			can = true;
+		}
+		
+		return can;
+	}
+	
+	
+	//done
+	public boolean canChiL(Tile t){
+		return canChiType(t, Meld.MELD_TYPE_CHI_L);
+	}
+	public boolean canChiM(Tile t){
+		return canChiType(t, Meld.MELD_TYPE_CHI_M);
+	}
+	public boolean canChiH(Tile t){
+		return canChiType(t, Meld.MELD_TYPE_CHI_H);
+	}
+	
+	//done
+	public boolean canPon(Tile t){
+		boolean can = false;
+		
+		final int NUM_TILES_NEEDED_TO_PON = 2;
+		int count = howManyOfThisTileInHand(t);
+		if (count >= NUM_TILES_NEEDED_TO_PON)
+			can = true;
+		
+		return can;
+	}
+	
+	//done
+	public boolean canKan(Tile t){
+		boolean can = false;
+		
+		final int NUM_TILES_NEEDED_TO_KAN = 3;
+		int count = howManyOfThisTileInHand(t);
+		if (count >= NUM_TILES_NEEDED_TO_KAN)
+			can = true;
+		
+		return can;
+	}
+	
+	//returns the number of copies of this tiles that are already in the hand
+	private int howManyOfThisTileInHand(Tile t){
+		
+		int count = 0;
+		for (Tile handTile: mTiles)
+			if (handTile.getId() == t.getId())
+				count++;
+		
+		return count;
+	}
+	
+	public boolean canRon(Tile t){
+		return false;
+	}
+	
+	
 	
 	
 	

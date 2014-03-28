@@ -1,6 +1,80 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
+/*
+Class: Player
+represents a single player in the game
 
+data:
+	mHand - the player's hand (melds are also in here)
+	mPond - the player's pond of discards
+	
+	mSeatWind - the player's seat wind (ESWN)
+	mController - who is controlling the player (human or computer)
+	
+	mCallStatus - the player's call (reaction) to the most recent disacrd (chi, pon, kan, ron, or none)
+	mDrawNeeded - the type of draw the player needs for their next turn (normal draw, kan draw, or no draw) 
+	
+	mHoldingRinshanTile - is true if the player is holding a rinshan tile that they drew this turn, false otherwise
+	mRiichiStatus - is true if the player has declared riichi, false if not
+	mFuritenStatus - is true if the player is in furiten status, false if not
+	
+	linkShimocha - a link to the player's shimocha (player to the right)
+	linkToimen - a link to the player's toimen (player directly across)
+	linkKamicha - a link to the player's kamicha (player to the left)
+	
+
+methods:
+	constructors:
+	2-arg - takes seat and controller, initializes wall and pond, and status info
+	1-arg - takes seat, sets default controller
+	no-arg - sets default seat and controller
+	
+	
+	mutators:
+	setController - sets the player's controller
+ 	setSeatWind - sets the player's seat wind
+	setShimocha, setToimen, setKamicha, setNeighbors - set links to the player's neighbors
+ 	
+ 	accessors:
+ 	getHandSize - returns hand size
+	getSeatWind - return seat wind
+	getPlayerNumber - returns (1,2,3,4) corresponding to (E,S,W,N)
+	getKamicha, getToimen, getShimocha - returns links to the player's neighbors
+	
+	checkRiichi - returns true if the player is in riichi status
+	checkFuriten - returns true if the player is in furiten status
+	checkRinshan - returns true if the player is holding a rinshan tile that they drew this turn
+	
+	called - returns true if the player has called a discarded tile
+	checkCallStatus - returns the specific type of call the player has made
+	checkDrawNeeded - returns the type of draw the player needs (normal draw, kan draw, or none)
+
+	
+	
+	private:
+	discardTile - gets a player's discard choice, discards it, and returns the tile
+	askSelfForDiscard- asks a player which tile they want to discard, returns their choice
+	__askDiscardHuman - asks a human player which tile they want to discard, returns their choice
+	__askDiscardCom - asks a computer player which tile they want to discard, returns their choice
+	
+	askSelfForReaction - asks the player how they want to react to the discarded tile
+	__askReactionHuman - asks a human player how they want to react to the discarded tile
+	_askReactionCom - asks a computer player how they want to react to the discarded tile
+	
+	putTileInPond - adds a tile to the player's pond
+	ableToCallTile - checks if the player is able to make a call on Tile t
+	
+	
+	other:
+	addTileToHand - add a tile to the player's hand
+	takeTurn - walks the player through their discard turn, returns their discard
+	reactToDiscard - shows a player a discarded tile, and gets their reaction (call or no call) to it
+	
+	showHand - display the player's hand
+	showPond - display the player's pond
+	getPondAsString - get the player's pond as a string
+*/
 public class Player {
 	
 	public static final char SEAT_UNDECIDED = 'U';
@@ -21,13 +95,18 @@ public class Player {
 	public static final int CALLED_PON = 2;
 	public static final int CALLED_KAN = 3;
 	public static final int CALLED_RON = 5;
+	public static final int CALLED_CHI_L = 11;
+	public static final int CALLED_CHI_M = 12;
+	public static final int CALLED_CHI_H = 13;
 	public static final int CALLED_GAY = 6;
 	
 	
 	public static final int DRAW_NONE = 0;
 	public static final int DRAW_NORMAL = 1;
 	public static final int DRAW_KAN = 3;
-	
+
+	public static final Tile WANT_SOMETHING = null;
+	public static final int WANT_KAN_DRAW = 20;
 	
 	
 	
@@ -44,6 +123,8 @@ public class Player {
 	private boolean mRiichiStatus;
 	private boolean mFuritenStatus;
 	
+	//private boolean mTenpai;
+	//private ArrayList<Tile> mWaits;
 
 	private Player linkShimocha;
 	private Player linkToimen;
@@ -52,21 +133,11 @@ public class Player {
 	
 	
 	public Player(char seat, char controller){
-		mHand = new Hand();
-		mPond = new Pond();
 		
 		mSeatWind = seat;
-		/*
-		playerNumber = 0;
-		if (mSeatWind == SEAT_EAST)
-			playerNumber = 1;
-		if (mSeatWind == SEAT_SOUTH)
-			playerNumber = 2;
-		if (mSeatWind == SEAT_WEST)
-			playerNumber = 3;
-		if (mSeatWind == SEAT_NORTH)
-			playerNumber = 4;
-		*/
+		
+		mHand = new Hand(mSeatWind);
+		mPond = new Pond();
 		
 		mCallStatus = CALLED_NONE;
 		
@@ -86,8 +157,21 @@ public class Player {
 	
 	
 	
+	
+	/*
+	method: takeTurn
+	walks the player through their discard turn
+	
+	returns their discarded tile
+	
+	
+	discardedTile = discard a tile
+	set drawNeeded = normal draw for next turn
+	
+	put discardedTile in the pond
+	return discardedTile
+	*/
 	public Tile takeTurn(){
-		
 		
 		Tile discardedTile;
 		
@@ -99,18 +183,32 @@ public class Player {
 		//put the tile in the pond
 		putTileInPond(discardedTile);
 		
-		//return
+		//return the discarded tile
 		return discardedTile;
 	}
 	
 	
-	
+	//adds a tile to the pond
 	private void putTileInPond(Tile t){
 		mPond.addTile(t);
 	}
 	
 	
 	
+	
+	/*
+	private method: discardTile
+	gets a player's discard choice, discards it, and returns the tile
+	
+	returns the player's discarded tile
+	
+	
+	chosenDiscard = ask self which tile to discard
+	discardedTile = remove the chosen tile from the hand
+	
+	assign player wind as discarder attribute on discarded tile
+	return discardedTile
+	*/
 	private Tile discardTile(){
 		
 		Tile discardedTile;
@@ -132,6 +230,21 @@ public class Player {
 	}
 	
 	
+	
+	/*
+	private method: askSelfForDiscard
+	asks a player which tile they want to discard, returns their choice
+	
+	returns the index of the tile the player wants to discard
+	
+	
+	if (controller == human)
+		chosenDiscard = ask human
+	else if (controller == computer)
+		chosenDiscard = ask computer
+	end if
+	return chosenDiscard
+	*/
 	private int askSelfForDiscard()
 	{
 		int chosenDiscard;
@@ -140,13 +253,23 @@ public class Player {
 			chosenDiscard = __askDiscardHuman();
 		else
 			chosenDiscard = __askDiscardCom();
-
 		
 		return chosenDiscard;
 	}
 	
 	
 	
+	
+	/*
+	private method: __askDiscardHuman
+	asks a human player which tile they want to discard, returns their choice
+	
+	returns the index of the tile the player wants to discard
+	
+	
+	chosenDiscard = ask user through keyboard
+	return chosenDiscard
+	*/
 	private int __askDiscardHuman(){
 		
 		int chosenDiscard = 0;
@@ -167,6 +290,17 @@ public class Player {
 	}
 	
 	
+	
+	/*
+	private method: __askDiscardCom
+	asks a computer player which tile they want to discard, returns their choice
+	
+	returns the index of the tile the player wants to discard
+	
+	
+	chosenDiscard = the last tile in the player's hand
+	return chosenDiscard
+	*/
 	private int __askDiscardCom(){
 		
 		int chosenDiscard;
@@ -180,7 +314,13 @@ public class Player {
 	
 	
 	
+	/*
+	method: addTileToHand
+	receives a tile, adds the tile to the player's hand
 	
+	add the tile to the player's hand
+	set drawNeeded = none (since the player has just drawn)
+	*/
 	public void addTileToHand(Tile t){
 		
 		//add the tile to the hand
@@ -199,22 +339,27 @@ public class Player {
 	
 	
 	/*
-	 method: reactToDiscard
-	 shows a player a tile, and gets their reaction (call or no call) for it
-	 
-	 input: t is the tile that was just discarded, and the player has a chance to react to it
-	 
-	 returns the type of call the player wants to make on the tile (none, chi, pon, kan, ron)
-	 
-	 ask self for a reaction to the tile
-	 
-	 update call status
-	 update the type of draw needed for the player's next turn
-	 return call
+	method: reactToDiscard
+	shows a player a tile, and gets their reaction (call or no call) for it
+	
+	input: t is the tile that was just discarded, and the player has a chance to react to it
+	
+	returns the type of call the player wants to make on the tile (none, chi, pon, kan, ron)
+	
+	
+	call = none
+	if (the player is able to call the tile)
+		call = ask self for a reaction to the tile
+		update call status
+		update the type of draw needed for the player's next turn
+	end if
+	return call
 	*/
 	public int reactToDiscard(Tile t)
 	{
 		int call = CALLED_NONE;
+		if (ableToCallTile(t))
+			;
 		
 		//if able to call the tile, ask self for reaction
 		if (ableToCallTile(t))
@@ -237,13 +382,28 @@ public class Player {
 				mDrawNeeded = DRAW_KAN;
 		}
 		
-		
 		return call;
 	}
 	
 	
 	
 	
+	/*
+	private method: askSelfForReaction
+	asks the player how they want to react to the discarded tile
+	
+	input: t is the tile that was just discarded, and the player has a chance to react to it
+	
+	returns the type of call the player wants to make on the tile (none, chi, pon, kan, ron)
+	
+	
+	if (controller == human)
+		call = ask human
+	else if (controller == computer)
+		call = ask computer
+	end if
+	return call
+	*/
 	private int askSelfForReaction(Tile t)
 	{
 		int call = CALLED_NONE;
@@ -256,7 +416,23 @@ public class Player {
 		return call;
 	}
 	
-
+	
+	/*
+	private method: __askReactionHuman
+	asks a human player how they want to react to the discarded tile
+	
+	input: t is the tile that was just discarded, and the player has a chance to react to it
+	
+	returns the type of call the player wants to make on the tile (none, chi, pon, kan, ron)
+	
+	
+	if (controller == human)
+		call = ask human
+	else if (controller == computer)
+		call = ask computer
+	end if
+	return call
+	*/
 	private int __askReactionHuman(Tile t)
 	{
 		int call = CALLED_NONE;
@@ -270,7 +446,24 @@ public class Player {
 		return call;
 	}
 	
-	//ask com for their reaction (none by default)
+	
+	
+	/*
+	private method: __askReactionCom
+	asks a computer player how they want to react to the discarded tile
+	
+	input: t is the tile that was just discarded, and the player has a chance to react to it
+	
+	returns the type of call the player wants to make on the tile (none, chi, pon, kan, ron)
+	
+	
+	if (controller == human)
+		call = ask human
+	else if (controller == computer)
+		call = ask computer
+	end if
+	return call
+	*/
 	private int __askReactionCom(Tile t)
 	{
 		int call = CALLED_NONE;
@@ -279,12 +472,53 @@ public class Player {
 	
 	
 	
+	/*
+	private method: ableToCallTileBeta
+	checks if the player is able to make a call on Tile t
+	
+	input: t is the tile to check if the player can call
+	
+	returns true if the player can call the tile, false if not
+	
+	
+	return true
+	*/
 	private boolean ableToCallTile(Tile t){
-		return true;
+		
+		boolean ableToCall = false;
+		
+		
+		//check if tile t is a hot tile
+		ArrayList<Integer> hotList = mHand.findAllHotTiles();
+		
+		//if t is not a hot tile, return false
+		if (hotList.contains(t.getId()) == false)
+			return false;
+		
+		
+		//////At this point, we know t is a hot tile
+		//we need to check which melds it can be called for, if any
+		boolean canChiL, canChiM, canChiH, canPon, canKan = false, canRon;
+
+		//check if t can be called for a chi
+		canChiL = mHand.canChiL(t);
+		canChiM = mHand.canChiM(t);
+		canChiH = mHand.canChiH(t);
+
+		//check if t can be called for a pon/kan
+		canPon = mHand.canPon(t);
+		if (canPon)
+			canKan = mHand.canKan(t);
+		
+		//check if t can be called for a ron
+		canRon = mHand.canRon(t);
+		
+		
+		ableToCall = (canChiL || canChiM || canChiH || canPon || canKan || canRon);
+		
+		
+		return ableToCall;
 	}
-	
-	
-	
 	
 	
 	
@@ -366,6 +600,16 @@ public class Player {
 	}
 	
 	
+	
+	//mutator for seat wind
+	public boolean setSeatWind(char wind){
+		if (wind ==  SEAT_EAST || wind ==  SEAT_SOUTH || wind ==  SEAT_WEST || wind ==  SEAT_NORTH)
+			mSeatWind = wind;
+		else
+			return false;
+		
+		return true;
+	}
 	
 	//used to set the controller of the player after its creation
 	public boolean setController(char newController){

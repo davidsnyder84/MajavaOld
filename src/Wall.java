@@ -2,7 +2,36 @@ import java.util.ArrayList;
 
 import utility.GenSort;
 
+/*
+Class: Wall
+represents the wall of tiles used in the game
 
+data:
+	mTiles - list of tiles in the wall
+	mDeadWall - the dead wall is separated and stored here
+	
+	
+methods:
+	constructors:
+	no-arg - builds and initializes the wall
+
+	mutators:
+	dealHands - deals starting hands for each player
+	takeTile - removes a tile from the beginning of the wall and returns it
+	takeTileFromDeadWall - removes a tile from the end of the dead wall and returns it
+ 	
+ 	accessors:
+	isEmpty - returns true if the wall is empty (has no tiles left)
+	getNumTilesLeftInWall - returns the number of tiles left in the wall (not including dead wall)
+	getDoraIndicators - returns a list of dora indicators from the dead wall (as a list of tiles)
+	
+	other:
+	toString
+	
+	private:
+	initialize - builds, initializes, and shuffles the wall
+	makeDeadWall - make the dead wall out of the wall's last 14 tiles
+*/
 public class Wall {
 	
 
@@ -147,29 +176,7 @@ public class Wall {
 	
 	
 	
-	
-	//removes the last 14 tiles from the wall, and creates the dead wall with them
-	private void makeDeadWall()
-	{
-		ArrayList<Tile> deadWallTiles = new ArrayList<Tile>(DeadWall.MAX_SIZE_DEAD_WALL);
-		int startingPos = MAX_SIZE_WALL - DeadWall.MAX_SIZE_DEAD_WALL;
 
-		//remove the last 14 tiles in wall, create the dead wall with them
-		int i;
-		for (i = 0; i < DeadWall.MAX_SIZE_DEAD_WALL; i++)
-		{
-			//add a tile to the dead wall
-			deadWallTiles.add(mTiles.get(startingPos));
-			
-			//remove that tile from the wall
-			mTiles.remove(startingPos);
-		}
-		
-		//initialize the dead wall with the tiles
-		mDeadWall = new DeadWall(deadWallTiles);
-	}
-	
-	
 	//fills and shuffles the wall
 	private void initialize()
 	{
@@ -193,6 +200,30 @@ public class Wall {
 		GenSort<Tile> sorter = new GenSort<Tile>(mTiles);
 		//sorter.shuffle();
 	}
+	
+	
+	//removes the last 14 tiles from the wall, and creates the dead wall with them
+	private void makeDeadWall()
+	{
+		ArrayList<Tile> deadWallTiles = new ArrayList<Tile>(DeadWall.MAX_SIZE_DEAD_WALL);
+		int startingPos = MAX_SIZE_WALL - DeadWall.MAX_SIZE_DEAD_WALL;
+
+		//remove the last 14 tiles in wall, create the dead wall with them
+		int i;
+		for (i = 0; i < DeadWall.MAX_SIZE_DEAD_WALL; i++)
+		{
+			//add a tile to the dead wall
+			deadWallTiles.add(mTiles.get(startingPos));
+			
+			//remove that tile from the wall
+			mTiles.remove(startingPos);
+		}
+		
+		//initialize the dead wall with the tiles
+		mDeadWall = new DeadWall(deadWallTiles);
+	}
+	
+	
 	
 	
 	
@@ -253,14 +284,11 @@ public class Wall {
 	
 	//returns true if the wall is empty (has no tiles left)
 	public boolean isEmpty(){
-		if (tilesLeftInWall() == 0) 
-			return true;
-		else
-			return false;
+		return (getNumTilesLeftInWall() == 0);
 	}
 	
 	//returns the number of tiles left in the wall (not including dead wall)
-	public int tilesLeftInWall(){
+	public int getNumTilesLeftInWall(){
 		return mTiles.size();
 	}
 	
@@ -296,7 +324,7 @@ public class Wall {
 		
 		String dWallString = "DeadWall: " + mDeadWall.getSize() + "\n" + mDeadWall.toString();
 		
-		return ("Wall: " + tilesLeftInWall() + "\n" + wallString + "\n\n" + dWallString);
+		return ("Wall: " + getNumTilesLeftInWall() + "\n" + wallString + "\n\n" + dWallString);
 	}
 	
 	

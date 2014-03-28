@@ -33,7 +33,6 @@ public class Majava {
 			table.play();
 		}
 		
-		
 	}
 
 }

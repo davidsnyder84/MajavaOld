@@ -18,6 +18,12 @@ public class Pond {
 	
 	
 	
+	//returns true if the player has made a nagashi mangan in their pond
+	public boolean isNagashiMangan(){
+		return true;
+	}
+	
+	
 	
 	
 	
