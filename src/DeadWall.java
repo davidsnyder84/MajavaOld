@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 
 /*
 Class: DeadWall
@@ -55,7 +54,7 @@ public class DeadWall {
 	
 	
 	
-	private ArrayList<Tile> mTiles;
+	private TileList mTiles;
 	
 	private int mNumKansMade;
 	
@@ -64,7 +63,7 @@ public class DeadWall {
 	
 
 	//Constructor, takes a list of 14 tiles, makes it the dead wall
-	public DeadWall(ArrayList<Tile> tiles){
+	public DeadWall(TileList tiles){
 		
 		//assign the list of tiles to the dead wall
 		if (tiles.size() == 14)
@@ -105,9 +104,7 @@ public class DeadWall {
 	}
 	
 	//returns the number of tiles left in the dead wall
-	public int getSize(){
-		return mTiles.size();
-	}
+	public int getSize(){return mTiles.size();}
 	
 	
 	
@@ -129,25 +126,21 @@ public class DeadWall {
 	 
 	 return the list
 	*/
-	public ArrayList<Tile> getDoraIndicators(boolean getUraDora){
+	public TileList getDoraIndicators(boolean getUraDora){
 		
 		int size = mNumKansMade + 1;
 		if (getUraDora)
 			size *= 2;
-		ArrayList<Tile> indicators = new ArrayList<Tile>(size);
+		TileList indicators = new TileList(size);
 		
 		//add the first dora indicator
 		indicators.add(mTiles.get(POS_DORA_1));
 		
 		//add other indicators if kans have been made
-		if (mNumKansMade >= 1)
-			indicators.add(mTiles.get(POS_DORA_2));
-		if (mNumKansMade >= 2)
-			indicators.add(mTiles.get(POS_DORA_3));
-		if (mNumKansMade >= 3)
-			indicators.add(mTiles.get(POS_DORA_4));
-		if (mNumKansMade == 4)
-			indicators.add(mTiles.get(POS_DORA_5));
+		if (mNumKansMade >= 1) indicators.add(mTiles.get(POS_DORA_2));
+		if (mNumKansMade >= 2) indicators.add(mTiles.get(POS_DORA_3));
+		if (mNumKansMade >= 3) indicators.add(mTiles.get(POS_DORA_4));
+		if (mNumKansMade == 4) indicators.add(mTiles.get(POS_DORA_5));
 		
 		
 		//add ura dora indicators, if specified
@@ -157,22 +150,16 @@ public class DeadWall {
 			indicators.add(mTiles.get(POS_URADORA_1));
 
 			//add other ura indicators if kans have been made
-			if (mNumKansMade >= 1)
-				indicators.add(mTiles.get(POS_URADORA_2));
-			if (mNumKansMade >= 2)
-				indicators.add(mTiles.get(POS_URADORA_3));
-			if (mNumKansMade >= 3)
-				indicators.add(mTiles.get(POS_URADORA_4));
-			if (mNumKansMade == 4)
-				indicators.add(mTiles.get(POS_URADORA_5));
+			if (mNumKansMade >= 1) indicators.add(mTiles.get(POS_URADORA_2));
+			if (mNumKansMade >= 2) indicators.add(mTiles.get(POS_URADORA_3));
+			if (mNumKansMade >= 3) indicators.add(mTiles.get(POS_URADORA_4));
+			if (mNumKansMade == 4) indicators.add(mTiles.get(POS_URADORA_5));
 		}
 		
 		return indicators;
 	}
 	//Overloaded with no args, gets just normal dora (no ura)
-	public ArrayList<Tile> getDoraIndicators(){
-		return getDoraIndicators(false);
-	}
+	public TileList getDoraIndicators(){return getDoraIndicators(false);}
 	
 	
 	

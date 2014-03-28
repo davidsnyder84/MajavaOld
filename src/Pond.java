@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 
 
 public class Pond {
@@ -9,13 +8,13 @@ public class Pond {
 	
 	
 	
-	private ArrayList<Tile> mTiles;
+	private TileList mTiles;
 	
 	
 	
 	
 	public Pond(){
-		mTiles = new ArrayList<Tile>(SIZE_DEFAULT);
+		mTiles = new TileList(SIZE_DEFAULT);
 	}
 	
 	
@@ -44,6 +43,7 @@ public class Pond {
 		final int TILES_PER_LINE = 6;
 		for (i = 0; i < (mTiles.size() / TILES_PER_LINE) + 1; i++)
 		{
+			pondString += "\t";
 			for (j = 0; j < TILES_PER_LINE && (j + TILES_PER_LINE*i < mTiles.size()); j++)
 			{
 				pondString += mTiles.get(TILES_PER_LINE*i + j).toString() + " ";

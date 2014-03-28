@@ -96,7 +96,6 @@ public class MahList <T extends Comparable<T> > implements Iterable<T>{
 	
 	
 	
-	
 	/*
 	private method: subList
 	returns a sublist, as a MahList<T> type list from fromIndex (inclusive) to toIndex (exclusive)

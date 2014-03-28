@@ -65,7 +65,7 @@ public class MajaPlay {
 		
 		Hand h = new Hand(ownerSeat);
 		//Tile q = null;
-		ArrayList<Tile> waits = null;
+		TileList waits = null;
 
 		h.addTile(new Tile("M1"));	//1
 		h.addTile(new Tile("M9"));	//2
@@ -305,12 +305,12 @@ public class MajaPlay {
 
 		System.out.println("\nHot Tiles: ");
 		for (Integer i: hots)
-			System.out.print(Tile.stringReprOfId(i) + ", ");
+			System.out.print(Tile.repr_stringReprOfId(i) + ", ");
 		
 		
 		System.out.println("\n\nCallable Tiles: ");
 		for (Integer i: callables)
-			System.out.print(Tile.stringReprOfId(i) + ", ");
+			System.out.print(Tile.repr_stringReprOfId(i) + ", ");
 		
 	}
 	
@@ -342,15 +342,15 @@ public class MajaPlay {
 	
 	
 	public static void strToIdTest(){
-		System.out.println("ID of M2: " + Tile.idOfStringRepr("M2"));
-		System.out.println("ID of M9: " + Tile.idOfStringRepr("M9"));
-		System.out.println("ID of M1: " + Tile.idOfStringRepr("M1"));
-		System.out.println("ID of C9: " + Tile.idOfStringRepr("C9"));
-		System.out.println("ID of WE: " + Tile.idOfStringRepr("WE"));
-		System.out.println("ID of WN: " + Tile.idOfStringRepr("WN"));
-		System.out.println("ID of DG: " + Tile.idOfStringRepr("DG"));
-		System.out.println("ID of DR: " + Tile.idOfStringRepr("DR"));
-		System.out.println("ID of BO: " + Tile.idOfStringRepr("BO"));
+		System.out.println("ID of M2: " + Tile.repr_idOfStringRepr("M2"));
+		System.out.println("ID of M9: " + Tile.repr_idOfStringRepr("M9"));
+		System.out.println("ID of M1: " + Tile.repr_idOfStringRepr("M1"));
+		System.out.println("ID of C9: " + Tile.repr_idOfStringRepr("C9"));
+		System.out.println("ID of WE: " + Tile.repr_idOfStringRepr("WE"));
+		System.out.println("ID of WN: " + Tile.repr_idOfStringRepr("WN"));
+		System.out.println("ID of DG: " + Tile.repr_idOfStringRepr("DG"));
+		System.out.println("ID of DR: " + Tile.repr_idOfStringRepr("DR"));
+		System.out.println("ID of BO: " + Tile.repr_idOfStringRepr("BO"));
 	}
 	
 	

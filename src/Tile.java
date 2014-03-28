@@ -79,8 +79,6 @@ public class Tile implements Comparable<Tile> {
 	private char mSuit;
 	private char mFace;
 	
-	private String stringRepr;
-	
 	private char mOriginalOwner;
 	private boolean mRedDora;
 	
@@ -90,9 +88,8 @@ public class Tile implements Comparable<Tile> {
 	public Tile(int id, boolean isRed){
 		
 		mID = id;
-		stringRepr = stringReprOfId(mID);
-		mSuit = stringRepr.charAt(0);
-		mFace = stringRepr.charAt(1);
+		mSuit = repr_suitOfId(id);
+		mFace = repr_faceOfId(id);
 
 		mOriginalOwner = OWNER_NONE;
 		mRedDora = isRed;
@@ -103,11 +100,11 @@ public class Tile implements Comparable<Tile> {
 	}
 	//2-arg, takes string representation, and boolean red dora flag
 	public Tile(String suitfaceString, boolean isRed){
-		this(idOfStringRepr(suitfaceString), isRed);
+		this(repr_idOfStringRepr(suitfaceString), isRed);
 	}
 	//1-arg, takes string representation of tile
 	public Tile(String suitfaceString){
-		this(idOfStringRepr(suitfaceString.toUpperCase()));
+		this(repr_idOfStringRepr(suitfaceString.toUpperCase()));
 	}
 	//2-arg, takes char values of suit and face
 	public Tile(char suit, char face){
@@ -161,8 +158,7 @@ public class Tile implements Comparable<Tile> {
 		hotTileIds.add(mID);
 		
 		//add possible chi partners, if tile is not an honor tile
-		if (!isHonor())
-		{
+		if (!isHonor()){
 			if (mFace != '1' && mFace != '2') hotTileIds.add(mID - 2);
 			if (mFace != '1') hotTileIds.add(mID - 1);
 			if (mFace != '9') hotTileIds.add(mID + 1);
@@ -246,11 +242,10 @@ public class Tile implements Comparable<Tile> {
 	//string representaiton of tile's suit/face
 	@Override
 	public String toString(){
-		//return stringRepr;
 		if (mRedDora)
 			return (Character.toString(mSuit) + CHAR_FOR_RED_DORA); 
 		else
-			return stringReprOfId(mID);
+			return repr_stringReprOfId(mID);
 	}
 	
 	
@@ -276,7 +271,7 @@ public class Tile implements Comparable<Tile> {
 		tileString += "\tHot tiles: ";
 		ArrayList<Integer> hotTiles = findHotTiles();
 		for (Integer i: hotTiles)
-			tileString += stringReprOfId(i) + ", ";
+			tileString += repr_stringReprOfId(i) + ", ";
 		
 		tileString = tileString.substring(0, tileString.length() - 2);
 		return tileString;
@@ -288,37 +283,37 @@ public class Tile implements Comparable<Tile> {
 	
 	
 	
-	//takes an ID, returns the string representation of the suit/face of that ID
-	public static String stringReprOfId(int id){
+	//takes a tile ID, returns the string representation of that ID
+	public static String repr_stringReprOfId(int id){
 		return STR_REPS_BY_ID.substring(2*(id-1), 2*(id-1) + 2);
 	}
+	//takes a tile ID, returns the suit or face of that ID
+	public static char repr_suitOfId(int id){return STR_REPS_BY_ID.charAt(2*(id-1));}
+	public static char repr_faceOfId(int id){return STR_REPS_BY_ID.charAt(2*(id-1) + 1);}
+	
 	
 	//takes a string representation of a tile, returns the ID that tile would have
-	public static int idOfStringRepr(String strRep){
+	public static int repr_idOfStringRepr(String strRep){
 		int id = STR_REPS_BY_ID.indexOf(strRep);
-		if (id < 0)
-			return -1;
+		if (id < 0) return -1;
 		return (id / 2 + 1);
 	}
 	//overloaded to accept 2 characters instead of a string
-	public static int idOfStringRepr(char suit, char face){
-		return idOfStringRepr(Character.toString(suit) + Character.toString(face));
-	}
+	public static int repr_idOfStringRepr(char suit, char face){return repr_idOfStringRepr(Character.toString(suit) + Character.toString(face));}
 	
 	//returns a list of all Yaochuu tiles (terminal or honor)
-	public static ArrayList<Tile> listOfYaochuuTiles(){
+	public static TileList listOfYaochuuTiles(){
 		
-		ArrayList<Tile> listTYC = new ArrayList<Tile>(NUMBER_OF_YAOCHUU_TILES);
+//		TileList listTYC = new TileList(NUMBER_OF_YAOCHUU_TILES);
+//		listTYC.addMultiple(new Tile(1), new Tile(9), new Tile(10), new Tile(18), new Tile(19), new Tile(27), new Tile(28), new Tile(29), new Tile(30), new Tile(31), new Tile(32), new Tile(33), new Tile(34));
 		
 		//add terminal tiles
-		listTYC.add(new Tile("M1"));listTYC.add(new Tile("M9"));
-		listTYC.add(new Tile("C1"));listTYC.add(new Tile("C9"));
-		listTYC.add(new Tile("B1"));listTYC.add(new Tile("B9"));
-		
+//		listTYC.addMultiple(new Tile("M1"), new Tile("M9"), new Tile("C1"), new Tile("C9"), new Tile("B1"), new Tile("B9"));
 		//add honor tiles
-		for (int i = ID_FIRST_HONOR_TILE; i <= NUMBER_OF_DIFFERENT_TILES; i++) listTYC.add(new Tile(i));
+//		for (int i = ID_FIRST_HONOR_TILE; i <= NUMBER_OF_DIFFERENT_TILES; i++) listTYC.add(new Tile(i));
 		
-		return listTYC;
+//		return new TileList(new Tile(1), new Tile(9), new Tile(10), new Tile(18), new Tile(19), new Tile(27), new Tile(28), new Tile(29), new Tile(30), new Tile(31), new Tile(32), new Tile(33), new Tile(34));
+		return new TileList(1, 9, 10, 18, 19, 27, 28, 29, 30, 31, 32, 33, 34);
 	}
 	
 	

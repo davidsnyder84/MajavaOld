@@ -828,7 +828,7 @@ public class Player {
 	
 	//show pond
 	public void showPond(){
-		System.out.println(mSeatWind + " Player's pond " + mController + ":\n" + mPond.toString());
+		System.out.println("\t" + mSeatWind + " Player's pond " + mController + ":\n" + mPond.toString());
 	}
 	public String getPondAsString(){
 		return (mSeatWind + " Player's pond:\n" + mPond.toString());

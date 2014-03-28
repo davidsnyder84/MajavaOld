@@ -1,7 +1,5 @@
-import java.util.ArrayList;
-import java.util.Iterator;
 
-import utility.GenSort;
+import java.util.Iterator;
 
 
 /*
@@ -52,7 +50,7 @@ public class Meld implements Iterable<Tile>{
 	
 	
 	//list of tiles in the meld
-	private ArrayList<Tile> mTiles;
+	private TileList mTiles;
 	
 	private int mMeldType;
 	private boolean mClosed;
@@ -78,7 +76,7 @@ public class Meld implements Iterable<Tile>{
 	form the meld
 	fu = 0
 	*/
-	public Meld(ArrayList<Tile> handTiles, Tile newTile, int meldType){		
+	public Meld(TileList handTiles, Tile newTile, int meldType){		
 		
 		__formMeld(handTiles, newTile, meldType);
 		
@@ -86,10 +84,12 @@ public class Meld implements Iterable<Tile>{
 	}
 	//2-arg, takes list of tiles and meld type (used when making a meld only from hand tiles, so no "new" tile)
 	//passes (handtiles 0 to n-1, handtile n, and meld type)
-	public Meld(ArrayList<Tile> handTiles, int meldType){
-		this(new ArrayList<Tile>(handTiles.subList(0, handTiles.size() - 1)), handTiles.get(handTiles.size() - 1), meldType);
+	public Meld(TileList handTiles, int meldType){
+		this(handTiles.getAllExceptLast(), handTiles.getLast(), meldType);
 	}
 	public Meld(Meld other){
+		
+		mTiles = new TileList();
 		
 		for (Tile t: other.mTiles) mTiles.add(t);
 		mOwnerSeatWind = other.mOwnerSeatWind;
@@ -130,21 +130,20 @@ public class Meld implements Iterable<Tile>{
 	add the new tile to the meld
 	sort the meld if it is a chi
 	*/
-	public void __formMeld(ArrayList<Tile> handTiles, Tile newTile, int meldType){
+	public void __formMeld(TileList handTiles, Tile newTile, int meldType){
 		
 		//set the owner's seat wind
-		mOwnerSeatWind = handTiles.get(0).getOrignalOwner();
-		//check who is responsible for discarding the new tile
-		mPlayerResponsible = newTile.getOrignalOwner();
+		mOwnerSeatWind = handTiles.getFirst().getOrignalOwner();
+		
 		//set the new tile as the tile that completed the meld
 		mCompletedTile = newTile;
+		//check who is responsible for discarding the new tile
+		mPlayerResponsible = newTile.getOrignalOwner();
 		
 		//check if the new tile came from someone other than the owner
 		//closed = false if the tile came from someone else
-		if (mPlayerResponsible == mOwnerSeatWind)
-			mClosed = true;
-		else
-			mClosed = false;
+		mClosed = (mPlayerResponsible == mOwnerSeatWind);
+		
 		
 		//set meld type
 		mMeldType = meldType;
@@ -157,10 +156,7 @@ public class Meld implements Iterable<Tile>{
 		
 		//sort the meld if it is a chi
 		if (mMeldType == MELD_TYPE_CHI_L || mMeldType == MELD_TYPE_CHI_M || mMeldType == MELD_TYPE_CHI_H)
-		{
-			GenSort<Tile> sorter = new GenSort<Tile>(mTiles);
-			sorter.sort();
-		}
+			mTiles.sort();
 	}
 	
 	
@@ -194,12 +190,14 @@ public class Meld implements Iterable<Tile>{
 		return null;
 	}
 	//returns the first tile in the meld
-	public Tile getFirstTile(){
-		return mTiles.get(0);
-	}
+	public Tile getFirstTile(){return mTiles.getFirst();}
+	
+	//returns how many tiles are in the meld
+	public int getSize(){return mTiles.size();}
 	
 	
 	//toString
+	@Override
 	public String toString(){
 		
 		String meldString = "";

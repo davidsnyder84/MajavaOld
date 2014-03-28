@@ -94,6 +94,12 @@ public class TileList implements Iterable<Tile>{
 		this(DEFAULT_CAPACITY);
 	}
 	
+	//takes a list of integer ids, makes a list of tiles out of them
+	public TileList(int... ids){
+		this(ids.length);
+		for (int id: ids) mTiles.add(new Tile(id));
+	}
+	
 	
 	
 	
@@ -113,10 +119,10 @@ public class TileList implements Iterable<Tile>{
 	returns a new MahList object with the sublist as its list 
 	*/
 	public TileList subList(int fromIndex, int toIndex){
-		ArrayList<Tile> alSubList = new ArrayList<Tile>(mTiles.subList(fromIndex, toIndex));
-		return new TileList(alSubList);
+		return new TileList(new ArrayList<Tile>(mTiles.subList(fromIndex, toIndex)));
 	}
-	
+	//returns a sublist of the entire list, minus the last tile
+	public TileList getAllExceptLast(){return subList(0, mTiles.size() - 1);}
 	
 	
 	//returns the first tile in the list, returns null if the list is empty
@@ -129,6 +135,27 @@ public class TileList implements Iterable<Tile>{
 		if (mTiles.isEmpty()) return null;
 		return mTiles.get(mTiles.size() - 1);
 	}
+	
+	
+	//returns multiple tiles in the list, at the given indices
+	public TileList getMultiple(ArrayList<Integer> indices){
+		TileList holder = new TileList();
+		for (Integer index: indices)
+			if (index < mTiles.size() && index >= 0)
+				holder.add(mTiles.get(index));
+		
+		return holder;
+	}
+	public TileList getMultiple(MahList<Integer> indices){return getMultiple(indices.getArrayList());}
+	public TileList getMultiple(Integer... indices){return getMultiple(new MahList<Integer>(indices));}
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	//removes and returns the first tile in the list, returns null if the list is empty

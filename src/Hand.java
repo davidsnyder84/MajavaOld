@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import utility.GenSort;
 
 /*
 Class: Hand
@@ -58,7 +57,7 @@ public class Hand implements Iterable<Tile>{
 	
 	
 	
-	private ArrayList<Tile> mTiles;
+	private TileList mTiles;
 	private ArrayList<Meld> mMelds;
 	//is public right now for debug purposes, but it shouldn't be
 	final public HandChecker mChecker;
@@ -74,7 +73,7 @@ public class Hand implements Iterable<Tile>{
 	
 	//1-arg constructor, takes player's seat wind
 	public Hand(char playerWind){
-		mTiles = new ArrayList<Tile>(MAX_HAND_SIZE);
+		mTiles = new TileList(MAX_HAND_SIZE);
 		mMelds = new ArrayList<Meld>(MAX_NUM_MELDS);
 		
 		mNumMeldsMade = 0;
@@ -114,20 +113,12 @@ public class Hand implements Iterable<Tile>{
 	
 	
 	//adds a tile to the hand (cannot add more than max hand size)
-	public boolean addTile(Tile t)
-	{
-		if (mTiles.size() < MAX_HAND_SIZE - Meld.AVG_NUM_TILES_PER_MELD*mNumMeldsMade)
-		{
-			mTiles.add(t);
-			return true;
-		}
-		else
-			return false;
+	public boolean addTile(Tile t){
+		if (mTiles.size() < MAX_HAND_SIZE - Meld.AVG_NUM_TILES_PER_MELD*mNumMeldsMade) return(mTiles.add(t));
+		return false;
 	}
 	//overloaded for tileID, accepts integer tileID and adds a new tile with that ID to the hand (debug use)
-	public boolean addTile(int tileID){
-		return addTile(new Tile(tileID));
-	}
+	public boolean addTile(int tileID){return addTile(new Tile(tileID));}
 	
 	
 	
@@ -167,10 +158,7 @@ public class Hand implements Iterable<Tile>{
 	
 	
 	//sort the hand in ascending order
-	public void sortHand(){
-		GenSort<Tile> sorter = new GenSort<Tile>(mTiles);
-		sorter.sort();
-	}
+	public void sortHand(){mTiles.sort();}
 	
 
 	
@@ -245,9 +233,7 @@ public class Hand implements Iterable<Tile>{
 		ArrayList<Integer> partnerIndices = mChecker.getPartnerIndices(meldType);
 
 		//list of TILES, will hold the tiles coming from the hand that will be in the meld
-		ArrayList<Tile> tilesFromHand = new ArrayList<Tile>(4);
-		for (Integer index: partnerIndices)
-			tilesFromHand.add(mTiles.get(index));
+		TileList tilesFromHand = mTiles.getMultiple(partnerIndices);
 		
 		//candidateTile = the tile that will complete the meld
 		Tile candidateTile = mChecker.getCallCandidate();

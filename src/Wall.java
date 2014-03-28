@@ -1,6 +1,4 @@
-import java.util.ArrayList;
 
-import utility.GenSort;
 
 /*
 Class: Wall
@@ -38,10 +36,11 @@ public class Wall {
 	public static final int MAX_SIZE_WALL = 136;
 	public static final int FIRST_TILE_IN_WALL = 0;
 	
+	public static final boolean DEGBUG_SHUFFLE_WALL = Table.DEBUG_LOAD_DEBUG_WALL;
 	
 	
 	
-	private ArrayList<Tile> mTiles;
+	private TileList mTiles;
 	private DeadWall mDeadWall;
 	
 	
@@ -49,7 +48,7 @@ public class Wall {
 	
 	public Wall(){
 		
-		mTiles = new ArrayList<Tile>(MAX_SIZE_WALL);
+		mTiles = new TileList(MAX_SIZE_WALL);
 		
 		//fill and shuffle the wall
 		__initialize();
@@ -72,10 +71,10 @@ public class Wall {
 	*/
 	public void dealHands(Player p1, Player p2, Player p3, Player p4)
 	{
-		ArrayList<Tile> tilesE = new ArrayList<Tile>(Hand.MAX_HAND_SIZE);
-		ArrayList<Tile> tilesS = new ArrayList<Tile>(Hand.MAX_HAND_SIZE - 1);
-		ArrayList<Tile> tilesW = new ArrayList<Tile>(Hand.MAX_HAND_SIZE - 1);
-		ArrayList<Tile> tilesN = new ArrayList<Tile>(Hand.MAX_HAND_SIZE - 1);
+		TileList tilesE = new TileList(Hand.MAX_HAND_SIZE);
+		TileList tilesS = new TileList(Hand.MAX_HAND_SIZE - 1);
+		TileList tilesW = new TileList(Hand.MAX_HAND_SIZE - 1);
+		TileList tilesN = new TileList(Hand.MAX_HAND_SIZE - 1);
 		
 		int i, j;
 		//each player takes 4, 3 times
@@ -83,44 +82,44 @@ public class Wall {
 		{
 			//east takes 4
 			for (j = 0; j < 4; j++){
-				tilesE.add(mTiles.get(FIRST_TILE_IN_WALL));
-				mTiles.remove(FIRST_TILE_IN_WALL);
+				tilesE.add(mTiles.getFirst());
+				mTiles.removeFirst();
 			}
 			//south takes 4
 			for (j = 0; j < 4; j++){
-				tilesS.add(mTiles.get(FIRST_TILE_IN_WALL));
-				mTiles.remove(FIRST_TILE_IN_WALL);
+				tilesS.add(mTiles.getFirst());
+				mTiles.removeFirst();
 			}
 			//west takes 4
 			for (j = 0; j < 4; j++){
-				tilesW.add(mTiles.get(FIRST_TILE_IN_WALL));
-				mTiles.remove(FIRST_TILE_IN_WALL);
+				tilesW.add(mTiles.getFirst());
+				mTiles.removeFirst();
 			}
 			//north takes 4
 			for (j = 0; j < 4; j++){
-				tilesN.add(mTiles.get(FIRST_TILE_IN_WALL));
-				mTiles.remove(FIRST_TILE_IN_WALL);
+				tilesN.add(mTiles.getFirst());
+				mTiles.removeFirst();
 			}
 		}
 		
 		
 		//east takes 2
 		for (j = 0; j < 2; j++){
-			tilesE.add(mTiles.get(FIRST_TILE_IN_WALL));
-			mTiles.remove(FIRST_TILE_IN_WALL);
+			tilesE.add(mTiles.getFirst());
+			mTiles.removeFirst();
 		}
 		
 		//south takes 1
-		tilesS.add(mTiles.get(FIRST_TILE_IN_WALL));
-		mTiles.remove(FIRST_TILE_IN_WALL);
+		tilesS.add(mTiles.getFirst());
+		mTiles.removeFirst();
 		
 		//west takes 1
-		tilesW.add(mTiles.get(FIRST_TILE_IN_WALL));
-		mTiles.remove(FIRST_TILE_IN_WALL);
+		tilesW.add(mTiles.getFirst());
+		mTiles.removeFirst();
 		
 		//north takes 1
-		tilesN.add(mTiles.get(FIRST_TILE_IN_WALL));
-		mTiles.remove(FIRST_TILE_IN_WALL);
+		tilesN.add(mTiles.getFirst());
+		mTiles.removeFirst();
 		
 		
 		//add the tiles to the hands
@@ -180,8 +179,7 @@ public class Wall {
 		mTiles.get(((5-1) + 9*2) * 4).setRedDora();
 		
 		//shuffle the wall
-		GenSort<Tile> sorter = new GenSort<Tile>(mTiles);
-		sorter.shuffle();
+		mTiles.shuffle();
 	}
 	
 	
@@ -192,7 +190,7 @@ public class Wall {
 	*/
 	private void __makeDeadWall()
 	{
-		ArrayList<Tile> deadWallTiles = new ArrayList<Tile>(DeadWall.MAX_SIZE_DEAD_WALL);
+		TileList deadWallTiles = new TileList(DeadWall.MAX_SIZE_DEAD_WALL);
 		int startingPos = MAX_SIZE_WALL - DeadWall.MAX_SIZE_DEAD_WALL;
 
 		//remove the last 14 tiles in wall, create the dead wall with them
@@ -216,11 +214,11 @@ public class Wall {
 	
 	//returns the dora indicators, as a list of Tiles
 	//if getUraDora is true, will also return ura dora indicators
-	public ArrayList<Tile> getDoraIndicators(boolean getUraDora){
+	public TileList getDoraIndicators(boolean getUraDora){
 		return mDeadWall.getDoraIndicators(getUraDora);
 	}
 	//Overloaded with no args, gets just normal dora (no ura)
-	public ArrayList<Tile> getDoraIndicators(){
+	public TileList getDoraIndicators(){
 		return getDoraIndicators(false);
 	}
 	
@@ -323,10 +321,10 @@ public class Wall {
 		*/
 		
 
-		ArrayList<Tile> tilesE = new ArrayList<Tile>(14);
-		ArrayList<Tile> tilesS = new ArrayList<Tile>(13);
-		ArrayList<Tile> tilesW = new ArrayList<Tile>(13);
-		ArrayList<Tile> tilesN = new ArrayList<Tile>(13);
+		TileList tilesE = new TileList(14);
+		TileList tilesS = new TileList(13);
+		TileList tilesW = new TileList(13);
+		TileList tilesN = new TileList(13);
 		for(int i: h1)
 			tilesE.add(new Tile(i));
 		for(int i: h2)

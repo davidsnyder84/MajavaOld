@@ -86,7 +86,7 @@ public class HandChecker {
 	
 	
 	private Hand mHand;
-	private ArrayList<Tile> mHandTiles;
+	private TileList mHandTiles;
 	private ArrayList<Meld> mHandMelds;
 	
 	private boolean mTenpaiStatus;
@@ -113,7 +113,7 @@ public class HandChecker {
 	
 	
 	//creates a LINK between this and the hand's tiles/melds
-	public HandChecker(Hand hand, ArrayList<Tile> handTiles, ArrayList<Meld> handMelds){
+	public HandChecker(Hand hand, TileList handTiles, ArrayList<Meld> handMelds){
 		mHand = hand;
 		mHandTiles = handTiles;
 		mHandMelds = handMelds;
@@ -128,8 +128,10 @@ public class HandChecker {
 	//copy constructor, makes another checker for the hand
 	//creates a COPY OF the other checker tiles/melds lists
 	public HandChecker(HandChecker other){
-
+		
+		mHandTiles = new TileList(Hand.MAX_HAND_SIZE);
 		for (Tile t: other.mHandTiles) mHandTiles.add(t);
+		mHandMelds = new ArrayList<Meld>(Hand.MAX_NUM_MELDS);
 		for (Meld m: other.mHandMelds) mHandMelds.add(new Meld(m));
 
 		this.__resetCallableFlags();
@@ -236,9 +238,9 @@ public class HandChecker {
 		return __canChiType(candidate, mPartnerIndicesChiH, OFFSET_CHI_H1, OFFSET_CHI_H2);
 	}
 	//overloaded. if no tile argument given, candidate = mCallCandidate is passsed
-	private boolean __canChiL(){return  __canChiL(mCallCandidate);}
-	private boolean __canChiM(){return  __canChiM(mCallCandidate);}
-	private boolean __canChiH(){return  __canChiH(mCallCandidate);}
+	private boolean __canChiL(){return __canChiL(mCallCandidate);}
+	private boolean __canChiM(){return __canChiM(mCallCandidate);}
+	private boolean __canChiH(){return __canChiH(mCallCandidate);}
 	
 	
 	
@@ -274,15 +276,9 @@ public class HandChecker {
 		}
 		return false;
 	}
-	private boolean __canPair(Tile candidate){
-		return __canMultiType(candidate, mPartnerIndicesPair, NUM_TILES_NEEDED_TO_PAIR);
-	}
-	private boolean __canPon(Tile candidate){
-		return __canMultiType(candidate, mPartnerIndicesPon, NUM_TILES_NEEDED_TO_PON);
-	}
-	private boolean __canKan(Tile candidate){
-		return __canMultiType(candidate, mPartnerIndicesKan, NUM_TILES_NEEDED_TO_KAN);
-	}
+	private boolean __canPair(Tile candidate){return __canMultiType(candidate, mPartnerIndicesPair, NUM_TILES_NEEDED_TO_PAIR);}
+	private boolean __canPon(Tile candidate){return __canMultiType(candidate, mPartnerIndicesPon, NUM_TILES_NEEDED_TO_PON);}
+	private boolean __canKan(Tile candidate){return __canMultiType(candidate, mPartnerIndicesKan, NUM_TILES_NEEDED_TO_KAN);}
 	//overloaded. if no tile argument given, candidate = mCallCandidate is passsed
 	private boolean __canPair(){return __canPair(mCallCandidate);}
 	private boolean __canPon(){return __canPon(mCallCandidate);}
@@ -296,34 +292,21 @@ public class HandChecker {
 	
 	input: t is the tile to look for. if a list is provided, storeIndicesHere will be populated with the indices where t occurs 
 	
-	current = find first index of t in the hand, return 0 if not found
-	while ((current < hand size) && (hand(current) and t have the same id))
-		if (hand(current) and t are not the same physical tile): add the current index to the list
-		current++
-	end while
+	foundIndices = find all indices of t in the hand
+	if a (list was provided): store the indices in that list
 	return (number of indices found)
 	*/
 	public int howManyOfThisTileInHand(Tile t, ArrayList<Integer> storeIndicesHere){
-		//finds the first occurence of t. if t is not found, returns 0
-		int current = mHandTiles.indexOf(t);
-		if (current == MahList.NOT_FOUND) return 0;
-		if (storeIndicesHere == null) storeIndicesHere = new ArrayList<Integer>();
 		
-		//store the current (first) index in the list, then move current the next index
-		storeIndicesHere.add(current++);
+		//find all the indices of t in the hand, then store the indices if a list was provided
+		MahList<Integer> foundIndices = mHandTiles.findAllIndicesOf(t);
+		if (storeIndicesHere != null) for (Integer i: foundIndices) storeIndicesHere.add(i);
 		
-		//loops until it finds a tile that is not t (assumes the hand is sorted)
-		while (current < mHandTiles.size() && mHandTiles.get(current).equals(t)){
-			//if handtile and t aren't the same phsyical tile... (basically, don't count t as its own partner)
-			if (mHandTiles.get(current) != t) storeIndicesHere.add(current);
-			current++;
-		}
-		return storeIndicesHere.size();
+		//return the number of indices found
+		return foundIndices.size();
 	}
 	//overloaded, omitting list argument simply returns the count, and doesn't populate any list
-	public int howManyOfThisTileInHand(Tile t){
-		return howManyOfThisTileInHand(t, null);
-	}
+	public int howManyOfThisTileInHand(Tile t){return howManyOfThisTileInHand(t, null);}
 	
 	
 	
@@ -331,6 +314,7 @@ public class HandChecker {
 	
 	//returns true if the player can call ron on the candidate tile
 	public boolean __canRon(){
+		
 		return false;
 	}
 	
@@ -546,7 +530,7 @@ public class HandChecker {
 		if (couldBeKokushi == false) return false;
 		
 		//check if the hand contains at least 12 different TYC tiles
-		ArrayList<Tile> listTYC = Tile.listOfYaochuuTiles();
+		TileList listTYC = Tile.listOfYaochuuTiles();
 		int countTYC = 0;
 		for (int i = 0; i < Tile.NUMBER_OF_YAOCHUU_TILES; i++)
 			if (mHandTiles.contains(listTYC.get(i)))
@@ -567,21 +551,20 @@ public class HandChecker {
 			(kokushiMusouWaits().size() == Tile.NUMBER_OF_YAOCHUU_TILES))
 			return true;
 		
-		
 		return false;
 	}
 
 	//returns a list of the hand's waits, if it is in tenpai for kokushi musou
 	//returns an empty list if not in kokushi musou tenpai
-	public ArrayList<Tile> kokushiMusouWaits(){
+	public TileList kokushiMusouWaits(){
 		
-		ArrayList<Tile> waits = new ArrayList<Tile>(1);
+		TileList waits = new TileList(1);
 		
 		Tile missingTYC = null;
 		if (kokushiMusouInTenpai() == true)
 		{
 			//look for a Yaochuu tile that the hand doesn't contain
-			ArrayList<Tile> listTYC = Tile.listOfYaochuuTiles();
+			TileList listTYC = Tile.listOfYaochuuTiles();
 			for (Tile t: listTYC)
 				if (mHandTiles.contains(t) == false)
 					missingTYC = t;
