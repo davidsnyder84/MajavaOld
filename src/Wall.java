@@ -29,8 +29,8 @@ methods:
 	toString
 	
 	private:
-	__initialize - builds, initializes, and shuffles the wall
-	__makeDeadWall - make the dead wall out of the wall's last 14 tiles
+	initialize - builds, initializes, and shuffles the wall
+	makeDeadWall - make the dead wall out of the wall's last 14 tiles
 */
 public class Wall {
 	
@@ -52,23 +52,35 @@ public class Wall {
 		mTiles = new ArrayList<Tile>(MAX_SIZE_WALL);
 		
 		//fill and shuffle the wall
-		__initialize();
+		initialize();
 		
 		//split off the dead wall
-		__makeDeadWall();
+		makeDeadWall();
 	}
 	
 	
 	
 	
 	/*
-	method: dealHands
-	deals a starting hand for each player
-	
-	East takes 4, South takes 4, West takes 4, North takes 4
-    East takes 4, South takes 4, West takes 4, North takes 4
-    East takes 4, South takes 4, West takes 4, North takes 4
-    East takes 2, South takes 1, West takes 1, North takes 1
+    East takes 4 tiles
+    South takes 4 tiles
+    West takes 4 tiles
+    North takes 4 tiles
+    
+    East takes 4 tiles
+    South takes 4 tiles
+    West takes 4 tiles
+    North takes 4 tiles
+    
+    East takes 4 tiles
+    South takes 4 tiles
+    West takes 4 tiles
+    North takes 4 tiles
+    
+    East takes 2 tiles
+    South takes 1
+    West takes 1
+    North takes 1
 	*/
 	public void dealHands(Player p1, Player p2, Player p3, Player p4)
 	{
@@ -128,13 +140,17 @@ public class Wall {
 		mTiles.remove(FIRST_TILE_IN_WALL);
 		
 		
+
 		//add the tiles to the hands
 		for(Tile t: tilesE)
 			p1.addTileToHand(t);
+		
 		for(Tile t: tilesS)
 			p2.addTileToHand(t);
+		
 		for(Tile t: tilesW)
 			p3.addTileToHand(t);
+		
 		for(Tile t: tilesN)
 			p4.addTileToHand(t);
 	}
@@ -160,15 +176,9 @@ public class Wall {
 	
 	
 	
-	/*
-	private method: __initialize
-	fills and shuffles the wall
-	
-	fill the wall with 4 of each tile
-	mark the red dora 5 tiles (1 in man, 2 in pin, 1 in sou)
-	shuffle the wall
-	*/
-	private void __initialize()
+
+	//fills and shuffles the wall
+	private void initialize()
 	{
 		//fill the wall with 4 of each tile
 		int i;
@@ -188,16 +198,12 @@ public class Wall {
 		
 		//shuffle the wall
 		GenSort<Tile> sorter = new GenSort<Tile>(mTiles);
-		sorter.shuffle();
+		//sorter.shuffle();
 	}
 	
 	
-	
-	/*
-	private method: __makeDeadWall
-	removes the last 14 tiles from the wall, and creates the dead wall with them
-	*/
-	private void __makeDeadWall()
+	//removes the last 14 tiles from the wall, and creates the dead wall with them
+	private void makeDeadWall()
 	{
 		ArrayList<Tile> deadWallTiles = new ArrayList<Tile>(DeadWall.MAX_SIZE_DEAD_WALL);
 		int startingPos = MAX_SIZE_WALL - DeadWall.MAX_SIZE_DEAD_WALL;
@@ -221,12 +227,10 @@ public class Wall {
 	
 	
 	
-	//returns the dora indicators, as a list of Tiles
-	//if getUraDora is true, will also return ura dora indicators
+	
 	public ArrayList<Tile> getDoraIndicators(boolean getUraDora){
 		return mDeadWall.getDoraIndicators(getUraDora);
 	}
-	//Overloaded with no args, gets just normal dora (no ura)
 	public ArrayList<Tile> getDoraIndicators(){
 		return getDoraIndicators(false);
 	}
@@ -236,15 +240,7 @@ public class Wall {
 	
 	
 	
-	/*
-	method: takeTile
-	removes a tile from the beginning of the wall and returns it
-	returns the tile, or returns null if the wall was empty
-	
-	draw the first tile from the wall
-	remove that tile from the wall
-	return the tile
-	*/
+	//removes a tile from the beginning of the wall and returns it
 	public Tile takeTile(){
 		
 		//return null if the wall is empty
@@ -281,9 +277,14 @@ public class Wall {
 	
 	
 	
+	
+	
+	
+	
+	
 	//returns true if the wall is empty (has no tiles left)
 	public boolean isEmpty(){
-		return (mTiles.size() == 0);
+		return (getNumTilesLeftInWall() == 0);
 	}
 	
 	//returns the number of tiles left in the wall (not including dead wall)
@@ -295,24 +296,14 @@ public class Wall {
 	
 	
 	
-
-	////////////////////////////////////////////////////////////////////////////////////
-	//////BEGIN DEMO METHODS
-	////////////////////////////////////////////////////////////////////////////////////
+	
 	public void loadDebugWall(){
 		
 		//desired hands (ENTER HERE)
-		int[] h1 = {2,2,2,2,2,2,2,2,2,2,2,2,2,7};
+		int[] h1 = {1,1,1,2,3,4,5,6,7,8,9,9,9,3};
 		int[] h2 = {2,2,2,2,2,2,2,2,2,2,2,2,2};
-		int[] h3 = {3,3,3,3,3,3,3,3,3,3,3,3,3};
+		int[] h3 = {3,3,3,3,3,3,3,3,3,3,3,3,9};
 		int[] h4 = {4,4,4,4,4,4,4,4,4,4,4,4,4};
-		
-		/*
-		int[] h1 = {1,2,2,2,3,4,5,6,7,8,9,9,9,3};
-		int[] h2 = {2,2,2,2,2,2,2,2,2,2,2,2,2};
-		int[] h3 = {3,3,3,3,3,3,3,3,3,3,3,3,3};
-		int[] h4 = {4,4,4,4,4,4,4,4,4,4,4,4,4};
-		*/
 		
 		
 		/*
@@ -376,6 +367,9 @@ public class Wall {
 				tilesN.remove(0);
 			}
 		}
+		
+		final int afterRoundsStarter = 3*TAKEN_PER_ROUND;
+		
 		//east takes 2
 		mTiles.set(3*TAKEN_PER_ROUND + 0, tilesE.get(0));
 		tilesE.remove(0);
@@ -395,9 +389,6 @@ public class Wall {
 		tilesN.remove(0);
 		
 	}
-	////////////////////////////////////////////////////////////////////////////////////
-	//////END DEMO METHODS
-	////////////////////////////////////////////////////////////////////////////////////
 	
 	
 	
@@ -407,15 +398,15 @@ public class Wall {
 	
 	
 	
-	//tostring
-	@Override
+	
+	
 	public String toString()
 	{
 		
 		int i, j;
 		String wallString = "";
 		
-		final int TILES_PER_LINE = 16;
+		final int TILES_PER_LINE = 12;
 		for (i = 0; i < (mTiles.size() / TILES_PER_LINE) + 1; i++)
 		{
 			for (j = 0; j < TILES_PER_LINE && (j + TILES_PER_LINE*i < mTiles.size()); j++)

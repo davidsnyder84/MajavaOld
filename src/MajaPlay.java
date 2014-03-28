@@ -1,7 +1,5 @@
 import java.util.ArrayList;
 
-import utility.GenSort;
-
 
 public class MajaPlay {
 	
@@ -23,236 +21,12 @@ public class MajaPlay {
 		//subListPlay();
 		
 		
-		//testMeldMaking();
+		testMeldMaking();
 		
-		
-		//strToIdTest();
-		
-		//nextTileTest();
-		
-		//sleepTest();
-		
-		
-		//callableIdTest();
-		
-		
-		//intArrayCopyTest();
-		
-		
-		chiKamichaTest();
 		
 		
 		System.out.println();
 	}
-	
-
-	public static void chiKamichaTest(){
-		
-		final char ownerSeat = Player.SEAT_SOUTH;
-		
-		Hand h = new Hand(ownerSeat);
-		Tile q = null;
-
-		h.addTile(2);
-		h.addTile(3);
-		h.addTile(3);
-		
-
-		System.out.println(h.toString());
-		
-		
-		
-		q = new Tile(1);
-//		q.setOwner(ownerSeat);
-//		q.setOwner(Player.findKamichaOf(ownerSeat));
-		q.setOwner('W');
-		
-
-		System.out.println("\nDiscarded tile: " + q.toStringAllInfo());
-		System.out.println("Callable?: " + h.checkCallableTile(q));
-		
-	}
-	
-	
-	
-	
-	
-	
-
-	public static void intArrayCopyTest(){
-
-		ArrayList<Integer> list1 = new ArrayList<Integer>(5);
-		list1.add(5);
-		list1.add(6);
-		list1.add(7);
-		list1.add(8);
-		list1.add(9);
-
-		System.out.print("List1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
-		
-		
-		ArrayList<Integer> list2 = list1;
-		System.out.print("\nList2: "); for (Integer i: list2) System.out.print(i.toString() + ", ");
-		
-		
-		
-		/*
-		//after list2 = list1
-		//BAD - XXXX - Removing an object from either list removes it from both lists
-		list2 = list1;
-		list2.remove(2);
-		System.out.print("\nList1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
-		System.out.print("\nList2: "); for (Integer i: list2) System.out.print(i.toString() + ", ");
-		*/
-		
-		
-		/*
-		//after list2 = list1.clone()
-		//GOOD - Removing an object from either list does NOT affect the other list
-		list2 = (ArrayList<Integer>)list1.clone();
-		list1.remove(3);
-		System.out.print("\n\nList1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
-		System.out.print("\nList2: "); for (Integer i: list2) System.out.print(i.toString() + ", ");
-		*/
-		
-		
-		/*
-		//after list2 = new arraylist(list1) copy constructor
-		//GOOD - Removing an object from either list does NOT affect the other list
-		list2 = new ArrayList<Integer>(list1);
-		list2.remove(4);
-		System.out.print("\n\nList1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
-		System.out.print("\nList2: "); for (Integer i: list2) System.out.print(i.toString() + ", ");
-		*/
-		
-
-		//after list2 = add 1 by 1 from list 1
-		//GOOD - Removing an object from either list does NOT affect the other list
-		list2 = new ArrayList<Integer>(0);for (int i = 0; i < list1.size(); i++) list2.add(list1.get(i));
-		list1.remove(2);
-		System.out.print("\n\nList1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
-		System.out.print("\nList2: "); for (Integer i: list2) System.out.print(i.toString() + ", ");
-	}
-	
-	public static void callableIdTest(){
-		
-		Hand h = new Hand();
-		
-
-		h.addTile(1);
-		h.addTile(2);
-		h.addTile(3);
-		h.addTile(4);
-		h.addTile(5);
-		h.addTile(6);
-		h.addTile(7);
-		h.addTile(8);
-		h.addTile(9);
-		/*
-		h.addTile(2);
-		h.addTile(2);
-		h.addTile(3);
-		h.addTile(4);
-		h.addTile(4);
-		h.addTile(4);
-		h.addTile(5);
-		h.addTile(6);
-		*/
-		
-
-		System.out.println(h.toString());
-		
-		ArrayList<Integer> hots = h.findAllHotTiles();
-		ArrayList<Integer> callables = h.findAllCallableTiles();
-		
-		
-		
-		//sort the lists
-		GenSort<Integer> sorter = new GenSort<Integer>(hots);sorter.sort();
-		sorter = new GenSort<Integer>(callables);sorter.sort();
-		
-
-		System.out.println("\nHot Tiles: ");
-		for (Integer i: hots)
-			System.out.print(Tile.stringReprOfId(i) + ", ");
-		
-		
-		System.out.println("\n\nCallable Tiles: ");
-		for (Integer i: callables)
-			System.out.print(Tile.stringReprOfId(i) + ", ");
-		
-	}
-	
-	
-	
-	
-	
-	
-	
-
-	public static void sleepTest(){
-		
-		final int SLEEP_AMOUNT = 1000;
-		
-		System.out.println("Hello sir!");
-		try {Thread.sleep(SLEEP_AMOUNT);} 
-		catch (InterruptedException e) {}
-		
-		System.out.println("I am");
-		try {Thread.sleep(SLEEP_AMOUNT);}
-		catch (InterruptedException e) {}
-		
-		System.out.println("very");
-		try {Thread.sleep(SLEEP_AMOUNT);}
-		catch (InterruptedException e) {}
-		
-		System.out.println("very...");
-		try {Thread.sleep(SLEEP_AMOUNT);}
-		catch (InterruptedException e) {}
-		
-		System.out.println("sleepy!");
-		
-		
-	}
-	
-	
-	
-
-	public static void nextTileTest(){
-		
-		ArrayList<Tile> tiles = new ArrayList<Tile>(10);
-
-		tiles.add(new Tile("B2"));
-		tiles.add(new Tile("C6"));
-		tiles.add(new Tile("C9"));
-		tiles.add(new Tile("M1"));
-		tiles.add(new Tile("M9"));
-		tiles.add(new Tile("DG"));
-		tiles.add(new Tile("DR"));
-		tiles.add(new Tile("WN"));
-		tiles.add(new Tile("WE"));
-		tiles.add(new Tile("WW"));
-		
-		for (Tile t: tiles)
-			System.out.println(t.toStringAllInfo() + "\n");
-	}
-	
-	
-	
-	public static void strToIdTest(){
-		System.out.println("ID of M2: " + Tile.idOfStringRepr("M2"));
-		System.out.println("ID of M9: " + Tile.idOfStringRepr("M9"));
-		System.out.println("ID of M1: " + Tile.idOfStringRepr("M1"));
-		System.out.println("ID of C9: " + Tile.idOfStringRepr("C9"));
-		System.out.println("ID of WE: " + Tile.idOfStringRepr("WE"));
-		System.out.println("ID of WN: " + Tile.idOfStringRepr("WN"));
-		System.out.println("ID of DG: " + Tile.idOfStringRepr("DG"));
-		System.out.println("ID of DR: " + Tile.idOfStringRepr("DR"));
-		System.out.println("ID of BO: " + Tile.idOfStringRepr("BO"));
-	}
-	
-	
-	
 
 	public static void testMeldMaking(){
 		
@@ -451,13 +225,12 @@ public class MajaPlay {
 		System.out.println(h.toString());
 		System.out.println("\nDiscarded tile: " + q.toString() + "\n");
 		
-		/*
+
 		System.out.println("Chi-L?: " + h.canChiL(q));
 		System.out.println("Chi-M?: " + h.canChiM(q));
 		System.out.println("Chi-H?: " + h.canChiH(q));
 		System.out.println("Pon?  : " + h.canPon(q));
 		System.out.println("Kan?  : " + h.canKan(q));
-		*/
 		
 	}
 	

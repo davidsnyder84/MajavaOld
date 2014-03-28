@@ -11,14 +11,6 @@
 
 
 
-hand sizes:
-0 melds: 14 or 13
-1 melds: 11 or 10
-2 melds: 8 or 7
-3 melds: 5 or 4
-4 melds: 2 or 1
-
-
 
 
 

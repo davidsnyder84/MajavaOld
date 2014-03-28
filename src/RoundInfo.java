@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 
 
 
@@ -8,9 +6,14 @@ import java.util.ArrayList;
 Class: RoundInfo
 
 data:
+	p1, p2, p3, p4 - four players. p1 is always east, p2 is always south, etc. 
+	mWall - wall of tiles, includes the dead wall
 	
 	mGameType - length of game being played (single, tonpuusen, or hanchan)
+	
 	mRoundWind - the prevailing wind of the current round ('E' or 'S')
+	mWhoseTurn - whose turn it is (1,2,3,4 corresponds to E,S,W,N)
+	mReaction - will be NO_REACTION if no calls were made during a turn, will be something else otherwise
 	mGameIsOver - will be true if the game is over, false if not
 	mGameResult - the specific result of the game (reason for a draw game, or who won), is UNDECIDED if game is not over
 	
@@ -27,31 +30,9 @@ public class RoundInfo {
 	private char mRoundWind;
 	private int mGameType;
 	
-	private ArrayList<Tile> mDoraIndicators;
-	
-	private boolean mGameIsOver;
-	private int mGameResult;
 	
 	
-	
-	//4-arg, takes game type, round wind, dora indicators, and game result
-	public RoundInfo(int gameType, char roundWind, ArrayList<Tile> doraIndicators, int gameResult){
-		
-		mGameType = gameType;
-		mRoundWind = roundWind;
-		
-		mGameResult = gameResult;
-		//if game is undecided, gameIsOver = false
-		if (mGameResult == Table.RESULT_UNDECIDED)
-			mGameIsOver = false;
-		else
-			mGameIsOver = true;
-		
-		mDoraIndicators = doraIndicators;
-	}
-	//3-arg, takes game type, round wind, dora indicators, and game result. Assumes game is not over.
-	public RoundInfo(int gameType, char roundWind, ArrayList<Tile> doraIndicators){
-		this(gameType, roundWind, doraIndicators, Table.RESULT_UNDECIDED);
+	public RoundInfo(){
 	}
 	
 	
@@ -62,22 +43,9 @@ public class RoundInfo {
 	
 	
 	
-	//accessors
-	public int getGameType(){
-		return mGameType;
-	}
-	public char getRoundWind(){
-		return mRoundWind;
-	}
-	public int getGameResult(){
-		return mGameResult;
-	}
-	public boolean gameIsOver(){
-		return mGameIsOver;
-	}
-	public ArrayList<Tile> getDoraIndicators(){
-		return mDoraIndicators;
-	}
+	
+	
+	
 	
 	
 	

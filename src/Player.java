@@ -19,7 +19,6 @@ data:
 	mHoldingRinshanTile - is true if the player is holding a rinshan tile that they drew this turn, false otherwise
 	mRiichiStatus - is true if the player has declared riichi, false if not
 	mFuritenStatus - is true if the player is in furiten status, false if not
-	mTenpaiStatus = is true if the player's hand is in tenpai
 	
 	linkShimocha - a link to the player's shimocha (player to the right)
 	linkToimen - a link to the player's toimen (player directly across)
@@ -49,11 +48,9 @@ methods:
 	checkRiichi - returns true if the player is in riichi status
 	checkFuriten - returns true if the player is in furiten status
 	checkRinshan - returns true if the player is holding a rinshan tile that they drew this turn
-	checkTenpai - returns true if the player is in tenpai
 	
 	called - returns true if the player has called a discarded tile
 	checkCallStatus - returns the specific type of call the player has made
-	checkCallStatusString - returns the specific type of call the player has made, as a string
 	checkDrawNeeded - returns the type of draw the player needs (normal draw, kan draw, or none)
 
 	
@@ -66,7 +63,7 @@ methods:
 	
 	__askSelfForReaction - asks the player how they want to react to the discarded tile
 	__askReactionHuman - asks a human player how they want to react to the discarded tile
-	__askReactionCom - asks a computer player how they want to react to the discarded tile
+	_askReactionCom - asks a computer player how they want to react to the discarded tile
 	
 	__putTileInPond - adds a tile to the player's pond
 	__ableToCallTile - checks if the player is able to make a call on Tile t
@@ -89,20 +86,14 @@ public class Player {
 	public static final char SEAT_WEST = 'W';
 	public static final char SEAT_NORTH = 'N';
 	public static final char SEAT_DEFAULT = SEAT_UNDECIDED;
-	public static final String SEAT_WINDS = "ESWN";
 
 	public static final char CONTROLLER_UNDECIDED = 'u';
 	public static final char CONTROLLER_HUMAN = 'h';
 	public static final char CONTROLLER_COM = 'c';
 	public static final char CONTROLLER_DEFAULT = CONTROLLER_UNDECIDED;
-
-	public static final int COM_BEHAVIOR_DISCARD_LAST = 1;
-	public static final int COM_BEHAVIOR_DISCARD_FIRST = 2;
-	public static final int COM_BEHAVIOR_DISCARD_RANDOM = 3;
-	public static final int COM_BEHAVIOR_DISCARD_DEFAULT = COM_BEHAVIOR_DISCARD_LAST;
-	public static final int TIME_TO_SLEEP = 2000;
 	
 	public static final int POINTS_STARTING_AMOUNT = 25000;
+	
 
 	public static final int CALLED_NONE = 0;
 	public static final int CALLED_CHI = 123;
@@ -112,6 +103,7 @@ public class Player {
 	public static final int CALLED_PON = 4;
 	public static final int CALLED_KAN = 5;
 	public static final int CALLED_RON = 6;
+	public static final int CALLED_GAY = 66;
 	
 	public static final int DRAW_NONE = 0;
 	public static final int DRAW_NORMAL = 1;
@@ -309,9 +301,6 @@ public class Player {
 		{
 			System.out.print("\nWhich tile do you want to discard? (enter number): "); 
 			chosenDiscard = keyboard.nextInt();
-			
-			//entering 0 means "choose the last tile in my hand"
-			if (chosenDiscard == 0)	chosenDiscard = mHand.getSize();
 		}
 		
 		return chosenDiscard - 1;	//adjust for index
@@ -332,16 +321,9 @@ public class Player {
 	private int __askDiscardCom(){
 		
 		int chosenDiscard;
-
+		
 		//always choose the last tile in the hand (most recently drawn one)
 		chosenDiscard = mHand.getSize() - 1;
-		
-		//always choose the first tile in the hand
-		chosenDiscard = 0;
-		
-		//wait, since computer is fast
-		//try {Thread.sleep(TIME_TO_SLEEP);} catch (InterruptedException e){}
-		
 		return chosenDiscard;
 	}
 	
@@ -407,11 +389,11 @@ public class Player {
 			mCallStatus = __askSelfForReaction(t);
 		}
 		
-		////////////////////WATCH THIS MOTHERFUCKER
-		//////////////////I DONT KNOW WHAT THIS WILL DO
+		/*
 		//draw normally if no call
 		if (mCallStatus == CALLED_NONE)
 			mDrawNeeded = DRAW_NORMAL;
+		*/
 		
 		return mCallStatus;
 	}
@@ -634,7 +616,7 @@ public class Player {
 				meldType = Meld.MELD_TYPE_KAN;
 			
 			//make the meld
-			mHand.makeMeld(meldType);
+			mHand.makeMeld(t, meldType);
 			
 			//update what the player will need to draw next turn
 			//draw nothing if called chi/pon, do a kan draw if called kan
@@ -716,7 +698,7 @@ public class Player {
 	public boolean checkFuriten(){
 		return mFuritenStatus;
 	}
-	public boolean checkTenpai(){
+	public boolean checkTenpaiStatus(){
 		return mTenpaiStatus;
 	}
 	//returns call status as an int value
@@ -823,27 +805,18 @@ public class Player {
 	
 	
 	
-
-	////////////////////////////////////////////////////////////////////////////////////
-	//////END DEMO METHODS
-	////////////////////////////////////////////////////////////////////////////////////
 	//fill hand with demo values
 	public void fillHand(){
 		mHand.fill();
 	}
-	////////////////////////////////////////////////////////////////////////////////////
-	//////END DEMO METHODS
-	////////////////////////////////////////////////////////////////////////////////////
 	
 	
-	
-	
-	
-	
-	//sort the player's hand in ascending order
 	public void sortHand(){
 		mHand.sortHand();
 	}
+	
+	
+	
 	
 	
 	
@@ -862,26 +835,6 @@ public class Player {
 
 	public void showMelds(){
 		mHand.showMelds();
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	public static char findKamichaOf(char seat){
-		if (seat == SEAT_EAST)
-			return SEAT_NORTH;
-		else
-			return SEAT_WINDS.charAt(SEAT_WINDS.indexOf(seat) - 1);
 	}
 	
 	

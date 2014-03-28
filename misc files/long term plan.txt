@@ -4,19 +4,10 @@ make discard-only game to washout (done)
 add manual meld-checking (skip)
 add automatic meld-checking (done)
 
-present player with potential calls, ask their choice (done)
-add meld-making (done)
+present player with potential calls, ask their choice
+add meld-making
 
-
-
-
-add ability to win by manually calling melds
-add ability to win by automatically checking for tenpai status
-
-
-add option to make ankan
-add option to complete a minkan
-check for 4kans draw condition
+add ability to win from melds
 
 
 add point calculation
@@ -26,8 +17,6 @@ add automatic han/yaku checking
 
 give CPU AI ability to call/make melds
 give CPU AI ability to make "smart" discards
-
-
 
 
 
@@ -88,11 +77,6 @@ short todos:
 **********E Player called the tile (M9)! Chi!!!**********
 *********************************************************
 
-(done) make sure you can only chi from your shimocha
-
-
-(done) move sleep to table class
-(done) make 0 on discard = last tile in hand
 
 
 
