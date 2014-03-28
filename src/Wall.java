@@ -5,8 +5,9 @@ import utility.GenSort;
 
 public class Wall {
 	
-	
+
 	public static final int MAX_SIZE_WALL = 136;
+	public static final int FIRST_TILE_IN_WALL = 0;
 	
 	
 	
@@ -26,7 +27,6 @@ public class Wall {
 		
 		//split off the dead wall
 		makeDeadWall();
-		
 	}
 	
 	
@@ -59,8 +59,6 @@ public class Wall {
 		ArrayList<Tile> tilesS = new ArrayList<Tile>(13);
 		ArrayList<Tile> tilesW = new ArrayList<Tile>(13);
 		ArrayList<Tile> tilesN = new ArrayList<Tile>(13);
-		
-		final int FIRST_TILE_IN_WALL = 0;
 		
 		int i, j;
 		//each player takes 4, 3 times
@@ -113,8 +111,6 @@ public class Wall {
 		mTiles.remove(FIRST_TILE_IN_WALL);
 		
 		
-		
-		
 
 		//add the tiles to the hands
 		for(Tile t: tilesE)
@@ -128,8 +124,6 @@ public class Wall {
 		
 		for(Tile t: tilesN)
 			p4.addTileToHand(t);
-		
-		
 	}
 	
 	
@@ -176,7 +170,6 @@ public class Wall {
 	}
 	
 	
-	
 	//fills and shuffles the wall
 	private void initialize()
 	{
@@ -194,6 +187,61 @@ public class Wall {
 		GenSort<Tile> sorter = new GenSort<Tile>(mTiles);
 		sorter.shuffle();
 	}
+	
+	
+	
+	
+	public ArrayList<Tile> getDoraIndicators(boolean getUraDora){
+		return mDeadWall.getDoraIndicators(getUraDora);
+	}
+	public ArrayList<Tile> getDoraIndicators(){
+		return getDoraIndicators(false);
+	}
+	
+	
+	
+	
+	
+	
+	//removes a tile from the beginning of the wall and returns it
+	public Tile takeTile(){
+		
+		//return null if the wall is empty
+		if (isEmpty())
+		{
+			System.out.println("-----End of wall reached. Cannot draw tile.");
+			return null;
+		}
+		
+		//draw the first tile from the wall
+		Tile drawnTile = mTiles.get(FIRST_TILE_IN_WALL);
+		
+		//remove that tile from the wall
+		mTiles.remove(FIRST_TILE_IN_WALL);
+		
+		return drawnTile;
+	}
+	
+	//removes a tile from the end of the dead wall and returns it
+	public Tile takeTileFromDeadWall(){
+		return mDeadWall.takeTile();
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	

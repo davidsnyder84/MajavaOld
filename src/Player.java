@@ -12,10 +12,12 @@ public class Player {
 	public static final char SEAT_SOUTH = 'S';
 	public static final char SEAT_WEST = 'W';
 	public static final char SEAT_NORTH = 'N';
-	
+	public static final char SEAT_DEFAULT = SEAT_UNDECIDED;
+
+	public static final char CONTROLLER_UNDECIDED = 'u';
 	public static final char CONTROLLER_HUMAN = 'h';
 	public static final char CONTROLLER_COM = 'c';
-	public static final char CONTROLLER_DEFAULT = CONTROLLER_HUMAN;
+	public static final char CONTROLLER_DEFAULT = CONTROLLER_UNDECIDED;
 	
 
 	public static final int CALLED_NONE = 0;
@@ -23,6 +25,11 @@ public class Player {
 	public static final int CALLED_PON = 2;
 	public static final int CALLED_KAN = 3;
 	public static final int CALLED_RON = 5;
+	
+	
+	public static final int DRAW_NONE = 0;
+	public static final int DRAW_NORMAL = 1;
+	public static final int DRAW_KAN = 3;
 	
 	
 	
@@ -33,13 +40,17 @@ public class Player {
 	private char mSeatWind;
 	private char mController;
 	
+	private int mCallStatus;
+	private int mDrawNeeded;
+	
+	private boolean mHoldingRinshanTile;
 	private boolean mRiichiStatus;
 	private boolean mFuritenStatus;
 	
 
-	private Player mShimocha;
-	private Player mToimen;
-	private Player mKamicha;
+	private Player linkShimocha;
+	private Player linkToimen;
+	private Player linkKamicha;
 	
 	
 	
@@ -60,9 +71,11 @@ public class Player {
 			playerNumber = 4;
 		*/
 		
+		mCallStatus = CALLED_NONE;
 		
 		mRiichiStatus = false;
 		mFuritenStatus = false;
+		mHoldingRinshanTile = false;
 		
 		mController = controller;
 	}
@@ -71,7 +84,7 @@ public class Player {
 		this(seat, CONTROLLER_DEFAULT);
 	}
 	public Player(){
-		this(SEAT_UNDECIDED);
+		this(SEAT_DEFAULT);
 	}
 	
 	
@@ -83,6 +96,8 @@ public class Player {
 		
 		//discard a tile
 		discardedTile = discardTile();
+		//set draw status to normal
+		mDrawNeeded = DRAW_NORMAL;
 		
 		//put the tile in the pond
 		putTileInPond(discardedTile);
@@ -99,7 +114,7 @@ public class Player {
 	
 	
 	
-	public Tile discardTile(){
+	private Tile discardTile(){
 		
 		Tile discardedTile;
 		int chosenDiscard;
@@ -137,15 +152,19 @@ public class Player {
 	
 	private int __askDiscardHuman(){
 		
-		int chosenDiscard;
+		int chosenDiscard = 0;
 		
 		showHand();
 
 		//ask user which tile they want to discard
 		@SuppressWarnings("resource")
 		Scanner keyboard = new Scanner(System.in);
-		System.out.print("\nWhich tile do you want to discard? (enter number): "); 
-		chosenDiscard = keyboard.nextInt();
+		//disallow numbers outside the range of the hand size
+		while (chosenDiscard < 0 || chosenDiscard > mHand.getSize())
+		{
+			System.out.print("\nWhich tile do you want to discard? (enter number): "); 
+			chosenDiscard = keyboard.nextInt();
+		}
 		
 		return chosenDiscard - 1;	//adjust for index
 	}
@@ -166,8 +185,104 @@ public class Player {
 	
 	
 	public void addTileToHand(Tile t){
+		
+		//add the tile to the hand
 		mHand.addTile(t);
+		
+		//no longer need to draw
+		mDrawNeeded = DRAW_NONE;
 	}
+	
+	
+
+	
+	
+	
+	
+	
+	
+	/*
+	 method: reactToDiscard
+	 shows a player a tile, and gets their reaction (call or no call) for it
+	 
+	 input: t is the tile that was just discarded, and the player has a chance to react to it
+	 
+	 returns the type of call the player wants to make on the tile (none, chi, pon, kan, ron)
+	 
+	 ask self for a reaction to the tile
+	 
+	 update call status
+	 update the type of draw needed for the player's next turn
+	 return call
+	*/
+	public int reactToDiscard(Tile t)
+	{
+		int call = CALLED_NONE;
+		call = askSelfForReaction(t);
+		
+		mCallStatus = call;
+		
+		//update what the player will need to draw next turn
+		if (mCallStatus == CALLED_NONE)
+			//draw normally if no call
+			mDrawNeeded = DRAW_NORMAL;
+		else
+			//draw nothing if called chi/pon
+			mDrawNeeded = DRAW_NONE;
+		
+		//if called kan, do a kan draw
+		if (mCallStatus == CALLED_KAN)
+			mDrawNeeded = DRAW_KAN;
+		
+		
+		return call;
+	}
+	
+	
+	
+	
+	private int askSelfForReaction(Tile t)
+	{
+		int call = CALLED_NONE;
+		
+		if (mController == CONTROLLER_HUMAN)
+			call = __askReactionHuman(t);
+		else
+			call = __askReactionCom(t);
+		
+		return call;
+	}
+	
+
+	private int __askReactionHuman(Tile t)
+	{
+		int call = CALLED_NONE;
+		
+
+		@SuppressWarnings("resource")
+		Scanner keyboard = new Scanner(System.in);
+		System.out.print("Do you want to call? (enter 0 no, 1 yes): "); 
+		call = keyboard.nextInt();
+		
+		return call;
+	}
+	
+	//ask com for their reaction (none by default)
+	private int __askReactionCom(Tile t)
+	{
+		int call = CALLED_NONE;
+		return call;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -205,15 +320,45 @@ public class Player {
 	public boolean checkFuriten(){
 		return mFuritenStatus;
 	}
+	public int checkCallStatus(){
+		return mCallStatus;
+	}
+	public int checkDrawNeeded(){
+		return mDrawNeeded;
+	}
+	public boolean checkRinshan(){
+		return mHoldingRinshanTile;
+	}
 	
 	
 	
+	//used to set the controller of the player after its creation
+	public boolean setController(char newController){
+		if (mController == CONTROLLER_UNDECIDED)
+			if (newController == CONTROLLER_HUMAN || newController == CONTROLLER_COM)
+			{
+				mController = newController;
+				return true;
+			}
+			else
+				System.out.println("-----Error: controller must be human or computer\n");
+		else
+			System.out.println("-----Error: controller has already been set\n");
+		
+		return false;
+	}
 	
 	
+	
+	//fill hand with demo values
 	public void fillHand(){
 		mHand.fill();
 	}
 	
+	
+	public void sortHand(){
+		mHand.sortHand();
+	}
 	
 	
 	
@@ -222,11 +367,11 @@ public class Player {
 	
 	
 	public void showPond(){
-		System.out.println("\n" + mSeatWind + " Player's pond:\n" + mPond.toString());
+		System.out.println("\n" + mSeatWind + " Player's pond " + mController + ":\n" + mPond.toString());
 	}
 	
 	public void showHand(){
-		System.out.println("\n" + mSeatWind + " Player's hand:\n" + mHand.toString());
+		System.out.println("\n" + mSeatWind + " Player's hand " + mController + ":\n" + mHand.toString());
 	}
 	
 	

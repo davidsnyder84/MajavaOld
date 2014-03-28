@@ -135,12 +135,11 @@ public class Hand {
 	public boolean removeTile(int index){
 		if (index >= 0 && index < mTiles.size())
 		{
-			//remove tile
+			//remove the tile
 			mTiles.remove(index);
 			
 			//sort hand
-			GenSort<Tile> sorter = new GenSort<Tile>(mTiles);
-			sorter.sort();
+			sortHand();
 			
 			return true;
 		}
@@ -150,6 +149,10 @@ public class Hand {
 	
 	
 	
+	public void sortHand(){
+		GenSort<Tile> sorter = new GenSort<Tile>(mTiles);
+		sorter.sort();
+	}
 	
 	
 	

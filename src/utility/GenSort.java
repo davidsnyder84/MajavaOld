@@ -6,8 +6,11 @@ import java.util.Random;
 
 public class GenSort <T extends Comparable<T> > {
 	
+	public static int INVALID_LIST_LENGTH = -1;
+	
+	
 	private ArrayList<T> mListToSort;
-	private int mListLength = -1;
+	private int mListLength = INVALID_LIST_LENGTH;
 	
 	//1-arg constructor
 	//takes an arraylist
@@ -21,8 +24,8 @@ public class GenSort <T extends Comparable<T> > {
 		else
 		{
 			mListToSort = null;
-			mListLength = -1;
-			System.out.println("Error: unsuitable list received by GenSort");
+			mListLength = INVALID_LIST_LENGTH;
+			System.out.println("-----Error: unsuitable list received by GenSort");
 		}
 	}
 	
