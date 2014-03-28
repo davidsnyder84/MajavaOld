@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 
 import utility.MahList;
+import utility.MahStack;
 
 
 /*
@@ -588,6 +589,207 @@ public class HandChecker {
 	
 	
 	
+	
+	public boolean populateMTypeStacks(){
+		
+		boolean allCanMakeAtLeastOneMeld = false;
+		
+		for (Tile t: mHandTiles){
+			
+			if (checkCallableTile(t) || mCanPair){
+				allCanMakeAtLeastOneMeld = true;
+				if (mCanPair) t.mstackPush(MeldType.PAIR);
+				if (mCanPon) t.mstackPush(MeldType.PON);
+				if (mCanChiH) t.mstackPush(MeldType.CHI_H);
+				if (mCanChiM) t.mstackPush(MeldType.CHI_M);
+				if (mCanChiL) t.mstackPush(MeldType.CHI_L);
+			}
+			
+		}
+		
+		return allCanMakeAtLeastOneMeld;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	private boolean pairHasBeenChosen = false;
+	
+	public boolean isNormalComplete(){
+		//populate stacks
+		if (populateMTypeStacks() == false) return false;
+		pairHasBeenChosen = false;
+		return isCompleteHand(mHandTiles);
+	}
+	
+	
+	
+	
+	public boolean isCompleteHand(TileList handTiles){
+		
+		
+		//if the hand is empty, it is complete
+		if (handTiles.isEmpty()) return true;
+		
+		
+		//////////////
+//		int startingHandSize = mHand.getSize();
+//		int startingNumMeldsMade = mHand.getNumMeldsMade();
+//		Hand hand = mHand;
+		
+//		int numMeldsNeededToComplete = Hand.MAX_NUM_MELDS - startingNumMeldsMade;
+//		boolean yes = false;
+		
+		
+//		MahStack<Meld> completedMelds = new MahStack<Meld>();
+
+		//make copy of hand?
+		//////////////////
+		
+		
+		
+		
+		
+		TileList handTilesMinusThisMeld = null;
+		
+		
+//		int currentTileIndex = 0;
+
+		Tile currentTile = null;
+		MeldType currentTileMType;
+		ArrayList<Integer> currentTileParterIDs;
+		boolean currentTilePartersAreStillHere = true;
+		
+		
+		
+		
+		//currrentTile = first tile in the hand
+		currentTile = handTiles.get(0);
+		
+		
+		
+		while(currentTile.mstackIsEmpty() == false){
+			
+			//if (currentTile.getFace() == '5')
+				//System.out.println();
+			
+			
+			//currentTileParterIDs = list of IDs of partners for currentTile's top MeldType
+			currentTileParterIDs = currentTile.mstackTopParterIDs();
+			
+			//assume currentTile's partners are still in the hand
+			//check if currentTile's partners are still in the hand
+			currentTilePartersAreStillHere = true;
+			for (Integer id: currentTileParterIDs)
+				if (handTiles.contains(id) == false) currentTilePartersAreStillHere = false;
+
+			//get the top meldType from currentTile's stack
+			currentTileMType = currentTile.mstackPop();	//(remove it)
+			
+			
+			
+			
+			if (currentTilePartersAreStillHere && !(pairHasBeenChosen && currentTileMType == MeldType.PAIR)){
+				
+				
+				
+				if (currentTileMType == MeldType.PAIR) pairHasBeenChosen = true;
+				
+				MahList<Integer> partnerIndices = new MahList<Integer>();
+				
+				
+				//if chi, just find the partners
+				if (currentTileMType.isChi()){
+					partnerIndices.add(handTiles.indexOf(new Tile(currentTileParterIDs.get(0))));
+					partnerIndices.add(handTiles.indexOf(new Tile(currentTileParterIDs.get(1))));
+				}
+				else{
+					//else if pon/pair, make sure you don't count the tile itsef
+					
+					
+					partnerIndices = handTiles.findAllIndicesOf(new Tile(currentTileParterIDs.get(0)));	//TODO I changed a 1 to a 0 here
+					//remove the first index (this is the index of currentTile)
+					partnerIndices.removeFirst();
+					
+					//trim the lists down to size to fit the meld type
+					if (currentTileMType == MeldType.PAIR) while(partnerIndices.size() > 1) partnerIndices.removeLast();
+					if (currentTileMType == MeldType.PON) while(partnerIndices.size() > 2) partnerIndices.removeLast();
+				}
+				
+				
+				
+				//add the currentTile to the meldlist, add the hand tiles to the meldlist
+				TileList toMeldTiles = new TileList();
+				toMeldTiles.add(currentTile);
+				for (Integer index: partnerIndices) toMeldTiles.add(handTiles.get(index));
+				
+				
+				
+				
+				handTilesMinusThisMeld = new TileList();
+				handTilesMinusThisMeld = handTiles.makeCopy();
+				//remove the tiles from the copy of the hand
+				while (partnerIndices.isEmpty() == false){
+					handTilesMinusThisMeld.remove(partnerIndices.get(partnerIndices.size() - 1).intValue());
+					partnerIndices.remove(partnerIndices.size() - 1);
+				}
+				handTilesMinusThisMeld.remove(0);
+				
+				if (isCompleteHand(handTilesMinusThisMeld)){
+					return true;
+				}
+				else{
+					if (currentTileMType == MeldType.PAIR) pairHasBeenChosen = false;
+				}
+				
+				
+			}
+			
+		}
+		
+		
+		return false;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	//checks if the hand is in tenpai
 	//sets mTenpaiStaus flag if it is, and returns true
 	private boolean __checkIfTenpai(){
@@ -643,16 +845,16 @@ public class HandChecker {
 	
 	
 	//returns the partner indices list for a given meld type
-	public ArrayList<Integer> getPartnerIndices(int meldType){
+	public ArrayList<Integer> getPartnerIndices(MeldType meldType){
 		
 		ArrayList<Integer> wantedIndices = null;
 		switch (meldType){
-		case Meld.MELD_TYPE_CHI_L: wantedIndices = mPartnerIndicesChiL; break;
-		case Meld.MELD_TYPE_CHI_M: wantedIndices = mPartnerIndicesChiM; break;
-		case Meld.MELD_TYPE_CHI_H: wantedIndices = mPartnerIndicesChiH; break;
-		case Meld.MELD_TYPE_PON: wantedIndices = mPartnerIndicesPon; break;
-		case Meld.MELD_TYPE_KAN: wantedIndices = mPartnerIndicesKan; break;
-		case Meld.MELD_TYPE_PAIR: wantedIndices = mPartnerIndicesPair; break;
+		case CHI_L: wantedIndices = mPartnerIndicesChiL; break;
+		case CHI_M: wantedIndices = mPartnerIndicesChiM; break;
+		case CHI_H: wantedIndices = mPartnerIndicesChiH; break;
+		case PON: wantedIndices = mPartnerIndicesPon; break;
+		case KAN: wantedIndices = mPartnerIndicesKan; break;
+		case PAIR: wantedIndices = mPartnerIndicesPair; break;
 		default: break;
 		}
 		return wantedIndices;

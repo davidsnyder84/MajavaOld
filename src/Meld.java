@@ -25,8 +25,9 @@ methods:
 	
 	private:
 */
-public class Meld implements Iterable<Tile>{
-
+public class Meld implements Iterable<Tile>, Comparable<Meld> {
+	
+	/*
 	public static final int MELD_TYPE_UNKNOWN = 0;
 	public static final int MELD_TYPE_CHI_L = 1;
 	public static final int MELD_TYPE_CHI_M = 2;
@@ -36,6 +37,7 @@ public class Meld implements Iterable<Tile>{
 	public static final int MELD_TYPE_PAIR = 8;
 	public static final int MELD_TYPE_DEFAULT = MELD_TYPE_UNKNOWN;
 	public static final int MELD_TYPE_CHI = 123;
+	*/
 	
 	public static final char OWNER_UNKOWN = '?';
 	public static final char OWNER_DEFAULT = OWNER_UNKOWN;
@@ -52,7 +54,7 @@ public class Meld implements Iterable<Tile>{
 	//list of tiles in the meld
 	private TileList mTiles;
 	
-	private int mMeldType;
+	private MeldType mMeldType;
 	private boolean mClosed;
 
 	private char mOwnerSeatWind;
@@ -76,7 +78,7 @@ public class Meld implements Iterable<Tile>{
 	form the meld
 	fu = 0
 	*/
-	public Meld(TileList handTiles, Tile newTile, int meldType){		
+	public Meld(TileList handTiles, Tile newTile, MeldType meldType){		
 		
 		__formMeld(handTiles, newTile, meldType);
 		
@@ -84,7 +86,7 @@ public class Meld implements Iterable<Tile>{
 	}
 	//2-arg, takes list of tiles and meld type (used when making a meld only from hand tiles, so no "new" tile)
 	//passes (handtiles 0 to n-1, handtile n, and meld type)
-	public Meld(TileList handTiles, int meldType){
+	public Meld(TileList handTiles, MeldType meldType){
 		this(handTiles.getAllExceptLast(), handTiles.getLast(), meldType);
 	}
 	public Meld(Meld other){
@@ -130,7 +132,7 @@ public class Meld implements Iterable<Tile>{
 	add the new tile to the meld
 	sort the meld if it is a chi
 	*/
-	public void __formMeld(TileList handTiles, Tile newTile, int meldType){
+	public void __formMeld(TileList handTiles, Tile newTile, MeldType meldType){
 		
 		//set the owner's seat wind
 		mOwnerSeatWind = handTiles.getFirst().getOrignalOwner();
@@ -155,10 +157,8 @@ public class Meld implements Iterable<Tile>{
 		mTiles.add(newTile);
 		
 		//sort the meld if it is a chi
-		if (mMeldType == MELD_TYPE_CHI_L || mMeldType == MELD_TYPE_CHI_M || mMeldType == MELD_TYPE_CHI_H)
-			mTiles.sort();
+		if (mMeldType.isChi()) mTiles.sort();
 	}
-	
 	
 	
 	
@@ -176,9 +176,8 @@ public class Meld implements Iterable<Tile>{
 	
 	
 	
-	
 	//accessors
-	public int getMeldType(){return mMeldType;}
+	public MeldType getMeldType(){return mMeldType;}
 	public boolean isClosed(){return mClosed;}
 	public char getOwnerSeatWind(){return mOwnerSeatWind;}
 	public char getResponsible(){return mPlayerResponsible;}
@@ -192,8 +191,20 @@ public class Meld implements Iterable<Tile>{
 	//returns the first tile in the meld
 	public Tile getFirstTile(){return mTiles.getFirst();}
 	
+	
+	//returns the entire list of tiles (this is a good idea)
+	public TileList getAllTiles(){return mTiles;}
+	
+	
+	
 	//returns how many tiles are in the meld
 	public int getSize(){return mTiles.size();}
+	
+	
+	
+	
+	
+	
 	
 	
 	//toString
@@ -205,8 +216,7 @@ public class Meld implements Iterable<Tile>{
 		//add the tiles to the string
 		for (Tile t: mTiles)
 			meldString += t.toString() + " ";
-
-		//meldString += "  [Closed: " + mClosed + ", Responsible: " + mPlayerResponsible + "]";
+		
 		//show closed or open
 		if (mClosed == true)
 			meldString += "  [Closed]";
@@ -220,4 +230,16 @@ public class Meld implements Iterable<Tile>{
 	//iterator, returns mTile's iterator
 	@Override
 	public Iterator<Tile> iterator() {return mTiles.iterator();}
+	
+	
+	@Override
+	public int compareTo(Meld other) {
+		
+		//if the first tiles are different, return the comparison of the first tiles
+		int tileCompare = getFirstTile().compareTo(other.getFirstTile());
+		if (tileCompare != 0) return tileCompare;
+		
+		//if the first tiles are the same, break the tie by meld type
+		return (mMeldType.compareTo(other.mMeldType));
+	}
 }

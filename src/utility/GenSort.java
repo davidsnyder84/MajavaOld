@@ -45,10 +45,10 @@ public class GenSort <T extends Comparable<T> > {
 
 	//sorts mListToSort with a shitty selection sort, ascending order
 	public void sortAscending(){
-		
+
+		checkListLength();
 		int current, walker, smallest;
 		T temp;
-		checkListLength();
 		
 		for (current = 0; current < mListLength; current++)
 		{
@@ -69,10 +69,10 @@ public class GenSort <T extends Comparable<T> > {
 	
 	//sorts mListToSort with a shitty selection sort, descending order
 	public void sortDescending(){
-			
+		
+		checkListLength();
 		int current, walker, biggest;
 		T temp;
-		checkListLength();
 		
 		for (current = 0; current < mListLength; current++)
 		{
@@ -116,11 +116,11 @@ public class GenSort <T extends Comparable<T> > {
 	
 	//shuffles the elements of mListToSort in a random order
 	public void shuffle(){
-		
+
+		checkListLength();
 		Random random = new Random();
 		int swapIndex = -1;
 		T temp = null;
-		checkListLength();
 		
 		int curIndex;
 		for (curIndex = 0; curIndex < mListLength; curIndex++)
@@ -135,6 +135,27 @@ public class GenSort <T extends Comparable<T> > {
 		}
 		
 	}
+	
+	
+	
+	//reverses the order of the items in a list
+	public void reverseOrder(){
+		
+		checkListLength();
+		
+		//templist is a copy of the list
+		ArrayList<T> tempList = new ArrayList<T>(mListLength);
+		for (T item: mListToSort) tempList.add(item);
+		
+		//empty ListToSort
+		mListToSort.clear();
+		
+		//add the items back to ListToSort in reverse order 
+		while (tempList.isEmpty() == false) mListToSort.add(tempList.remove(tempList.size() - 1));
+	}
+	
+	
+	
 	
 	
 	//checks the list length (must be done before a sort)

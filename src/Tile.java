@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 
+import utility.MahStack;
+
 
 
 
@@ -67,11 +69,11 @@ public class Tile implements Comparable<Tile> {
 	public static final char SUIT_WIND = 'W';
 	public static final char SUIT_DRAGON = 'D';
 
-	public static final int ID_LAST_NON_HONOR_TILE = 27;
-	public static final int ID_FIRST_HONOR_TILE = ID_LAST_NON_HONOR_TILE + 1;
+	public static final int ID_FIRST_HONOR_TILE = 28;
 	public static final int NUMBER_OF_YAOCHUU_TILES = 13;
 	
 	private static final String STR_REPS_BY_ID = "M1M2M3M4M5M6M7M8M9C1C2C3C4C5C6C7C8C9B1B2B3B4B5B6B7B8B9WEWSWWWNDWDGDR";
+	private static final TileList LIST_OF_YAOCHUU_TILES = new TileList(1, 9, 10, 18, 19, 27, 28, 29, 30, 31, 32, 33, 34);
 	
 	
 	
@@ -81,6 +83,9 @@ public class Tile implements Comparable<Tile> {
 	
 	private char mOriginalOwner;
 	private boolean mRedDora;
+	
+	
+	private MahStack<MeldType> mMeldTypeStack;
 	
 	
 	
@@ -93,6 +98,9 @@ public class Tile implements Comparable<Tile> {
 
 		mOriginalOwner = OWNER_NONE;
 		mRedDora = isRed;
+		
+		
+		mMeldTypeStack = new MahStack<MeldType>(0);
 	}
 	//1-arg Constructor, takes tile ID
 	public Tile(int id){
@@ -111,8 +119,40 @@ public class Tile implements Comparable<Tile> {
 		this(Character.toString(Character.toUpperCase(suit)) + Character.toString(Character.toUpperCase(face)));
 	}
 	
+	public Tile(Tile other){
+		mID = other.mID;
+		mSuit = other.mSuit;
+		mFace = other.mFace;
+		mOriginalOwner = other.mOriginalOwner;
+		mRedDora = other.mRedDora;
+		
+		mMeldTypeStack = new MahStack<MeldType>(other.mMeldTypeStack);
+	}
 	
+	/*
+	public boolean mstackPush(MeldType meldType){return mMeldTypeStack.push(meldType);}
+	public MeldType mstackPop(){return mMeldTypeStack.pop();}
+	public MeldType mstackTop(){return mMeldTypeStack.top();}
+	public boolean mstackIsEmpty(){return mMeldTypeStack.isEmpty();}
 	
+	//returns a list of the partner IDs for the top meldType on the stack
+	public ArrayList<Integer> mstackTopParterIDs(){
+		
+		ArrayList<Integer> partnerIDs = new ArrayList<Integer>(2);
+		
+		switch(mMeldTypeStack.top()){
+		case CHI_L: partnerIDs.add(mID + 1); partnerIDs.add(mID + 2); break;
+		case CHI_M: partnerIDs.add(mID - 1); partnerIDs.add(mID + 1); break;
+		case CHI_H: partnerIDs.add(mID - 2); partnerIDs.add(mID - 1); break;
+		case PON: partnerIDs.add(mID); partnerIDs.add(mID); break;
+		case KAN: partnerIDs.add(mID); partnerIDs.add(mID); partnerIDs.add(mID); break;
+		case PAIR: partnerIDs.add(mID); break;
+		default: break;
+		}
+		return partnerIDs;
+	}
+	
+	*/
 	
 	
 	//accessors
@@ -131,10 +171,7 @@ public class Tile implements Comparable<Tile> {
 	}
 	
 	//makes the tile a red dora tile
-	public void setRedDora(){
-		if (mFace == '5')
-			mRedDora = true;
-	}
+	public void setRedDora(){if (mFace == '5') mRedDora = true;}
 	
 	
 	
@@ -220,12 +257,9 @@ public class Tile implements Comparable<Tile> {
 		//at this point, both tiles have the same ID
 		//if both 5's, check if one is red dora
 		if (mFace == '5' && other.mFace == '5')
-		{
-			if (mRedDora && !other.mRedDora)
-				return 1;
-			else if (!mRedDora && other.mRedDora)
-				return -1;
-		}
+			if (mRedDora && !other.mRedDora) return 1;
+			else if (!mRedDora && other.mRedDora) return -1;
+		
 		//if the tiles are not 5's, or if both are red doras, return 0
 		return 0;
 	}
@@ -283,6 +317,51 @@ public class Tile implements Comparable<Tile> {
 	
 	
 	
+	
+	
+	
+	
+	
+	//stack functions (TODO I don't like these stack funcs here)
+	public boolean mstackPush(MeldType meldType){return mMeldTypeStack.push(meldType);}
+	public MeldType mstackPop(){return mMeldTypeStack.pop();}
+	public MeldType mstackTop(){return mMeldTypeStack.top();}
+	public boolean mstackIsEmpty(){return mMeldTypeStack.isEmpty();}
+	
+	//returns a list of the partner IDs for the top meldType on the stack
+	public ArrayList<Integer> mstackTopParterIDs(){
+		
+		ArrayList<Integer> partnerIDs = new ArrayList<Integer>(2);
+		
+		switch(mMeldTypeStack.top()){
+		case CHI_L: partnerIDs.add(mID + 1); partnerIDs.add(mID + 2); break;
+		case CHI_M: partnerIDs.add(mID - 1); partnerIDs.add(mID + 1); break;
+		case CHI_H: partnerIDs.add(mID - 2); partnerIDs.add(mID - 1); break;
+		case PON: partnerIDs.add(mID); partnerIDs.add(mID); partnerIDs.add(mID); break;
+		case KAN: partnerIDs.add(mID); partnerIDs.add(mID); partnerIDs.add(mID); partnerIDs.add(mID); break;
+		case PAIR: partnerIDs.add(mID); partnerIDs.add(mID); break;
+		default: break;
+		}
+		return partnerIDs;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	//takes a tile ID, returns the string representation of that ID
 	public static String repr_stringReprOfId(int id){
 		return STR_REPS_BY_ID.substring(2*(id-1), 2*(id-1) + 2);
@@ -302,19 +381,7 @@ public class Tile implements Comparable<Tile> {
 	public static int repr_idOfStringRepr(char suit, char face){return repr_idOfStringRepr(Character.toString(suit) + Character.toString(face));}
 	
 	//returns a list of all Yaochuu tiles (terminal or honor)
-	public static TileList listOfYaochuuTiles(){
-		
-//		TileList listTYC = new TileList(NUMBER_OF_YAOCHUU_TILES);
-//		listTYC.addMultiple(new Tile(1), new Tile(9), new Tile(10), new Tile(18), new Tile(19), new Tile(27), new Tile(28), new Tile(29), new Tile(30), new Tile(31), new Tile(32), new Tile(33), new Tile(34));
-		
-		//add terminal tiles
-//		listTYC.addMultiple(new Tile("M1"), new Tile("M9"), new Tile("C1"), new Tile("C9"), new Tile("B1"), new Tile("B9"));
-		//add honor tiles
-//		for (int i = ID_FIRST_HONOR_TILE; i <= NUMBER_OF_DIFFERENT_TILES; i++) listTYC.add(new Tile(i));
-		
-//		return new TileList(new Tile(1), new Tile(9), new Tile(10), new Tile(18), new Tile(19), new Tile(27), new Tile(28), new Tile(29), new Tile(30), new Tile(31), new Tile(32), new Tile(33), new Tile(34));
-		return new TileList(1, 9, 10, 18, 19, 27, 28, 29, 30, 31, 32, 33, 34);
-	}
+	public static TileList listOfYaochuuTiles(){return (new TileList(LIST_OF_YAOCHUU_TILES));}
 	
 	
 	

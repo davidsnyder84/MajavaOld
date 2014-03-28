@@ -619,12 +619,12 @@ public class Player {
 		if (mCallStatus != CALLED_NONE)
 		{
 			//determine type of meld, based on call status
-			int meldType = Meld.MELD_TYPE_UNKNOWN;
-			if (mCallStatus == CALLED_CHI_L) meldType = Meld.MELD_TYPE_CHI_L;
-			else if (mCallStatus == CALLED_CHI_M) meldType = Meld.MELD_TYPE_CHI_M;
-			else if (mCallStatus == CALLED_CHI_H) meldType = Meld.MELD_TYPE_CHI_H;
-			else if (mCallStatus == CALLED_PON) meldType = Meld.MELD_TYPE_PON;
-			else if (mCallStatus == CALLED_KAN) meldType = Meld.MELD_TYPE_KAN;
+			MeldType meldType = MeldType.NONE;
+			if (mCallStatus == CALLED_CHI_L) meldType = MeldType.CHI_L;
+			else if (mCallStatus == CALLED_CHI_M) meldType = MeldType.CHI_M;
+			else if (mCallStatus == CALLED_CHI_H) meldType = MeldType.CHI_H;
+			else if (mCallStatus == CALLED_PON) meldType = MeldType.PON;
+			else if (mCallStatus == CALLED_KAN) meldType = MeldType.KAN;
 			
 			//make the meld
 			mHand.makeMeld(meldType);

@@ -85,11 +85,6 @@ public class TileList implements Iterable<Tile>{
 		this(tiles.length);
 		for (Tile t: tiles) mTiles.add(t);
 	}
-	//copy constructor, duplicates another MahList
-	public TileList(TileList other){		
-		this(other.size());
-		for (Tile t: other) mTiles.add(t);
-	}
 	public TileList(){
 		this(DEFAULT_CAPACITY);
 	}
@@ -99,10 +94,31 @@ public class TileList implements Iterable<Tile>{
 		this(ids.length);
 		for (int id: ids) mTiles.add(new Tile(id));
 	}
+	//copy constructor, duplicates another MahList
+	public TileList(TileList other){		
+		this(other.size());
+		for (Tile t: other) mTiles.add(t);
+	}
 	
 	
+	/*
+	//make a list with a COPY (independent) of each tile in the other list
+	public TileList makeCopy(TileList other){
+		TileList copy = new TileList(other.size());
+		for (Tile t: other) copy.add(new Tile(t));
+		return copy;
+	}
+	*/
+	//return a new TileList with a COPY (independent) of each tile in the list
+	public TileList makeCopy(){
+		TileList copy = new TileList(mTiles.size());
+		for (Tile t: mTiles) copy.add(new Tile(t));
+		return copy;
+	}
 	
 	
+	//contains, overloaded to accept tileID
+	public boolean contains(int id){return contains(new Tile(id));}
 	
 	
 	
@@ -249,6 +265,12 @@ public class TileList implements Iterable<Tile>{
 	
 	
 	
+
+	public int indexOf(Tile t){
+		return mTiles.indexOf(t);
+	}
+	
+	
 	
 	
 	
@@ -271,7 +293,6 @@ public class TileList implements Iterable<Tile>{
 	public Tile get(int index){return mTiles.get(index);}
 	public boolean contains(Tile t){return mTiles.contains(t);}
 	public boolean isEmpty(){return mTiles.isEmpty();}
-	public int indexOf(Tile t){return mTiles.indexOf(t);}
 	public int lastIndexOf(Tile t){return mTiles.lastIndexOf(t);}
 	public Tile set(int index, Tile t){return mTiles.set(index, t);}
 	

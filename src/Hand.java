@@ -114,7 +114,10 @@ public class Hand implements Iterable<Tile>{
 	
 	//adds a tile to the hand (cannot add more than max hand size)
 	public boolean addTile(Tile t){
-		if (mTiles.size() < MAX_HAND_SIZE - Meld.AVG_NUM_TILES_PER_MELD*mNumMeldsMade) return(mTiles.add(t));
+		if (mTiles.size() < MAX_HAND_SIZE - Meld.AVG_NUM_TILES_PER_MELD*mNumMeldsMade){
+			t.setOwner(mOwnerSeatWind);	//TODO for debug use, should remove when done
+			return(mTiles.add(t));
+		}
 		return false;
 	}
 	//overloaded for tileID, accepts integer tileID and adds a new tile with that ID to the hand (debug use)
@@ -226,7 +229,7 @@ public class Hand implements Iterable<Tile>{
 	numMeldsMade++
 	update hand's closed status after making the meld
 	*/
-	public void makeMeld(int meldType){
+	public void makeMeld(MeldType meldType){
 		
 		//~~~~gather the tiles from the hand that will be in the meld
 		//get the list of partner indices, based on the the meld type
@@ -292,7 +295,7 @@ public class Hand implements Iterable<Tile>{
 	}
 	//true returns a string of indices (indices are +1 to match display)
 	//false returns a string of actual tile values
-	public String partnerIndicesString(int meldType, boolean wantActualTiles){
+	public String partnerIndicesString(MeldType meldType, boolean wantActualTiles){
 		
 		String partnersString = "";
 		ArrayList<Integer> wantedIndices = null;
@@ -305,7 +308,7 @@ public class Hand implements Iterable<Tile>{
 		if (partnersString != "") partnersString = partnersString.substring(0, partnersString.length() - 2);
 		return partnersString;
 	}
-	public String partnerIndicesString(int meldType){return partnerIndicesString(meldType, false);}
+	public String partnerIndicesString(MeldType meldType){return partnerIndicesString(meldType, false);}
 	
 	//returns a list of hot tile IDs for ALL tiles in the hand
 	public ArrayList<Integer> findAllHotTiles(){return mChecker.findAllHotTiles();}
@@ -336,6 +339,23 @@ public class Hand implements Iterable<Tile>{
 		for (int i = 0; i < mMelds.size(); i++)
 			System.out.println("+++Meld " + (i+1) + ": " + mMelds.get(i).toString());
 	}
+	
+	
+	
+	
+	
+	
+
+	//stack functions (TODO I don't like these stack funcs here)
+	//returns true if all the meldtype stack for every tile is empty
+	public boolean mstackAllTileStacksAreEmpty(){
+		boolean allEmpty = true;
+		for (Tile t: mTiles) allEmpty = (allEmpty && t.mstackIsEmpty());
+		return allEmpty;
+	}
+	
+	
+	
 	
 	
 	

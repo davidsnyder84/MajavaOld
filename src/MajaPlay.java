@@ -6,13 +6,18 @@ import utility.MahList;
 
 public class MajaPlay {
 	
+
+	public static final char ownerSeat = Player.SEAT_SOUTH;
+	
 	
 	public static void main(String[] args) {
 		
 		
+		testCompleteNormal();
+		
 		//testCallPartners();
 		
-		meldEnumPlay();
+		//meldEnumPlay();
 		
 		
 		
@@ -60,10 +65,62 @@ public class MajaPlay {
 		System.out.println();
 	}
 	
+	
+	
+	
+	public static void testCompleteNormal(){
+		
+		Hand h = new Hand(ownerSeat);
+		//Tile q = null;
+		TileList waits = null;
+		
+		/*
+		h.addTile(new Tile(1));	//1
+		h.addTile(new Tile(2));	//2
+		h.addTile(new Tile(3));	//3
+		h.addTile(new Tile(4));	//4
+		h.addTile(new Tile(5));	//5
+		h.addTile(new Tile(6));	//6
+		h.addTile(new Tile(7));	//7
+		h.addTile(new Tile(8));	//8
+		h.addTile(new Tile(9));	//9
+		h.addTile(new Tile("WN"));	//10
+		h.addTile(new Tile("DW"));	//11
+		h.addTile(new Tile("DG"));	//12
+		h.addTile(new Tile("DR"));	//13
+		h.addTile(new Tile("m8"));	//14
+		*/
+		h.addTile(new Tile(1));
+		h.addTile(new Tile(1));
+		h.addTile(new Tile(1));
+		h.addTile(new Tile(2));
+		h.addTile(new Tile(3));
+		h.addTile(new Tile(4));
+		h.addTile(new Tile(5));
+		h.addTile(new Tile(6));
+		h.addTile(new Tile(7));
+		h.addTile(new Tile(8));
+		h.addTile(new Tile(9));
+		h.addTile(new Tile(9));
+		h.addTile(new Tile(9));
+		h.addTile(new Tile(10));
+		
+		h.sortHand();
+		
+		
+		
+
+		System.out.println(h.toString());
+		
+
+		System.out.println("\nHand is complete normal?: " + h.mChecker.isNormalComplete());
+		
+	}
+	
+	
+	
 
 	public static void kokushiTenpaiTest(){
-		
-		final char ownerSeat = Player.SEAT_SOUTH;
 		
 		Hand h = new Hand(ownerSeat);
 		//Tile q = null;
@@ -132,22 +189,22 @@ public class MajaPlay {
 			System.out.println("\nDiscarded tile: " + q.toString());
 			
 			System.out.print("\n\tChi-L?: " + h.ableToChiL());
-			if (h.ableToChiL())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_L, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_L));
+			if (h.ableToChiL())	System.out.print(", Partners: " + h.partnerIndicesString(MeldType.CHI_L, true) + ", Ind: " + h.partnerIndicesString(MeldType.CHI_L));
 			
 			System.out.print("\n\tChi-M?: " + h.ableToChiM());
-			if (h.ableToChiM())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_M, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_M));
+			if (h.ableToChiM())	System.out.print(", Partners: " + h.partnerIndicesString(MeldType.CHI_M, true) + ", Ind: " + h.partnerIndicesString(MeldType.CHI_M));
 			
 			System.out.print("\n\tChi-H?: " + h.ableToChiH());
-			if (h.ableToChiH())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_H, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_H));
+			if (h.ableToChiH())	System.out.print(", Partners: " + h.partnerIndicesString(MeldType.CHI_H, true) + ", Ind: " + h.partnerIndicesString(MeldType.CHI_H));
 			
 			System.out.print("\n\tPon?  : " + h.ableToPon());
-			if (h.ableToPon())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_PON, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_PON));
+			if (h.ableToPon())	System.out.print(", Partners: " + h.partnerIndicesString(MeldType.PON, true) + ", Ind: " + h.partnerIndicesString(MeldType.PON));
 
 			System.out.print("\n\tKan?  : " + h.ableToKan());
-			if (h.ableToKan())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_KAN, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_KAN));
+			if (h.ableToKan())	System.out.print(", Partners: " + h.partnerIndicesString(MeldType.KAN, true) + ", Ind: " + h.partnerIndicesString(MeldType.KAN));
 			
 			System.out.print("\n\tPair? : " + h.ableToPair());
-			if (h.ableToPair())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_PAIR, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_PAIR));
+			if (h.ableToPair())	System.out.print(", Partners: " + h.partnerIndicesString(MeldType.PAIR, true) + ", Ind: " + h.partnerIndicesString(MeldType.PAIR));
 			System.out.println("\n\n\n\n");
 		}
 		
@@ -168,62 +225,8 @@ public class MajaPlay {
 	}
 	
 	
-	public static void testCallPartnersOld(){
-
-		final char ONWER_SEAT = Player.SEAT_SOUTH;
-		Tile q = null;
-		Hand h = new Hand(ONWER_SEAT);
-
-		h.addTile(1);
-		h.addTile(2);
-		h.addTile(2);
-		h.addTile(3);
-		h.addTile(4);
-		h.addTile(4);
-		h.addTile(4);
-		h.addTile(5);
-		h.addTile(6);
-		h.addTile(32);
-		h.addTile(32);
-		h.addTile(33);
-		
-		q = new Tile(32);
-		q.setOwner(Player.findKamichaOf(ONWER_SEAT));
-		
-		
-		h.checkCallableTile(q);
-		
-
-		System.out.println(h.toString());
-		System.out.println("\nDiscarded tile: " + q.toString());
-		
-		System.out.print("\nChi-L?: " + h.ableToChiL());
-		if (h.ableToChiL())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_L, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_L));
-		
-		System.out.print("\nChi-M?: " + h.ableToChiM());
-		if (h.ableToChiM())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_M, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_M));
-		
-		System.out.print("\nChi-H?: " + h.ableToChiH());
-		if (h.ableToChiH())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_H, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_H));
-		
-		System.out.print("\nPon?  : " + h.ableToPon());
-		if (h.ableToPon())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_PON, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_PON));
-
-		System.out.print("\nKan?  : " + h.ableToKan());
-		if (h.ableToKan())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_KAN, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_KAN));
-		
-		System.out.print("\nPair? : " + h.ableToPair());
-		if (h.ableToPair())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_PAIR, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_PAIR));
-		
-	}
-	
-	
-	
 
 	public static void finishingMovePre(){
-		
-		final char ownerSeat = Player.SEAT_SOUTH;
-		
 		Hand h = new Hand(ownerSeat);
 		Tile q = null;
 
@@ -247,9 +250,6 @@ public class MajaPlay {
 	
 
 	public static void chiKamichaTest(){
-		
-		final char ownerSeat = Player.SEAT_SOUTH;
-		
 		Hand h = new Hand(ownerSeat);
 		Tile q = null;
 
@@ -751,8 +751,6 @@ public class MajaPlay {
 	
 	
 	public static void iterableTest(){
-		
-		final char ownerSeat = Player.SEAT_SOUTH;
 		Hand h = new Hand(ownerSeat);
 		h.addTile(new Tile("M1"));	//1
 		h.addTile(new Tile("M9"));	//2
