@@ -1,0 +1,83 @@
+	private boolean __canChiType(int chiType){
+		
+		//if true, the player definitely CAN make a chi
+		boolean can = false;
+		//if true, the player definitely CANNOT make a chi
+		boolean impossible = false;
+		
+		
+		//can't chi on a wind or dragon
+		if (mCallCandidate.getSuit() == Tile.SUIT_WIND || mCallCandidate.getSuit() == Tile.SUIT_DRAGON)
+			return false;
+		
+		int partnerIndex1 = NOT_FOUND, partnerIndex2 = NOT_FOUND;
+		
+		
+		int desiredID1 = 0, desiredID2 = 0;
+		int tID = mCallCandidate.getId();
+		
+		//decide who the partners should be, based on chi type
+		if (chiType == Meld.MELD_TYPE_CHI_L){
+			impossible = (mCallCandidate.getFace() == '8' || mCallCandidate.getFace() == '9');
+			desiredID1 = tID + 1;
+			desiredID2 = tID + 2;
+		}
+		if (chiType == Meld.MELD_TYPE_CHI_M){
+			impossible = (mCallCandidate.getFace() == '1' || mCallCandidate.getFace() == '9');
+			desiredID1 = tID - 1;
+			desiredID2 = tID + 1;
+		}
+		if (chiType == Meld.MELD_TYPE_CHI_H){
+			impossible = (mCallCandidate.getFace() == '1' || mCallCandidate.getFace() == '2');
+			desiredID1 = tID - 2;
+			desiredID2 = tID - 1;
+		}
+		
+		//return false if a chi cannot be made with the tile 
+		if (impossible)
+			return false;
+		
+		
+		//search the hand for the desired chi partners (get the indices)
+		int i;
+		for (i = 0; i < mTiles.size(); i++){
+			if (partnerIndex1 == NOT_FOUND && mTiles.get(i).getId() == desiredID1)
+				partnerIndex1 = i;
+			else if (partnerIndex2 == NOT_FOUND && mTiles.get(i).getId() == desiredID2)
+				partnerIndex2 = i;
+		}
+		
+		
+		if (partnerIndex1 != NOT_FOUND && partnerIndex2 != NOT_FOUND)
+		{
+			//store the indices in the appropriate partners list
+			ArrayList<Integer> storeHere = null;
+			if (chiType == Meld.MELD_TYPE_CHI_L)
+			{
+				storeHere = mPartnerIndicesChiL;
+				can = mCanChiL = true;
+			}
+			else if (chiType == Meld.MELD_TYPE_CHI_M)
+			{
+				storeHere = mPartnerIndicesChiM;
+				can = mCanChiM = true;
+			}
+			else if (chiType == Meld.MELD_TYPE_CHI_H)
+			{
+				storeHere = mPartnerIndicesChiH;
+				can = mCanChiH = true;
+			}
+			
+			//sore the indices of the partners in a partner list
+			__storePartnerIndices(storeHere, partnerIndex1, partnerIndex2);
+		}
+		
+		return can;
+	}
+	
+	
+	
+	
+	
+	
+	

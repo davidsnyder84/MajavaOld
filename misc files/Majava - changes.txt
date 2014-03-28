@@ -1,0 +1,44 @@
+2013-10-10
+-added hot tile check
+-added canMakeXCall functions that check if a tile can be chiLMH/pon/kan'd
+-now prompts player when a call can be made, and tells them which calls are possible
+
+2013-10-12
+-modified canMakeXCall check functions to store partner indices in an array (5 diff arrays)
+-hand now stores callCandidate as tile (along with partner index arrays)
+-finally added ability to make melds (uses previously stored callCandidate and partner index arrays)
+-added nextTile function to tile, for use with dora indicators
+-updated documentation
+
+2013-10-13
+-wrote a fucntion that returns a list of all possible callable tiles for a hand (where do I use this lol)
+-made it so you can only call chi on a tile from your kamicha
+-added pauses after discards/calls for dramatic effect
+-fixed wall drawing at beginning of game (non-East players weren't drawing on their first turn)
+-kan draw seems to be working fine
+
+2013-10-14
+-restructured __canChi to be more concise
+-restructured __canPon, __canKan, and countHowManyInHand. __storePartnerIndices is explicitly called when it is needed
+-added __canPair function and corresponding flag/list. does not affect "isCallableTile" return value
+-added copy constructors to Hand and Meld
+-changed Tile's compareTo function so that Red 5's come after non-red 5's
+-added isHonor() and isTerminal() boolean methods to Tile
+-modified Tile constructor to convert string arguments to uppercase
+-restructured __canChi functions to be more efficient and nicer-looking
+-added functions to check for a hand for Kokushi musou
+	-^can check: kokushi tenpai?, kokushi complete?, list of waits if in kokushi tenpai
+-added function to check if a hand is in tenpai (only checks kokushi tenpai now)
+-now always checks if the hand is in tenpai after a tile is discarded (handled in the Hand)
+-now always checks the hand's closed status after a meld is made (handled in the Hand)
+-created and wrote a MahList class to make lists easier (not implemented in program yet)
+	-^can: get/remove first/last, remove multiple, get good sublist, sort, take arrays/var args in constructor
+
+
+
+
+
+
+
+
+
