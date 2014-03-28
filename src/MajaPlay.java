@@ -10,7 +10,9 @@ public class MajaPlay {
 	public static void main(String[] args) {
 		
 		
-		testCallPartners();
+		//testCallPartners();
+		
+		meldEnumPlay();
 		
 		
 		
@@ -151,6 +153,19 @@ public class MajaPlay {
 		
 	}
 	
+	
+	public static void meldEnumPlay(){
+		
+		MeldType call = MeldType.CHI_H;
+		int want = 3;
+		MeldType wantCall = MeldType.values()[want];
+		
+		System.out.println("Call: " + call + ", " + call.ordinal());
+		System.out.println("Want: " + wantCall + ", " + wantCall.ordinal());
+
+		System.out.println("Call == Want?: " + (call == wantCall));
+		System.out.println("Call > Want?: " + (call.compareTo(wantCall) > 0));
+	}
 	
 	
 	public static void testCallPartnersOld(){
