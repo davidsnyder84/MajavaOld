@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import utility.GenSort;
 
@@ -15,7 +17,7 @@ public class MajaPlay {
 		//testCalls();
 		
 		
-		testCallPartners();
+		//testCallPartners();
 		
 		
 		//testPlayerCall();
@@ -43,9 +45,67 @@ public class MajaPlay {
 		
 		//finishingMovePre();
 		
+		//finalListTest();
+		
+		kokushiTenpaiTest();
+		
+		
+		
+		
+		/*
+		ArrayList<Tile> waits = Tile.listOfYaochuuTiles();
+		System.out.print("TYCs: ");
+		for (Tile t: waits)
+			System.out.print(t.toString() + ", ");
+		
+		
 		
 		System.out.println();
+		*/
 	}
+	
+	
+
+	public static void kokushiTenpaiTest(){
+		
+		final char ownerSeat = Player.SEAT_SOUTH;
+		
+		Hand h = new Hand(ownerSeat);
+		Tile q = null;
+		ArrayList<Tile> waits = null;
+
+		h.addTile(new Tile("M1"));
+		h.addTile(new Tile("M9"));
+		h.addTile(new Tile("C1"));
+		h.addTile(new Tile("C9"));
+		h.addTile(new Tile("B1"));
+		h.addTile(new Tile("B9"));
+		h.addTile(new Tile("WE"));
+		h.addTile(new Tile("WS"));
+		h.addTile(new Tile("WW"));
+		h.addTile(new Tile("WN"));
+		h.addTile(new Tile("DW"));
+		h.addTile(new Tile("DG"));
+		h.addTile(new Tile("DR"));
+		h.addTile(new Tile("DR"));	//extra tile
+		h.sortHand();
+		
+		System.out.println(h.toString());
+		
+
+		System.out.println("\nIn tenpai for kokushi musou?: " + h.kokushiMusouTenpaiStatus());
+		
+		waits = h.kokushiMusouWaits();
+		System.out.print(waits.size() + "-sided wait: ");
+		for (Tile t: waits)
+			System.out.print(t.toString() + ", ");
+		
+	}
+	
+	
+	
+	
+	
 
 	public static void finishingMovePre(){
 		
@@ -555,9 +615,37 @@ public class MajaPlay {
 		try {Thread.sleep(SLEEP_AMOUNT);}
 		catch (InterruptedException e) {}
 		
-		System.out.println("sleepy!");
+		System.out.println("sleepy!");	
+	}
+	
+	
+	
+	/*
+	public static List<Integer> unlist;
+	static{
+		List<Integer> temp = new List<Integer>(3);
+		temp.add(4);
+		temp.add(6);
+		temp.add(8);
+		unlist = temp;
+		unlist = Collections.unmodifiableList(temp);
+	}
+	*/
+	public static void finalListTest(){
+		
+		ArrayList<Integer> prelist = new ArrayList<Integer>(5);
+		prelist.add(5);
+		prelist.add(6);
+		prelist.add(7);
+		prelist.add(8);
+		prelist.add(9);
+		final ArrayList<Integer> list1 = new ArrayList<Integer>(prelist);
 		
 		
+		System.out.print("list1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
+		
+		list1.remove(2);
+		System.out.print("\n\nList1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
 	}
 	
 	

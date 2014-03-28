@@ -24,6 +24,7 @@
 -added copy constructors to Hand and Meld
 -changed Tile's compareTo function so that Red 5's come after non-red 5's
 -added isHonor() and isTerminal() boolean methods to Tile
+-modified Tile constructor to convert string arguments to uppercase
 
 
 

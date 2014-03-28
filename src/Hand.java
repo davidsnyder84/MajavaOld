@@ -30,6 +30,7 @@ methods:
 	sortHand - sorts the hand in ascending order
  	
  	accessors:
+ 	contains - returns true if the hand contains a copy of the given tile
 	getTile - returns the tile at the given index in the hand
 	getSize - returns the number of tiles in the hand
 	isClosed - returns true if the hand is fully concealed, false if an open meld has been made
@@ -211,6 +212,15 @@ public class Hand {
 		}
 		return false;
 	}
+
+	
+	//returns true if the hand contains an occurence of tile t
+	public boolean contains(Tile t){
+		return mTiles.contains(t);
+	}
+	//overloaded to accept tile id instead of actual tile
+	public boolean contains(int id){return contains(new Tile(id));}
+	
 	
 	
 	//sort the hand in ascending order
@@ -663,13 +673,80 @@ public class Hand {
 	
 	
 	
-	
-	
-	
 	public void findAllMachis(){
 		
 		
 	}
+	
+	
+	
+	
+	//returns true if the hand is in tenpai for kokushi musou
+	public boolean kokushiMusouTenpaiStatus(){
+		
+		boolean couldBeKokushi = true;
+		
+		//if any melds have been made, kokushi musou is impossible
+		if (mNumMeldsMade > 0) return false;
+		
+		
+		//couldBeKokushi will be set to false if the hand contains a non-honor tile
+		for (Tile t: mTiles) couldBeKokushi = (couldBeKokushi && t.isYaochuu());
+		if (couldBeKokushi == false) return false;
+		
+		//check if the hand contains at least 12 different TYC tiles
+		ArrayList<Tile> listTYC = Tile.listOfYaochuuTiles();
+		int countTYC = 0;
+		for (int i = 0; i < Tile.NUMBER_OF_YAOCHUU_TILES; i++)
+			if (mTiles.contains(listTYC.get(i)))
+				countTYC++;
+
+		//return false if the hand doesn't contain at least 12 different TYC tiles
+		if (countTYC < Tile.NUMBER_OF_YAOCHUU_TILES - 1) return false;
+		
+		
+		return true;
+	}
+	
+	//returns true if a 14-tile hand is a complete kokushi musou
+	public boolean kokushiMusouIsComplete(){
+		
+		if ((mTiles.size() == MAX_HAND_SIZE) &&
+			(kokushiMusouTenpaiStatus() == true) &&
+			(kokushiMusouWaits().size() == Tile.NUMBER_OF_YAOCHUU_TILES))
+			return true;
+		
+		
+		return false;
+	}
+
+	//returns a list of the hand's waits, if it is in tenpai for kokushi musou
+	//returns an empty list if not in kokushi musou tenpai
+	public ArrayList<Tile> kokushiMusouWaits(){
+		
+		ArrayList<Tile> waits = new ArrayList<Tile>(1);
+		
+		Tile missingTYC = null;
+		if (kokushiMusouTenpaiStatus() == true)
+		{
+			//look for a Yaochuu tile that the hand doesn't contain
+			ArrayList<Tile> listTYC = Tile.listOfYaochuuTiles();
+			for (Tile t: listTYC)
+				if (mTiles.contains(t) == false)
+					missingTYC = t;
+			
+			//if the hand contains exactly one of every Yaochuu tile, then it is a 13-sided wait for all Yaochuu tiles
+			if (missingTYC == null)
+				waits = listTYC;
+			else
+				//else, if the hand is missing a Yaochuu tile, that missing tile is the hand's wait
+				waits.add(missingTYC);
+		}
+		
+		return waits;
+	}
+	
+	
 	
 	
 	
@@ -754,15 +831,6 @@ public class Hand {
 	
 	
 	
-	
-	
-	
-	//returns true if the hand contains an occurence of tile t
-	public boolean contains(Tile t){
-		return mTiles.contains(t);
-	}
-	//overloaded to accept tile id instead of actual tile
-	public boolean contains(int id){return contains(new Tile(id));}
 	
 	
 	

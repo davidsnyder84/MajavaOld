@@ -69,6 +69,7 @@ public class Tile implements Comparable<Tile> {
 
 	public static final int ID_LAST_NON_HONOR_TILE = 27;
 	public static final int ID_FIRST_HONOR_TILE = ID_LAST_NON_HONOR_TILE + 1;
+	public static final int NUMBER_OF_YAOCHUU_TILES = 13;
 	
 	private static final String STR_REPS_BY_ID = "M1M2M3M4M5M6M7M8M9C1C2C3C4C5C6C7C8C9B1B2B3B4B5B6B7B8B9WEWSWWWNDWDGDR";
 	
@@ -106,11 +107,11 @@ public class Tile implements Comparable<Tile> {
 	}
 	//1-arg, takes string representation of tile
 	public Tile(String suitfaceString){
-		this(idOfStringRepr(suitfaceString));
+		this(idOfStringRepr(suitfaceString.toUpperCase()));
 	}
 	//2-arg, takes char values of suit and face
 	public Tile(char suit, char face){
-		this(Character.toString(suit) + Character.toString(face));
+		this(Character.toString(Character.toUpperCase(suit)) + Character.toString(Character.toUpperCase(face)));
 	}
 	
 	
@@ -284,6 +285,9 @@ public class Tile implements Comparable<Tile> {
 	
 	
 	
+	
+	
+	
 	//takes an ID, returns the string representation of the suit/face of that ID
 	public static String stringReprOfId(int id){
 		return STR_REPS_BY_ID.substring(2*(id-1), 2*(id-1) + 2);
@@ -301,7 +305,21 @@ public class Tile implements Comparable<Tile> {
 		return idOfStringRepr(Character.toString(suit) + Character.toString(face));
 	}
 	
-	
+	//returns a list of all Yaochuu tiles (terminal or honor)
+	public static ArrayList<Tile> listOfYaochuuTiles(){
+		
+		ArrayList<Tile> listTYC = new ArrayList<Tile>(NUMBER_OF_YAOCHUU_TILES);
+		
+		//add terminal tiles
+		listTYC.add(new Tile("M1"));listTYC.add(new Tile("M9"));
+		listTYC.add(new Tile("C1"));listTYC.add(new Tile("C9"));
+		listTYC.add(new Tile("B1"));listTYC.add(new Tile("B9"));
+		
+		//add honor tiles
+		for (int i = ID_FIRST_HONOR_TILE; i <= NUMBER_OF_DIFFERENT_TILES; i++) listTYC.add(new Tile(i));
+		
+		return listTYC;
+	}
 	
 	
 	
