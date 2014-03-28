@@ -590,20 +590,231 @@ public class HandChecker {
 	
 	
 	
-	public boolean populateMTypeStacks(){
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//~~~~BEGIN MELD CHEKCERS
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	
+	/*
+	private method: __canChiType
+	checks if a candidate tile can make a chi with other tiles in the hand
+	
+	input: candidate is the tile to search for chi partners for
+		   storePartnersHere is the list that will hold the partner indices, if chi is possible
+	 	   offset1 and offset2 are the offsets of mCallCandidate's ID to look for
+	
+	if chi type is possible: populates the meld partner list and returns true
+	
+	
+	tempPartnerIndices = search hand for (candidate's ID + offset1/2), take first occurence of each
+	if (indexes were found for both partners)
+		store partner indices in the received list
+		return true
+	end if
+	return false
+	*/
+	private boolean __canMeldChiType(Tile candidate, int offset1, int offset2){
 		
-		boolean allCanMakeAtLeastOneMeld = false;
+//		return (mHandTiles.indexOf(new Tile(candidate.getId() + offset1)) != MahList.NOT_FOUND && mHandTiles.indexOf(new Tile(candidate.getId() + offset2)) != MahList.NOT_FOUND);
+		return (mHandTiles.contains(candidate.getId() + offset1) && mHandTiles.contains(candidate.getId() + offset2));
+	}
+	private boolean __canMeldChiL(Tile candidate){
+		if (candidate.getFace() == '8' || candidate.getFace() == '9') return false;
+		return __canMeldChiType(candidate, OFFSET_CHI_L1, OFFSET_CHI_L2);
+	}
+	private boolean __canMeldChiM(Tile candidate){
+		if (candidate.getFace() == '1' || candidate.getFace() == '9') return false;
+		return __canMeldChiType(candidate, OFFSET_CHI_M1, OFFSET_CHI_M2);
+	}
+	private boolean __canMeldChiH(Tile candidate){
+		if (candidate.getFace() == '1' || candidate.getFace() == '2') return false;
+		return __canMeldChiType(candidate, OFFSET_CHI_H1, OFFSET_CHI_H2);
+	}
+	//overloaded. if no tile argument given, candidate = mCallCandidate is passsed
+	private boolean __canMeldChiL(){return __canMeldChiL(mCallCandidate);}
+	private boolean __canMeldChiM(){return __canMeldChiM(mCallCandidate);}
+	private boolean __canMeldChiH(){return __canMeldChiH(mCallCandidate);}
+	
+	
+	
+	
+	/*
+	private method: __canMultiType
+	checks if a multi (pair/pon/kan) can be made with the new tile
+	
+	input: candidate is the tile to search for chi partners for
+		   storePartnersHere is the list that will hold the partner indices, if chi is possible
+	 	   offset1 and offset2 are the offsets of mCallCandidate's ID to look for
+	 	   
+	if the multi type is possible: populates the meld partner list and returns true
+	
+	
+	if (there are enough partner tile in the hand to form the multi)
+		store the partner indices in the storePartnersHere list
+		return true
+	end if
+	else return false
+	*/
+	private boolean __canMeldMultiType(Tile candidate, int numPartnersNeeded){
+		//count how many occurences of the tile
+		return (mHandTiles.findHowManyOf(candidate) >= numPartnersNeeded);
+	}
+	private boolean __canMeldPair(Tile candidate){return __canMeldMultiType(candidate, NUM_TILES_NEEDED_TO_PAIR);}
+	private boolean __canMeldPon(Tile candidate){return __canMeldMultiType(candidate, NUM_TILES_NEEDED_TO_PON);}
+	private boolean __canMeldKan(Tile candidate){return __canMeldMultiType(candidate, NUM_TILES_NEEDED_TO_KAN);}
+	//overloaded. if no tile argument given, candidate = mCallCandidate is passsed
+	private boolean __canMeldPair(){return __canMeldPair(mCallCandidate);}
+	private boolean __canMeldPon(){return __canMeldPon(mCallCandidate);}
+	private boolean __canMeldKan(){return __canMeldKan(mCallCandidate);}
+	
+	
+	
+	
+	
+		
+	/*
+	method: checkMeldableTile
+	checks if a tile is meldable
+	if a call is possible, pushes the meld type on meldStack and returns true
+	
+	input: candidate is the tile to check if callable
+		   meldStack will receive the types of melds that are possible for candidate
+		   
+	returns true if the tile can make a ChiL, ChiM, ChiH, Pon, or Pair
+	
+	
+	check pon/pair, check chi
+	(order of stack should be top->L,M,H,Pon,Pair)
+	return true if meldStack is not empty
+	*/
+	public boolean checkMeldableTile(Tile candidate, MahStack<MeldType> meldStack){
+		
+		//check pon. if can pon, push both pon and pair. if can't pon, check pair.
+		if (__canMeldPon(candidate)){
+			meldStack.push(MeldType.PAIR);
+			meldStack.push(MeldType.PON);
+		}
+		else if (__canMeldPair(candidate)) meldStack.push(MeldType.PAIR);
+		
+		//only allow chis from the player's kamicha, or from the player's own tiles. don't check chi if candidate is an honor tile
+		if (!candidate.isHonor() && (
+			(candidate.getOrignalOwner() == mHand.getOwnerSeatWind()) || 
+			(candidate.getOrignalOwner() == Player.findKamichaOf(mHand.getOwnerSeatWind()))) ){
+			if (__canMeldChiH(candidate)) meldStack.push(MeldType.CHI_H);
+			if (__canMeldChiM(candidate)) meldStack.push(MeldType.CHI_M);
+			if (__canMeldChiL(candidate)) meldStack.push(MeldType.CHI_L);
+		}
+		
+		//~~~~return true if a call (any call) can be made
+		return (!meldStack.isEmpty());
+	}
+	
+	
+	
+	
+	//takes a list and several integer indices, stores the indices in the list
+	private void __storeMeldStacks(ArrayList<Integer> storeHere, MahList<Integer> partnerIndices){
+		for (int i: partnerIndices)
+			storeHere.add(i);
+	}
+	
+	//resets call flags to false, creates new empty partner index lists
+	private void __resetMeldStacks(){
+	}
+	
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//~~~~END MELD CHEKCERS
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	
+	
+	
+	
+	
+	
+	public boolean populateMeldStacks(){
+		
+		ArrayList<MahStack<MeldType>> ungodly;
+
+		boolean allCanMakeAtLeastOneMeld = true;
+		
+		
+		
+		
 		
 		for (Tile t: mHandTiles){
-			
 			if (checkCallableTile(t) || mCanPair){
-				allCanMakeAtLeastOneMeld = true;
 				if (mCanPair) t.mstackPush(MeldType.PAIR);
 				if (mCanPon) t.mstackPush(MeldType.PON);
 				if (mCanChiH) t.mstackPush(MeldType.CHI_H);
 				if (mCanChiM) t.mstackPush(MeldType.CHI_M);
 				if (mCanChiL) t.mstackPush(MeldType.CHI_L);
 			}
+			else allCanMakeAtLeastOneMeld = false;
+		}
+		return allCanMakeAtLeastOneMeld;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	public boolean populateMTypeStacks(){
+		
+		boolean allCanMakeAtLeastOneMeld = true;
+		
+		for (Tile t: mHandTiles){
+			
+			if (checkCallableTile(t) || mCanPair){
+				if (mCanPair) t.mstackPush(MeldType.PAIR);
+				if (mCanPon) t.mstackPush(MeldType.PON);
+				if (mCanChiH) t.mstackPush(MeldType.CHI_H);
+				if (mCanChiM) t.mstackPush(MeldType.CHI_M);
+				if (mCanChiL) t.mstackPush(MeldType.CHI_L);
+			}
+			else allCanMakeAtLeastOneMeld = false;
 		}
 		
 		return allCanMakeAtLeastOneMeld;
