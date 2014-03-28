@@ -23,6 +23,13 @@ public class Hand {
 	private char mPlayerSeatWind;
 	
 	
+	private ArrayList<Integer> mChiLPartnerIndices;
+	private ArrayList<Integer> mChiMPartnerIndices;
+	private ArrayList<Integer> mChiHPartnerIndices;
+	private ArrayList<Integer> mPonPartnerIndices;
+	private ArrayList<Integer> mKanPartnerIndices;
+	
+	
 	
 	
 	public Hand(char playerWind){
@@ -38,25 +45,6 @@ public class Hand {
 		this(Player.SEAT_UNDECIDED);
 	}
 	
-	
-	
-	//demo values
-	public void fill(){
-		mTiles.add(new Tile(1));
-		mTiles.add(new Tile(1));
-		mTiles.add(new Tile(1));
-		mTiles.add(new Tile(2));
-		mTiles.add(new Tile(3));
-		mTiles.add(new Tile(4));
-		mTiles.add(new Tile(5));
-		mTiles.add(new Tile(6));
-		mTiles.add(new Tile(7));
-		mTiles.add(new Tile(8));
-		mTiles.add(new Tile(9));
-		mTiles.add(new Tile(9));
-		mTiles.add(new Tile(9));
-		mTiles.add(new Tile(7));
-	}
 	
 	
 	
@@ -132,7 +120,7 @@ public class Hand {
 	
 	
 	
-	
+	/*
 	public boolean demoMakeMeld(){
 		
 		if (getSize() >= 3)
@@ -157,8 +145,25 @@ public class Hand {
 			return false;
 	
 	}
+	*/
 	
-	
+	//demo values
+	public void fill(){
+		mTiles.add(new Tile(1));
+		mTiles.add(new Tile(1));
+		mTiles.add(new Tile(1));
+		mTiles.add(new Tile(2));
+		mTiles.add(new Tile(3));
+		mTiles.add(new Tile(4));
+		mTiles.add(new Tile(5));
+		mTiles.add(new Tile(6));
+		mTiles.add(new Tile(7));
+		mTiles.add(new Tile(8));
+		mTiles.add(new Tile(9));
+		mTiles.add(new Tile(9));
+		mTiles.add(new Tile(9));
+		mTiles.add(new Tile(7));
+	}
 	
 	
 	
@@ -187,7 +192,10 @@ public class Hand {
 	
 	
 	
-
+	
+	//////////////////////////////////////////////////////////////////////////////
+	//////BEGIN MELD CHEKCERS
+	//////////////////////////////////////////////////////////////////////////////
 	
 	public boolean canChiType(Tile t, int chiType){
 		
@@ -311,6 +319,9 @@ public class Hand {
 		return false;
 	}
 	
+	//////////////////////////////////////////////////////////////////////////////
+	//////END MELD CHEKCERS
+	//////////////////////////////////////////////////////////////////////////////
 	
 	
 	

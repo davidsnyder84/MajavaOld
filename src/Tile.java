@@ -145,25 +145,6 @@ public class Tile implements Comparable<Tile> {
 	
 	
 	
-	public int compareTo(Tile other){
-		
-		return (this.mID - other.mID);
-	}
-
-	
-	public String toString(){
-		//return stringRepr;
-		if (mRedDora)
-			return (Character.toString(mSuit) + CHAR_FOR_RED_DORA); 
-		else
-			return stringReprOfId(mID);
-	}
-	
-	
-	
-	
-	
-	
 	
 	//returns a list of IDs for hot tiles
 	public ArrayList<Integer> findHotTiles(){
@@ -193,6 +174,57 @@ public class Tile implements Comparable<Tile> {
 		return hotTileIds;
 	}
 	
+	
+	
+
+	
+	
+	
+	
+	
+	
+	public int compareTo(Tile other){
+		
+		return (this.mID - other.mID);
+	}
+	
+	//returns true if the tiles have the same ID
+	public boolean equals(Object other){
+		return (((Tile)this).mID == ((Tile)other).mID);
+	}
+	
+	public String toString(){
+		//return stringRepr;
+		if (mRedDora)
+			return (Character.toString(mSuit) + CHAR_FOR_RED_DORA); 
+		else
+			return stringReprOfId(mID);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//returns all of the tile's info as a string (for debug use)
+	public String toStringAllInfo(){
+		
+		String tileString = "";
+		tileString += "Tile: " + mSuit + mFace + '\n';
+		tileString += "\tID: " + mID + ", Suit: " + mSuit + ", Face: " + mFace + '\n';
+		tileString += "\tDiscarded by: " + mDiscardedBy + '\n';
+		tileString += "\tRed Dora?: " + mRedDora;
+		
+		return tileString;
+	}
 	
 	
 	

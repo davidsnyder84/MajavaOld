@@ -122,6 +122,7 @@ public class Player {
 	private boolean mHoldingRinshanTile;
 	private boolean mRiichiStatus;
 	private boolean mFuritenStatus;
+	private boolean mTenpaiStatus;
 	
 	//private boolean mTenpai;
 	//private ArrayList<Tile> mWaits;
@@ -144,6 +145,7 @@ public class Player {
 		mRiichiStatus = false;
 		mFuritenStatus = false;
 		mHoldingRinshanTile = false;
+		mTenpaiStatus = false;
 		
 		mController = controller;
 	}
@@ -575,6 +577,10 @@ public class Player {
 	public int checkCallStatus(){
 		return mCallStatus;
 	}
+	public boolean checkTenpaiStatus(){
+		return mTenpaiStatus;
+	}
+	
 	//returns true if the player called a tile
 	public boolean called(){
 		return (mCallStatus != CALLED_NONE);

@@ -32,6 +32,19 @@ public class RoundInfo {
 	
 	
 	
+	public RoundInfo(){
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	

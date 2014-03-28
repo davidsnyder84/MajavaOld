@@ -8,9 +8,9 @@ public class MajaPlay {
 		
 		//testHots();
 		
-		//testContains();
+		testContains();
 		
-		testCalls();
+		//testCalls();
 
 	}
 	
@@ -46,26 +46,26 @@ public class MajaPlay {
 	
 	
 	
-	
-	
 	public static void testContains(){
 		
-
 		ArrayList<Tile> tiles = new ArrayList<Tile>(0);
 		
 		Tile t2 = new Tile(2);
 		
 		tiles.add(new Tile(1));
-		tiles.add(t2);
+		tiles.add(new Tile(2));
 		tiles.add(new Tile(3));
 		
+		//System.out.println("\nt2 == M2?: ");
+		//System.out.println(t2.equals(new Tile(2)));
 		
+		System.out.println(t2.toStringAllInfo());
 		
-		System.out.println("\nHand contains M2?: ");
+		System.out.println("\nHand contains t22?: ");
 		System.out.println(tiles.contains(t2));
-		
-		
 	}
+	
+	
 	
 	
 	public static void testHots(){
