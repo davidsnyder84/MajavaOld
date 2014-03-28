@@ -6,7 +6,12 @@ import java.util.Random;
 
 public class GenSort <T extends Comparable<T> > {
 	
-	public static int INVALID_LIST_LENGTH = -1;
+	public static final int SORT_ASCENDING = 1;
+	public static final int SORT_DESCENDING = 2;
+	public static final int SORT_RANDOM = 3;
+	public static final int SORT_DEFAULT = SORT_ASCENDING;
+	
+	public static final int INVALID_LIST_LENGTH = -1;
 	
 	
 	private ArrayList<T> mListToSort;
@@ -52,6 +57,30 @@ public class GenSort <T extends Comparable<T> > {
 		}
 		
 	}
+	
+	
+	
+	//sorts mListToSort with a shitty selection sort, descending order
+	public void sortDescending(){
+			
+		int current, walker, smallest;
+		T temp;
+		
+		for (current = 0; current < mListLength; current++)
+		{
+			smallest = current;
+			for (walker = current + 1; walker < mListLength; walker++)
+				if (mListToSort.get(walker).compareTo(mListToSort.get(smallest)) > 0)
+					smallest = walker;
+			
+			//swap the current element and the smallest element
+			temp = mListToSort.get(smallest);
+			mListToSort.set(smallest, mListToSort.get(current));
+			mListToSort.set(current, temp);
+		}
+		
+	}
+	
 	
 	
 	

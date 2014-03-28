@@ -181,6 +181,7 @@ public class Table {
 		
 
 		//------------------------------------------------DEBUG INFO
+		mWall.loadDebugWall();
 		System.out.println(mWall.toString() + "\n\n\n");
 		//------------------------------------------------DEBUG INFO
 		
@@ -188,6 +189,8 @@ public class Table {
 		
 		//decide seats
 		decideSeats();
+		
+		
 		
 		//deal and sort hands
 		mWall.dealHands(p1, p2, p3, p4);
@@ -256,58 +259,62 @@ public class Table {
 	input: t is the discarded tile
 	
 	
-	callingPlayer = figure out who made the call (decide priority if >1 calls)
-	handle the call
-	show the result of the call
+	priorityCaller = figure out who made the call (and decide priority if >1 calls)
+	if (caller called ron)
+		handle Ron
+	else
+		let the caller make the meld with the tile
+		show who called the tile, and what they called 
+	end if
 	
-	whoseTurn = the player who made the call's turn
+	if (multiple players tried to call)
+		display other callers who got bumped by priority
+	end if
+	
+	whoseTurn = priorityCaller's turn
 	reaction = NO_REACTION
 	*/
 	private void handleReaction(Tile discardedTile){
 		
-		//figure out who called the tile
-		Player callingPlayer = whoCalled();
+		//figure out who called the tile, and if multiple players called, who gets priority
+		Player priorityCaller = whoCalled();
 		
-		
-		//handle the call (have fun here)
-		
-		//at this point, the tile can definitely make a meld in the player's hand
-		//the player has said "yes, I want this tile in this meld specifically"
-		//the type of meld is known
-		//validity check has already been done
-		//just need to make the meld
-		
-		
-		
+		//give the caller the discarded tile so they can make their meld
+		//if the caller called Ron, handle that instead
+		if (priorityCaller.checkCallStatus() == Player.CALLED_RON)
+		{
+			System.out.println("\n*****RON! RON RON! RON! RON! ROOOOOOOOOOOOOOOOOOOOOON!");
+		}
+		else
+		{
+			//make the meld
+			priorityCaller.makeMeld(discardedTile);
+			//meld has been made
 
-		//show who made the call (todo: tell who got priority bumped when multiple calls happen)
-		System.out.println("*****Well gosh, it looks like somebody called tile " + discardedTile.toString() + "!");
-		
-		if (p1.checkCallStatus() != Player.CALLED_NONE)
-		{
-			System.out.println("*****Player1 called!");
-		}
-		
-		if (p2.checkCallStatus() != Player.CALLED_NONE)
-		{
-			System.out.println("*****Player2 called!");
-		}
-		
-		if (p3.checkCallStatus() != Player.CALLED_NONE)
-		{
-			System.out.println("*****Player3 called!");
-		}
-		
-		if (p4.checkCallStatus() != Player.CALLED_NONE)
-		{
-			System.out.println("*****Player4 called!");
+			//show who called the tile 
+			System.out.println("\n*********************************************************");
+			System.out.println("**********" + priorityCaller.getSeatWind() + " Player called the tile (" + discardedTile.toString() + ")! " + p1.checkCallStatusString() + "!!!**********");
+			System.out.println("*********************************************************");
 		}
 		
 		
+		//if multiple players called, show if someone got bumped by priority 
+		if (p1.called() && p1 != priorityCaller){
+			System.out.println("~~~~~~~~~~" + p1.getSeatWind() + " Player tried to call " + p1.checkCallStatusString() + ", but got bumped by " + priorityCaller.getSeatWind() + "!");
+		}
+		if (p2.called() && p2 != priorityCaller){
+			System.out.println("~~~~~~~~~~" + p2.getSeatWind() + " Player tried to call " + p2.checkCallStatusString() + ", but got bumped by " + priorityCaller.getSeatWind() + "!");
+		}
+		if (p3.called() && p3 != priorityCaller){
+			System.out.println("~~~~~~~~~~" + p3.getSeatWind() + " Player tried to call " + p3.checkCallStatusString() + ", but got bumped by " + priorityCaller.getSeatWind() + "!");
+		}
+		if (p4.called() && p4 != priorityCaller){
+			System.out.println("~~~~~~~~~~" + p4.getSeatWind() + " Player tried to call " + p4.checkCallStatusString() + ", but got bumped by " + priorityCaller.getSeatWind() + "!");
+		}
+		System.out.println();
 		
 		//it is now the calling player's turn
-		mWhoseTurn = callingPlayer.getPlayerNumber();
-		
+		mWhoseTurn = priorityCaller.getPlayerNumber();
 		
 		//reset reaction to none (since reaction has been handled)
 		mReaction = NO_REACTION;
@@ -343,53 +350,46 @@ public class Table {
 		//this is set to true by default, because we know at LEAST one player called
 		boolean onlyOnePlayerCalled = true;
 		//this is false until a call is found
-		boolean alreadyFoundCall = false;
+		boolean alreadyFoundACall = false;
 		
 		//if this player called, foundCall = true
-		if (p1.called())
-		{
-			alreadyFoundCall = true;
+		if (p1.called()){
+			alreadyFoundACall = true;
 			callingPlayer = p1;
 		}
 		
 		//if this player called, and we have already found another call, onlyOnePlayerCalled = false
 		if (p2.called())
-			if (alreadyFoundCall)
+			if (alreadyFoundACall)
 				onlyOnePlayerCalled = false;
-			else
-			{
-				alreadyFoundCall = true;
+			else{
+				alreadyFoundACall = true;
 				callingPlayer = p2;
 			}
 		
 		if (p3.called())
-			if (alreadyFoundCall)
+			if (alreadyFoundACall)
 				onlyOnePlayerCalled = false;
-			else
-			{
-				alreadyFoundCall = true;
+			else{
+				alreadyFoundACall = true;
 				callingPlayer = p3;
 			}
 		
 		if (p4.called())
-			if (alreadyFoundCall)
+			if (alreadyFoundACall)
 				onlyOnePlayerCalled = false;
-			else
-			{
-				alreadyFoundCall = true;
+			else{
+				alreadyFoundACall = true;
 				callingPlayer = p4;
 			}
 		
 		
 
 		//if only one player called, return that player
-		if (onlyOnePlayerCalled)
-		{
+		if (onlyOnePlayerCalled){
 			return callingPlayer;
 		}
-		
-		else
-		{	
+		else{	
 			//else, if more than one player called, figure out who has more priority
 			/*
 			can 2 players call pon?: no, not enough tiles
@@ -493,7 +493,7 @@ public class Table {
 		int drawNeeded = Player.DRAW_NONE;
 		Tile drawnTile = null;
 		
-		//////handle drawing a tile
+		////////handle drawing a tile
 		drawNeeded = p.checkDrawNeeded();
 		//if the player needs to draw a tile, draw a tile
 		if (drawNeeded != Player.DRAW_NONE)
@@ -518,15 +518,19 @@ public class Table {
 			}
 		}
 		
-		//////get player's discard (ankans, riichi, and such are handled inside here)
+		
+		////////get player's discard (ankans, riichi, and such are handled inside here)
 		discardedTile = p.takeTurn();
+		
+		//show the human player their hand
+		showHandsOfHumanPlayers();
+		//show the discarded tile and the discarder's pond
 		System.out.println("\n\n\tTiles left: " + mWall.getNumTilesLeftInWall());
-		//show the discarded tile, and the discarder's pond
 		System.out.println("\t" + p.getSeatWind() + " Player's discard: " + discardedTile.toString());
 		p.showPond();
 		
 		
-		//////get reactions from the other players
+		////////get reactions from the other players
 		mReaction += p.getShimocha().reactToDiscard(discardedTile);
 		mReaction += p.getToimen().reactToDiscard(discardedTile);
 		mReaction += p.getKamicha().reactToDiscard(discardedTile);
@@ -539,6 +543,9 @@ public class Table {
 		//return the tile that was discarded
 		return discardedTile;
 	}
+	
+	
+	
 	
 	
 	
@@ -600,6 +607,27 @@ public class Table {
 		p3.setNeighbors(p4, p1, p2);
 		p4.setNeighbors(p1, p2, p3);
 	}
+	
+	
+	/*
+	method: showHandsOfHumanPlayers
+	shows the hands of all human players in the game
+	
+	
+	for each player
+		if (player is human): show their hand
+	*/
+	public void showHandsOfHumanPlayers(){
+		if (p1.getController() == Player.CONTROLLER_HUMAN)
+			p1.showHand();
+		if (p2.getController() == Player.CONTROLLER_HUMAN)
+			p2.showHand();
+		if (p3.getController() == Player.CONTROLLER_HUMAN)
+			p3.showHand();
+		if (p4.getController() == Player.CONTROLLER_HUMAN)
+			p4.showHand();
+	}
+	
 	
 	
 	

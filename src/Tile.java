@@ -42,11 +42,11 @@ public class Tile implements Comparable<Tile> {
 	public static final int DEFAULT_ID = 0;
 	public static final String CHAR_FOR_RED_DORA = "%";
 	
-	public static final char DISCARDER_NONE = 'N';
+	public static final char OWNER_NONE = 'N';
 
-	//private static final String STR_REPS_BY_ID_SPACES = "   M1 M2 M3 M4 M5 M6 M7 M8 M9 C1 C2 C3 C4 C5 C6 C7 C8 C9 B1 B2 B3 B4 B5 B6 B7 B8 B9 WE WS WN WW DW DG DR ";
-	//private static final String STR_REPS_BY_ID_SPACES = "M1 M2 M3 M4 M5 M6 M7 M8 M9 C1 C2 C3 C4 C5 C6 C7 C8 C9 B1 B2 B3 B4 B5 B6 B7 B8 B9 WE WS WN WW DW DG DR ";
-	private static final String STR_REPS_BY_ID = "M1M2M3M4M5M6M7M8M9C1C2C3C4C5C6C7C8C9B1B2B3B4B5B6B7B8B9WEWSWNWWDWDGDR";
+	//private static final String STR_REPS_BY_ID_SPACES = "   M1 M2 M3 M4 M5 M6 M7 M8 M9 C1 C2 C3 C4 C5 C6 C7 C8 C9 B1 B2 B3 B4 B5 B6 B7 B8 B9 WE WS WW WN DW DG DR ";
+	//private static final String STR_REPS_BY_ID_SPACES = "M1 M2 M3 M4 M5 M6 M7 M8 M9 C1 C2 C3 C4 C5 C6 C7 C8 C9 B1 B2 B3 B4 B5 B6 B7 B8 B9 WE WS WW WN DW DG DR ";
+	private static final String STR_REPS_BY_ID = "M1M2M3M4M5M6M7M8M9C1C2C3C4C5C6C7C8C9B1B2B3B4B5B6B7B8B9WEWSWWWNDWDGDR";
 	
 
 	public static final char SUIT_MAN = 'M';
@@ -63,7 +63,7 @@ public class Tile implements Comparable<Tile> {
 	
 	private String stringRepr;
 	
-	private char mDiscardedBy;
+	private char mOriginalOwner;
 	private boolean mRedDora;
 	
 	
@@ -76,14 +76,14 @@ public class Tile implements Comparable<Tile> {
 		mSuit = stringRepr.charAt(0);
 		mFace = stringRepr.charAt(1);
 
-		mDiscardedBy = DISCARDER_NONE;
+		mOriginalOwner = OWNER_NONE;
 		mRedDora = isRed;
 	}
 	//1-arg Constructor, takes tile ID
 	public Tile(int id){
 		this(id, false);
 	}
-	
+	/*
 	public Tile(int newID, char newSuit, char newFace){
 		mID = newID;
 		mSuit = Character.toUpperCase(newSuit);
@@ -91,7 +91,7 @@ public class Tile implements Comparable<Tile> {
 		
 		//stringRepr = Character.toString(mSuit) + Character.toString(mFace);
 		stringRepr = stringReprOfId(mID);
-		mDiscardedBy = DISCARDER_NONE;
+		mOriginalOwner = OWNER_NONE;
 		mRedDora = false;
 	}
 	public Tile(char newSuit, char newFace){
@@ -100,7 +100,7 @@ public class Tile implements Comparable<Tile> {
 	public Tile(){
 		this(1, 'M', '1');
 	}
-
+	*/
 	
 	
 	
@@ -121,16 +121,16 @@ public class Tile implements Comparable<Tile> {
 		return mRedDora;
 	}
 	
-	public char discardedBy(){
-		return mDiscardedBy;
+	public char getOwner(){
+		return mOriginalOwner;
 	}
 	
 	
 	
 	
 	
-	public void setDiscarder(char discarder){
-		mDiscardedBy = discarder;
+	public void setOwner(char discarder){
+		mOriginalOwner = discarder;
 	}
 	
 	//makes the tile a red dora tile
@@ -174,7 +174,34 @@ public class Tile implements Comparable<Tile> {
 		return hotTileIds;
 	}
 	
+	//returns the tile that follows this one
+	//used to find a dora from a dora indicator
+	public Tile nextTile(){
+		int nextID = 1;
+		
+		//determine the ID of the next tile
+		if(mFace != '9' && mFace != 'N' && mFace != 'R')
+			nextID = mID + 1;
+		else
+			if (mFace == '9')
+				nextID = mID - 8;
+			else if (mFace == 'N')
+				nextID = mID - 3;
+			else if (mFace == 'R')
+				nextID = mID - 2;
+		
+		return new Tile(nextID);
+	}
 	
+	
+	//returns true if the tile is a terminal or honor
+	public boolean isYaochuu(){
+		if (mSuit == SUIT_WIND || mSuit == SUIT_DRAGON)
+			return true;
+		if (mFace == '1' || mFace == '9')
+			return true;
+		return false;
+	}
 	
 
 	
@@ -182,17 +209,23 @@ public class Tile implements Comparable<Tile> {
 	
 	
 	
-	
+
+	@Override
 	public int compareTo(Tile other){
 		
 		return (this.mID - other.mID);
 	}
 	
 	//returns true if the tiles have the same ID
+	@Override
 	public boolean equals(Object other){
+		if (other == null || (other instanceof Tile) == false)
+			return false;
+		
 		return (((Tile)this).mID == ((Tile)other).mID);
 	}
-	
+
+	@Override
 	public String toString(){
 		//return stringRepr;
 		if (mRedDora)
@@ -220,7 +253,7 @@ public class Tile implements Comparable<Tile> {
 		String tileString = "";
 		tileString += "Tile: " + mSuit + mFace + '\n';
 		tileString += "\tID: " + mID + ", Suit: " + mSuit + ", Face: " + mFace + '\n';
-		tileString += "\tDiscarded by: " + mDiscardedBy + '\n';
+		tileString += "\tOriginal Owner: " + mOriginalOwner + '\n';
 		tileString += "\tRed Dora?: " + mRedDora;
 		
 		return tileString;
@@ -232,8 +265,8 @@ public class Tile implements Comparable<Tile> {
 	
 	public static String stringReprOfId(int id){
 		/*
-		 * 	private static String STR_REPS_BY_ID_SPACES = "M1 M2 M3 M4 M5 M6 M7 M8 M9 C1 C2 C3 C4 C5 C6 C7 C8 C9 B1 B2 B3 B4 B5 B6 B7 B8 B9 WE WS WN WW DW DG DR ";
-	private static String STR_REPS_BY_ID = "M1M2M3M4M5M6M7M8M9C1C2C3C4C5C6C7C8C9B1B2B3B4B5B6B7B8B9WEWSWNWWDWDGDR";
+		 * 	private static String STR_REPS_BY_ID_SPACES = "M1 M2 M3 M4 M5 M6 M7 M8 M9 C1 C2 C3 C4 C5 C6 C7 C8 C9 B1 B2 B3 B4 B5 B6 B7 B8 B9 WE WS WW WN DW DG DR ";
+	private static String STR_REPS_BY_ID = "M1M2M3M4M5M6M7M8M9C1C2C3C4C5C6C7C8C9B1B2B3B4B5B6B7B8B9WEWSWWWNDWDGDR";
 		String s;
 		s = STR_REPS_BY_ID.substring(3*mID + 1, 3*mID + 1 + 2);
 		*/

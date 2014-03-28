@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 
+import utility.GenSort;
+
 
 /*
 Class: Meld
@@ -27,17 +29,26 @@ methods:
 public class Meld {
 
 	public static final int MELD_TYPE_UNKNOWN = 0;
-	public static final int MELD_TYPE_CHI = 1;
-	public static final int MELD_TYPE_PON = 2;
-	public static final int MELD_TYPE_KAN = 3;
-	public static final int MELD_TYPE_PAIR = 5;
+	public static final int MELD_TYPE_CHI_L = 1;
+	public static final int MELD_TYPE_CHI_M = 2;
+	public static final int MELD_TYPE_CHI_H = 3;
+	public static final int MELD_TYPE_PON = 4;
+	public static final int MELD_TYPE_KAN = 5;
+	public static final int MELD_TYPE_PAIR = 8;
+	public static final int MELD_TYPE_DEFAULT = MELD_TYPE_UNKNOWN;
+	/*
+	public static final int MELD_TYPE_CHI = 123;
 	public static final int MELD_TYPE_GAY = 6;
 	public static final int MELD_TYPE_CHI_L = 11;
 	public static final int MELD_TYPE_CHI_M = 12;
 	public static final int MELD_TYPE_CHI_H = 13;
+	*/
+	public static final char OWNER_UNKOWN = '?';
+	public static final char OWNER_DEFAULT = OWNER_UNKOWN;
+	
+	public static final boolean CLOSED_STATUS_DEFAULT = true;
 
-	public static final boolean DEFAULT_CLOSED_STATUS = true;
-	public static final int DEFAULT_MELD_TYPE = MELD_TYPE_UNKNOWN;
+	
 	
 	
 	
@@ -46,35 +57,60 @@ public class Meld {
 	
 	private int mMeldType;
 	private boolean mClosed;
+
+	private char mOwnerSeatWind;
+	
+	private Tile mCompletedTile;
+	private char mPlayerResponsible;
 	
 	private int mFu;
 	
-	private char mPlayerSeatWind;
 	
 	
 	
+	/*
+	3-arg Constructor
+	forms a meld from the given tiles, of the given meld type
 	
+	input: handTiles are the tiles that are coming from the player's hand
+		   newTile is the "new" tile that is being added to form the meld
+		   meldType is the type of meld that is being formed
+	
+	form the meld
+	fu = 0
+	*/
+	public Meld(ArrayList<Tile> handTiles, Tile newTile, int meldType){		
+		
+		__formMeld(handTiles, newTile, meldType);
+		
+		mFu = 0;
+	}
+	//2-arg, takes list of tiles and meld type (used when making a meld only from hand tiles, so no "new" tile)
+	//passes (handtiles 0 to n-1, handtile n, and meld type)
+	public Meld(ArrayList<Tile> handTiles, int meldType){
+		this(new ArrayList<Tile>(handTiles.subList(0, handTiles.size() - 1)), handTiles.get(handTiles.size() - 1), meldType);
+	}
+	
+	/*
 	//Constructor, takes a list of tiles and a closed status (true/false)
-	public Meld(ArrayList<Tile> tiles, char playerWind, boolean closed){
+	public Meld(ArrayList<Tile> tiles, char ownerWind, boolean closed){
 		
 		//set the meld's list of tiles to the received list of tiles
 		mTiles = tiles;
 		
 		//update closed status
 		mClosed = closed;
-		mPlayerSeatWind = playerWind;
+		mOwnerSeatWind = ownerWind;
 		
 		//meld type
-		mMeldType = DEFAULT_MELD_TYPE;
+		mMeldType = MELD_TYPE_DEFAULT;
 	}
-	public Meld(ArrayList<Tile> tiles, char playerWind){
-		this(tiles, playerWind, DEFAULT_CLOSED_STATUS);
+	public Meld(ArrayList<Tile> tiles, char ownerWind){
+		this(tiles, ownerWind, DEFAULT_CLOSED_STATUS);
 	}
 	public Meld(ArrayList<Tile> tiles){
-		this(tiles, Player.SEAT_UNDECIDED);
+		this(tiles, OWNER_DEFAULT);
 	}
-	
-	/*
 	 public Meld(ArrayList<Tile> tiles, char playerWind, boolean closed){
 		
 		//add the tiles to the meld's list of tiles
@@ -112,6 +148,69 @@ public class Meld {
 	
 	
 	
+	/*
+	private method: __formMeld
+	forms a meld of the given type with the given tiles
+	
+	input: handTiles are the tiles from the player's hand
+		   newTile is the "new" tile that is added to form the meld
+		   meldType is the type of meld that is being formed
+	
+	
+	set onwer's seat wind = owner of the hand tiles
+	set player responsible = player who discarded the newTile
+	set tile that completed the meld = newTile
+	set meld type
+	
+	if (owner's wind == responsible's wind)
+		set closed = true (tiles all came from owner's hand)
+	else (owner's wind is different from responsible's wind)
+		set closed = false (tile was called)
+	end if
+	
+	add the hand tiles to the meld
+	add the new tile to the meld
+	sort the meld if it is a chi
+	*/
+	public void __formMeld(ArrayList<Tile> handTiles, Tile newTile, int meldType){
+		
+		//set the owner's seat wind
+		mOwnerSeatWind = handTiles.get(0).getOwner();
+		//check who is responsible for discarding the new tile
+		mPlayerResponsible = newTile.getOwner();
+		//set the new tile as the tile that completed the meld
+		mCompletedTile = newTile;
+		
+		//check if the new tile came from someone other than the owner
+		//closed = false if the tile came from someone else
+		if (newTile.getOwner() == mOwnerSeatWind)
+			mClosed = true;
+		else
+			mClosed = false;
+		
+		//set meld type
+		mMeldType = meldType;
+		
+
+		//add the hand tiles to the meld
+		mTiles = handTiles;
+		//add the new tile to the meld
+		mTiles.add(newTile);
+		
+		//sort the meld if it is a chi
+		if (mMeldType == MELD_TYPE_CHI_L || mMeldType == MELD_TYPE_CHI_M || mMeldType == MELD_TYPE_CHI_H)
+		{
+			GenSort<Tile> sorter = new GenSort<Tile>(mTiles);
+			sorter.sort();
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
 	
 	public int calculateFu(){
 		int fu = 0;
@@ -125,25 +224,37 @@ public class Meld {
 	
 	
 	//accessors
-	
 	public int getMeldType(){
 		return mMeldType;
 	}
-	
 	
 	public boolean isClosed(){
 		return mClosed;
 	}
 	
+	public char getOwnerSeatWind(){
+		return mOwnerSeatWind;
+	}
+	public char getResponsible(){
+		return mPlayerResponsible;
+	}
 	
 	
 	//toString
 	public String toString(){
 		
 		String meldString = "";
-
+		
+		//add the tiles to the string
 		for (Tile t: mTiles)
 			meldString += t.toString() + " ";
+
+		//meldString += "  [Closed: " + mClosed + ", Responsible: " + mPlayerResponsible + "]";
+		//show closed or open
+		if (mClosed == true)
+			meldString += "  [Closed]";
+		else
+			meldString += "  [Open, called from: " + mPlayerResponsible + "'s " + mCompletedTile.toString() + "]";
 		
 		return meldString;
 	}

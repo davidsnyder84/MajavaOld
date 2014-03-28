@@ -4,10 +4,11 @@ make discard-only game to washout (done)
 add manual meld-checking (skip)
 add automatic meld-checking (done)
 
-present player with potential calls, ask their choice
-add meld-making
+present player with potential calls, ask their choice (done)
+add meld-making (done)
 
-add ability to win from melds
+add ability to win by manually calling melds
+add ability to win by automatically checking for tenpai status
 
 
 add point calculation
@@ -17,6 +18,8 @@ add automatic han/yaku checking
 
 give CPU AI ability to call/make melds
 give CPU AI ability to make "smart" discards
+
+
 
 
 
@@ -39,6 +42,48 @@ specifics
 	add ablility to win from Kokushi/Chiitoitsu
 	chankan?
 	nagashi mangan
+
+
+d
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+short todos:
+
+(done) show my hand after each player's discard 
+(done) show melds along with hand
+(done) show "Chi" if someone called something
+
+*********************************************************
+**********E Player called the tile (M9)! Chi!!!**********
+*********************************************************
+
+
+
+
+
 
 
 
