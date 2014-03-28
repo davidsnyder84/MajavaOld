@@ -1,6 +1,4 @@
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import utility.GenSort;
 import utility.MahList;
@@ -13,6 +11,10 @@ public class MajaPlay {
 		
 		
 		testCallPartners();
+		
+		
+		
+		//iterableTest();
 		
 		//testHots();
 		
@@ -56,14 +58,13 @@ public class MajaPlay {
 		System.out.println();
 	}
 	
-	
 
 	public static void kokushiTenpaiTest(){
 		
 		final char ownerSeat = Player.SEAT_SOUTH;
 		
 		Hand h = new Hand(ownerSeat);
-		Tile q = null;
+		//Tile q = null;
 		ArrayList<Tile> waits = null;
 
 		h.addTile(new Tile("M1"));	//1
@@ -86,14 +87,14 @@ public class MajaPlay {
 		System.out.println(h.toString());
 		
 
-		System.out.println("\nIn tenpai for kokushi musou?: " + h.kokushiMusouInTenpai());
+		System.out.println("\nIn tenpai for kokushi musou?: " + h.mChecker.kokushiMusouInTenpai());
 		
-		waits = h.kokushiMusouWaits();
+		waits = h.mChecker.kokushiMusouWaits();
 		System.out.print(waits.size() + "-sided wait: ");
 		for (Tile t: waits)
 			System.out.print(t.toString() + ", ");
 		
-		System.out.println("\n\nKokushi musou complete?: " + h.kokushiMusouIsComplete());
+		System.out.println("\n\nKokushi musou complete?: " + h.mChecker.kokushiMusouIsComplete());
 	}
 	
 	
@@ -731,6 +732,20 @@ public class MajaPlay {
 		for (Integer i: sublist)
 			System.out.print(i.toString() + ", ");
 		
+	}
+	
+	
+	public static void iterableTest(){
+		
+		final char ownerSeat = Player.SEAT_SOUTH;
+		Hand h = new Hand(ownerSeat);
+		h.addTile(new Tile("M1"));	//1
+		h.addTile(new Tile("M9"));	//2
+		h.addTile(new Tile("C1"));	//3
+		h.addTile(new Tile("C9"));	//4
+		h.addTile(new Tile("B1"));	//5
+		
+		for (Tile t: h) System.out.println(t.toString());
 	}
 	
 	

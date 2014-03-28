@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import utility.GenSort;
 
@@ -26,7 +27,7 @@ methods:
 	
 	private:
 */
-public class Meld {
+public class Meld implements Iterable<Tile>{
 
 	public static final int MELD_TYPE_UNKNOWN = 0;
 	public static final int MELD_TYPE_CHI_L = 1;
@@ -45,6 +46,7 @@ public class Meld {
 	public static final boolean CLOSED_STATUS_OPEN = false;
 	public static final boolean CLOSED_STATUS_DEFAULT = CLOSED_STATUS_CLOSED;
 
+	public static final int AVG_NUM_TILES_PER_MELD = 3;
 	
 	
 	
@@ -215,5 +217,9 @@ public class Meld {
 		
 		return meldString;
 	}
+	
 
+	//iterator, returns mTile's iterator
+	@Override
+	public Iterator<Tile> iterator() {return mTiles.iterator();}
 }

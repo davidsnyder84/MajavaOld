@@ -1,7 +1,6 @@
-import java.util.Scanner;
 
 
-@SuppressWarnings("unused")
+
 public class Majava {
 	
 	//disallow instantiation of this class

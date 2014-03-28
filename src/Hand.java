@@ -1,7 +1,7 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import utility.GenSort;
-import utility.MahList;
 
 /*
 Class: Hand
@@ -10,106 +10,63 @@ represents a player's hand of tiles
 data:
 	mTiles - list of tiles in the hand
 	mMelds - list of melds made from the hand
+	mChecker - runs checks on the hand. is final.
 	
-	mClosed - is true if the hand is fully concealed (no calls made on other discards)
-	mTenpaiStatus - is true if the hand is in tenpai (one tile away from winning)
 	mNumMeldsMade - the number of melds made
 	mOwnerSeatWind - holds the wind of the player who owns the hand
-	
-	mCallCandidate - the most recently discarded tile. checks are run on it to see if it can be called.
-	mCanChiL, mCanChiM, mCanChiH, mCanPon, mCanKan, mCanRon - flags, set to true if a call can be made on mCallCandidate
-	mPartnerIndicesChiL, etc - hold the hand indices of meld partners for mCallCandidate, if it can be called
 	
 methods:
 	
 	constructors:
-	1-arg, takes player's seat wind - creates list of tiles and melds, initializes flags and hand info
-	copy constructor, makes an exact copy of a hand
+	1-arg, takes player's seat wind - creates list of tiles and melds, initializes hand info, creates a checker
 	
 	mutators:
 	addTile - adds a tile to the hand (overloaded for actual tile, or an integer tile ID)
 	removeTile - removes the tile at the given index, and checks if removing the tile puts the hand in tenpai
 	sortHand - sorts the hand in ascending order
  	
+ 	
  	accessors:
- 	contains - returns true if the hand contains a copy of the given tile
-	getTile - returns the tile at the given index in the hand
 	getSize - returns the number of tiles in the hand
-	isClosed - returns true if the hand is fully concealed, false if an open meld has been made
-	getNumMeldsMade - returns the number of melds made
-	findAllHotTiles - returns a list of hot tile IDs for ALL tiles in the hand
-	ableToChiL, ableToChiM, ableToChiH, ableToPon, ableToKan, ableToRon - return true if a call can be made on mCallCandidate
-	getTenpaiStatus - returns true if the hand is in tenpai
+	getTile - returns the tile at the given index in the hand
+ 	contains - returns true if the hand contains a copy of the given tile
 	
-	private:
-	__resetCallableFlags - resets call flags to false, creates new empty partner index lists
-	__canChiL - checks if new tile can make a Chi-L
-	__canChiM - checks if new tile can make a Chi-M
-	__canChiH - checks if new tile can make a Chi-H
-	__canChiType - checks if mCallCandidate can make a chi. populates chi partner list, sets canChi flag, returns true if chi is possible
-	__canPon - checks if mCallCandidate can make a pon, populates pon partner list, sets canPon flag, returns true if pon is possible
-	__canKan - checks if mCallCandidate can make a kan, populates kan partner list, sets canKan flag, returns true if kan is possible
-	__canPair - checks if mCallCandidate can make a pair, populates pair partner list, sets canPair flag, returns true if pair is possible
-	__howManyOfThisTileInHand - returns how many copies of a tile are in the hand, can fill a list with the indexes where the tile is found
-	__canRon - returns true if the player can call ron on the candidate tile
-	__storePartnerIndices - takes a list and several integer indices, stores the indices in the list
-	__updateClosedStatus - checks if the hand is closed or open, ajusts flag accordingly
-	__updateTenpaiStatus - checks if the hand is in tenpai, adjusts flag accordingly
+	getNumMeldsMade - returns the number of melds made
+	howManyOfThisTileInHand - returns how many copies of a given tile are in the hand
+	
+	getTenpaiStatus - returns true if the hand is in tenpai
+	isClosed - returns true if the hand is fully concealed, false if an open meld has been made
+	ableToChiL, ableToChiM, ableToChiH, ableToPon, ableToKan, ableToRon - return true if a call can be made
 	
 	
 	other:
-	checkCallableTile - checks if a tile is callable. if it is callable, sets flag and populates partner index lists for that call
+	checkCallableTile - runs checks to see if a given tile is callable. returns true if the tile is callable.
+	numberOfCallsPossible - returns the number of different calls that can be made on a tile
 	makeMeld - forms a meld of the given type with mCallCandidate
+	
 	showMelds - prints all melds to the screen
 	toString - returns string of all tiles in the hand, and their indices
 */
-public class Hand {
+public class Hand implements Iterable<Tile>{
 	
 
 	public static final int MAX_HAND_SIZE = 14;
 	public static final int MAX_NUM_MELDS = 5;
-	public static final int MIN_NUM_TILES_PER_MELD = 3;
-	
-	
-	public static final int NUM_TILES_NEEDED_TO_CHI = 2;
-	public static final int NUM_TILES_NEEDED_TO_PON = 2;
-	public static final int NUM_TILES_NEEDED_TO_KAN = 3;
-	public static final int NUM_TILES_NEEDED_TO_PAIR = 1;
-	
-	public static final boolean DEFAULT_CLOSED_STATUS = true;
-	
-	protected static final int NOT_FOUND = -1;
-	
-	
+
+	//for debug use
+	public static final boolean DEBUG_SHOW_MELDS_ALONG_WITH_HAND = true;
 	
 	
 	
 	private ArrayList<Tile> mTiles;
 	private ArrayList<Meld> mMelds;
+	//is public right now for debug purposes, but it shouldn't be
+	final public HandChecker mChecker;
 	
-	private boolean mClosed;
-	private boolean mTenpaiStatus;
-	private int mNumMeldsMade; 
 	
+	private int mNumMeldsMade;
 	private char mOwnerSeatWind;
 	
-
-	private boolean mCanChiL;
-	private boolean mCanChiM;
-	private boolean mCanChiH;
-	private boolean mCanPon;
-	private boolean mCanKan;
-	private boolean mCanRon;
-	private boolean mCanPair;
-	private ArrayList<Integer> mPartnerIndicesChiL;
-	private ArrayList<Integer> mPartnerIndicesChiM;
-	private ArrayList<Integer> mPartnerIndicesChiH;
-	private ArrayList<Integer> mPartnerIndicesPon;
-	private ArrayList<Integer> mPartnerIndicesKan;
-	private ArrayList<Integer> mPartnerIndicesPair;
-	private Tile mCallCandidate;
-	
-	//private HandChecker mChecker;
 	
 	
 	
@@ -120,71 +77,35 @@ public class Hand {
 		mTiles = new ArrayList<Tile>(MAX_HAND_SIZE);
 		mMelds = new ArrayList<Meld>(MAX_NUM_MELDS);
 		
-		mClosed = DEFAULT_CLOSED_STATUS;
-		mTenpaiStatus = false;
 		mNumMeldsMade = 0;
 		mOwnerSeatWind = playerWind;
 		
-		//reset callable flags
-		__resetCallableFlags();
-		mCallCandidate = null;
-		
+		//make a checker for the hand
+		mChecker = new HandChecker(this, mTiles, mMelds);
 	}
 	public Hand(){
 		this(Player.SEAT_UNDECIDED);
 	}
-	//copy constructor, makes an exact copy of a hand
-	public Hand(Hand other){
-
-		for (Tile t: other.mTiles) mTiles.add(t);
-		for (Meld m: other.mMelds) mMelds.add(new Meld(m));
-
-		this.__resetCallableFlags();
-		mCallCandidate = other.mCallCandidate;
-		mCanChiL = other.mCanChiL;
-		mCanChiM = other.mCanChiM;
-		mCanChiH = other.mCanChiH;
-		mCanPon = other.mCanPon;
-		mCanKan = other.mCanKan;
-		mCanRon = other.mCanRon;
-		mCanPair = other.mCanPair;
-		for (Integer i: other.mPartnerIndicesChiL) mPartnerIndicesChiL.add(i);
-		for (Integer i: other.mPartnerIndicesChiM) mPartnerIndicesChiM.add(i);
-		for (Integer i: other.mPartnerIndicesChiH) mPartnerIndicesChiH.add(i);
-		for (Integer i: other.mPartnerIndicesPon) mPartnerIndicesPon.add(i);
-		for (Integer i: other.mPartnerIndicesKan) mPartnerIndicesKan.add(i);
-		for (Integer i: other.mPartnerIndicesPair) mPartnerIndicesPair.add(i);
-		
-		mClosed = other.mClosed;
-		mTenpaiStatus = other.mTenpaiStatus;
-		mNumMeldsMade = other.mNumMeldsMade;
-		mOwnerSeatWind = other.mOwnerSeatWind;
-	}
 	
 	
 	
-	//returns the tile at the given index in the hand
+	//returns the tile at the given index in the hand, returns null if outside of the hand's range
 	public Tile getTile(int index){
-		
-		if (index >= 0 && index < mTiles.size())
-			return mTiles.get(index);
-		else
-			return null;
+		if (index > mTiles.size() || index < 0 ) return null;
+		return mTiles.get(index);
 	}
 	
 	
 	//returns the number of tiles in the hand
-	public int getSize(){
-		return mTiles.size();
-	}
+	public int getSize(){return mTiles.size();}
 	//returns true if the hand is fully concealed, false if an open meld has been made
-	public boolean isClosed(){return mClosed;}
+	public boolean isClosed(){return mChecker.getClosedStatus();}
 	//returns the number of melds made
 	public int getNumMeldsMade(){return mNumMeldsMade;}
 	//returns the hand owner's seat wind
 	public char getOwnerSeatWind(){return mOwnerSeatWind;}
 	//returns true if the hand is in tenpai
-	public boolean getTenpaiStatus(){return mTenpaiStatus;}
+	public boolean getTenpaiStatus(){return mChecker.getTenpaiStatus();}
 	
 	
 	
@@ -195,7 +116,7 @@ public class Hand {
 	//adds a tile to the hand (cannot add more than max hand size)
 	public boolean addTile(Tile t)
 	{
-		if (mTiles.size() < MAX_HAND_SIZE - MIN_NUM_TILES_PER_MELD*mNumMeldsMade)
+		if (mTiles.size() < MAX_HAND_SIZE - Meld.AVG_NUM_TILES_PER_MELD*mNumMeldsMade)
 		{
 			mTiles.add(t);
 			return true;
@@ -228,7 +149,8 @@ public class Hand {
 			//sort hand
 			sortHand();
 			//check if removing the tile put the hand in tenpai
-			checkIfTenpai();
+			mChecker.updateTenpaiStatus();
+			
 			return true;
 		}
 		return false;
@@ -266,254 +188,36 @@ public class Hand {
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	
 	/*
-	private method: __canChiType
-	checks if a candidate tile can make a chi with other tiles in the hand
-	
-	input: candidate is the tile to search for chi partners for
-		   storePartnersHere is the list that will hold the partner indices, if chi is possible
-	 	   offset1 and offset2 are the offsets of mCallCandidate's ID to look for
-	
-	if chi type is possible: populates the meld partner list and returns true
-	
-	
-	tempPartnerIndices = search hand for (candidate's ID + offset1/2), take first occurence of each
-	if (indexes were found for both partners)
-		store partner indices in the received list
-		return true
-	end if
-	return false
-	*/
-	private boolean __canChiType(Tile candidate, ArrayList<Integer> storePartnersHere, int offset1, int offset2){
-		
-		//decide who the chi partners should be (offset is decided based on chi type)
-		//search the hand for the desired chi partners (get the indices)
-		MahList<Integer> tempPartnerIndices = new MahList<Integer>(NUM_TILES_NEEDED_TO_CHI);
-		tempPartnerIndices.add(mTiles.indexOf(new Tile(candidate.getId() + offset1)));
-		tempPartnerIndices.add(mTiles.indexOf(new Tile(candidate.getId() + offset2)));
-		
-		//if both parters were found in the hand
-		if (tempPartnerIndices.getFirst() != MahList.NOT_FOUND && tempPartnerIndices.getLast() != MahList.NOT_FOUND){
-			
-			//sore the indices of the partners in a partner list
-			__storePartnerIndices(storePartnersHere, tempPartnerIndices);
-			
-			return true;
-		}
-		return false;
-	}
-	private boolean __canChiL(Tile candidate){
-		if (candidate.getFace() == '8' || candidate.getFace() == '9') return false;
-		return __canChiType(candidate, mPartnerIndicesChiL, 1, 2);
-	}
-	private boolean __canChiM(Tile candidate){
-		if (candidate.getFace() == '1' || candidate.getFace() == '9') return false;
-		return __canChiType(candidate, mPartnerIndicesChiM, -1, 1);
-	}
-	private boolean __canChiH(Tile candidate){
-		if (candidate.getFace() == '1' || candidate.getFace() == '2') return false;
-		return __canChiType(candidate, mPartnerIndicesChiH, -2, -1);
-	}
-	//overloaded. if no tile argument given, candidate = mCallCandidate is passsed
-	private boolean __canChiL(){return  __canChiL(mCallCandidate);}
-	private boolean __canChiM(){return  __canChiM(mCallCandidate);}
-	private boolean __canChiH(){return  __canChiH(mCallCandidate);}
-	
-	
-	
-	/*
-	private method: __canMultiType
-	checks if a multi (pair/pon/kan) can be made with the new tile
-	
-	input: candidate is the tile to search for chi partners for
-		   storePartnersHere is the list that will hold the partner indices, if chi is possible
-	 	   offset1 and offset2 are the offsets of mCallCandidate's ID to look for
-	 	   
-	if the multi type is possible: populates the meld partner list and returns true
-	
-	
-	if (there are enough partner tile in the hand to form the multi)
-		store the partner indices in the storePartnersHere list
-		return true
-	end if
-	else return false
-	*/
-	private boolean __canMultiType(Tile candidate, ArrayList<Integer> storePartnersHere, int numPartnersNeeded){
-		
-		//count how many occurences of the tile, and store the indices of the occurences in tempPartnerIndices
-		MahList<Integer> tempPartnerIndices = new MahList<Integer>(numPartnersNeeded);
-		
-		//meld is possible if there are enough partners in the hand to form the meld
-		if (__howManyOfThisTileInHand(candidate, tempPartnerIndices.getArrayList()) >= numPartnersNeeded){
-
-			//store the partner indices in the pon partner index list
-			__storePartnerIndices(storePartnersHere, tempPartnerIndices.subList(0, numPartnersNeeded));
-			
-			return true;
-		}
-		return false;
-	}
-	private boolean __canPair(Tile candidate){
-		return __canMultiType(candidate, mPartnerIndicesPair, NUM_TILES_NEEDED_TO_PAIR);
-	}
-	private boolean __canPon(Tile candidate){
-		return __canMultiType(candidate, mPartnerIndicesPon, NUM_TILES_NEEDED_TO_PON);
-	}
-	private boolean __canKan(Tile candidate){
-		return __canMultiType(candidate, mPartnerIndicesKan, NUM_TILES_NEEDED_TO_KAN);
-	}
-	//overloaded. if no tile argument given, candidate = mCallCandidate is passsed
-	private boolean __canPair(){return __canPair(mCallCandidate);}
-	private boolean __canPon(){return __canPon(mCallCandidate);}
-	private boolean __canKan(){return __canKan(mCallCandidate);}
-	
-	
-	
-	/*
-	private method: __howManyOfThisTileInHand
-	returns how many copies of tile t are in the hand
-	
-	input: t is the tile to look for. if a list is provided, storeIndicesHere will be populated with the indices where t occurs 
-	
-	current = find first index of t in the hand, return 0 if not found
-	while ((current < hand size) && (hand(current) and t have the same id))
-		if (hand(current) and t are not the same physical tile): add the current index to the list
-		current++
-	end while
-	return (number of indices found)
-	*/
-	private int __howManyOfThisTileInHand(Tile t, ArrayList<Integer> storeIndicesHere){
-		//finds the first occurence of t. if t is not found, returns 0
-		int current = mTiles.indexOf(t);
-		if (current == MahList.NOT_FOUND) return 0;
-		if (storeIndicesHere == null) storeIndicesHere = new ArrayList<Integer>();
-		
-		//store the current (first) index in the list, then move current the next index
-		storeIndicesHere.add(current++);
-		
-		//loops until it finds a tile that is not t (assumes the hand is sorted)
-		while (current < mTiles.size() && mTiles.get(current).equals(t)){
-			//if handtile and t aren't the same phsyical tile... (basically, don't count t as its own partner)
-			if (mTiles.get(current) != t) storeIndicesHere.add(current);
-			current++;
-		}
-		return storeIndicesHere.size();
-	}
-	//overloaded, omitting list argument simply returns the count, and doesn't populate any list
-	@SuppressWarnings("unused")
-	private int __howManyOfThisTileInHand(Tile t){
-		return __howManyOfThisTileInHand(t, null);
-	}
-	
-	
-	
-	
-	
-	//returns true if the player can call ron on the candidate tile
-	public boolean __canRon(){
-		return false;
-	}
-	
-	
-	
-		
-	/*
 	method: checkCallableTile
-	checks if a tile is callable
-	if a call is possible, sets flag and populates partner index lists for that call
-	
+	runs checks to see if a given tile is callable
 	input: candidate is the tile to check if callable
-	returns true if a call (any call) can be made for the tile
 	
-	
-	reset all call flags/lists
-	mCallCandidate = candidate
-	check if each type of call can be made (flags are set and lists are populated here)
+	send candidate tile to checker (flags are set and lists are populated here)
 	if any call can be made, return true. else, return false
 	*/
 	public boolean checkCallableTile(Tile candidate){
-		
-		//~~~~reset flags
-		__resetCallableFlags();
-		mCallCandidate = candidate;
-		
-		//~~~~runs checks, set flags to the check results
-		//only allow chis from the player's kamicha, or from the player's own tiles
-		//don't check chi if candidate is an honor tile
-		if (!candidate.isHonor() && (
-			(candidate.getOrignalOwner() == mOwnerSeatWind) || 
-			(candidate.getOrignalOwner() == Player.findKamichaOf(mOwnerSeatWind))) ){
-			mCanChiL = __canChiL();
-			mCanChiM = __canChiM();
-			mCanChiH = __canChiH();
-		}
-
-		//check pair. if can't pair, don't bother checking pon. check pon. if can't pon, don't bother checking kan.
-		if (mCanPair = __canPair())
-			if (mCanPon = __canPon())
-				mCanKan = __canKan();
-		
-		//if in tenpai, check ron
-		if (getTenpaiStatus() == true)
-			mCanRon = __canRon();
-		
 		//~~~~return true if a call (any call) can be made
-		return (mCanChiL || mCanChiM || mCanChiH || mCanPon || mCanKan || mCanRon);
-	}
-	
-	
-	
-	
-	//takes a list and several integer indices, stores the indices in the list
-	private void __storePartnerIndices(ArrayList<Integer> storeHere, MahList<Integer> partnerIndices){
-		for (int i: partnerIndices)
-			storeHere.add(i);
-	}
-	
-	//resets call flags to false, creates new empty partner index lists
-	private void __resetCallableFlags(){
-		mCanChiL = mCanChiM = mCanChiH = mCanPon = mCanKan = mCanRon = mCanPair = false;
-		mPartnerIndicesChiL = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_CHI);
-		mPartnerIndicesChiM = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_CHI);
-		mPartnerIndicesChiH = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_CHI);
-		mPartnerIndicesPon = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_PON);
-		mPartnerIndicesKan = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_KAN);
-		mPartnerIndicesPair = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_PAIR);
+		return mChecker.checkCallableTile(candidate);
 	}
 	
 	//returns true if a specific call can be made on mCallCandidate
-	public boolean ableToChiL(){return mCanChiL;}
-	public boolean ableToChiM(){return mCanChiM;}
-	public boolean ableToChiH(){return mCanChiH;}
-	public boolean ableToPon(){return mCanPon;}
-	public boolean ableToKan(){return mCanKan;}
-	public boolean ableToRon(){return mCanRon;}
-	public boolean ableToPair(){return mCanPair;}
-	//public boolean ableToPair(){return (mTiles.contains(mCallCandidate));}
+	public boolean ableToChiL(){return mChecker.ableToChiL();}
+	public boolean ableToChiM(){return mChecker.ableToChiM();}
+	public boolean ableToChiH(){return mChecker.ableToChiH();}
+	public boolean ableToPon(){return mChecker.ableToPon();}
+	public boolean ableToKan(){return mChecker.ableToKan();}
+	public boolean ableToRon(){return mChecker.ableToRon();}
+	public boolean ableToPair(){return mChecker.ableToPair();}
 	
 	//returns the number of different calls possible for callCandidate
-	public int numberOfCallsPossible(){
-		int count = 0;
-		if (mCanChiL) count++;
-		if (mCanChiM) count++;
-		if (mCanChiH) count++;
-		if (mCanPon) count++;
-		if (mCanKan) count++;
-		//if (mCanRon) count++;
-		return count;
-	}
+	public int numberOfCallsPossible(){return mChecker.numberOfCallsPossible();}
+	
+	//returns how many copies of tile t are in the hand
+	public int howManyOfThisTileInHand(Tile t){return mChecker.howManyOfThisTileInHand(t);}
 	
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	//~~~~END MELD CHEKCERS
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	
@@ -536,24 +240,22 @@ public class Hand {
 	*/
 	public void makeMeld(int meldType){
 		
-		//list of tiles, will hold the tiles coming form the hand that will be in the meld
+		//~~~~gather the tiles from the hand that will be in the meld
+		//get the list of partner indices, based on the the meld type
+		ArrayList<Integer> partnerIndices = mChecker.getPartnerIndices(meldType);
+
+		//list of TILES, will hold the tiles coming from the hand that will be in the meld
 		ArrayList<Tile> tilesFromHand = new ArrayList<Tile>(4);
-		
-		//figure out which partner list to use for the indices, based on the call type
-		ArrayList<Integer> partnerIndices = null;
-		if (meldType == Meld.MELD_TYPE_CHI_L) partnerIndices = mPartnerIndicesChiL;
-		else if (meldType == Meld.MELD_TYPE_CHI_M) partnerIndices = mPartnerIndicesChiM;
-		else if (meldType == Meld.MELD_TYPE_CHI_H) partnerIndices = mPartnerIndicesChiH;
-		else if (meldType == Meld.MELD_TYPE_PON) partnerIndices = mPartnerIndicesPon;
-		else if (meldType == Meld.MELD_TYPE_KAN) partnerIndices = mPartnerIndicesKan;
-		
-		
-		//add the tiles from the hand to the list
 		for (Integer index: partnerIndices)
 			tilesFromHand.add(mTiles.get(index));
 		
+		//candidateTile = the tile that will complete the meld
+		Tile candidateTile = mChecker.getCallCandidate();
+		
+		
+		//~~~~make the meld and remove the tiles from the hand
 		//make the meld, add to the list of melds
-		mMelds.add(new Meld(tilesFromHand, mCallCandidate, meldType));
+		mMelds.add(new Meld(tilesFromHand, candidateTile, meldType));
 		
 		//remove the tiles from the hand
 		while (partnerIndices.isEmpty() == false){
@@ -563,197 +265,13 @@ public class Hand {
 		mNumMeldsMade++;
 		
 		//update the hand's closed status after making the meld
-		__updateClosedStatus();
-		
-		//reset call flags and candidate variable, since the call has been completed
-		__resetCallableFlags();
-		mCallCandidate = null;
+		mChecker.updateClosedStatus();
 		
 	}
-	
-	
-	//checks if the hand is closed or open, ajusts flag accordingly
-	private boolean __updateClosedStatus(){
-		boolean meldsAreAllClosed = true;
-		//if all the melds are closed, then the hand is closed
-		for (Meld m: mMelds) meldsAreAllClosed = (meldsAreAllClosed && m.isClosed());
-		
-		return mClosed = meldsAreAllClosed;
-	}
-	
-	
-	
-	
-	
 	
 	
 	
 
-	
-	//returns a list of hot tile IDs for ALL tiles in the hand
-	public ArrayList<Integer> findAllHotTiles(){
-
-		ArrayList<Integer> allHotTileIds = new ArrayList<Integer>(16);
-		ArrayList<Integer> singleTileHotTiles = null;
-		
-		//get hot tiles for each tile in the hand
-		for (Tile t: mTiles)
-		{
-			singleTileHotTiles = t.findHotTiles();
-			for (Integer i: singleTileHotTiles)
-				if (allHotTileIds.contains(i) == false)
-					allHotTileIds.add(i);
-		}
-		
-		//return list of integer IDs
-		return allHotTileIds;
-	}
-
-	//returns a list of callable tile IDs for ALL tiles in the hand
-	public ArrayList<Integer> findAllCallableTiles(){
-		
-		
-		ArrayList<Integer> allCallableTileIds = new  ArrayList<Integer>(4);
-		ArrayList<Integer> hotTileIds;
-		
-		
-		final boolean TEST_ALL_TILES = false;
-		
-		if (TEST_ALL_TILES)
-		{
-			hotTileIds = new ArrayList<Integer>(34);
-			for (int i = 1; i <= 34; i++)
-				hotTileIds.add(i);
-		}
-		else
-			hotTileIds = findAllHotTiles();
-		
-		
-		//examine all hot tiles
-		for (Integer i: hotTileIds)
-			//if tile i is callable
-			if (checkCallableTile(new Tile(i)))
-				//add its id to the list of callable tiles
-				allCallableTileIds.add(i);
-		
-		//return list of callable tile ids
-		return allCallableTileIds;
-	}
-	
-	
-	
-	
-	public void findAllMachis(){
-		
-		
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-
-	//***************************************************************************************************
-	//****BEGIN TENPAI CHECKERS
-	//***************************************************************************************************
-	
-	//returns true if the hand is in tenpai for kokushi musou
-	//if this is true, it means that: handsize >= 13, hand has at least 12 different TYC tiles
-	public boolean kokushiMusouInTenpai(){
-		
-		boolean couldBeKokushi = true;
-		
-		//if any melds have been made, kokushi musou is impossible
-		if (mNumMeldsMade > 0) return false;
-		
-		
-		//couldBeKokushi will be set to false if the hand contains a non-honor tile
-		for (Tile t: mTiles) couldBeKokushi = (couldBeKokushi && t.isYaochuu());
-		if (couldBeKokushi == false) return false;
-		
-		//check if the hand contains at least 12 different TYC tiles
-		ArrayList<Tile> listTYC = Tile.listOfYaochuuTiles();
-		int countTYC = 0;
-		for (int i = 0; i < Tile.NUMBER_OF_YAOCHUU_TILES; i++)
-			if (mTiles.contains(listTYC.get(i)))
-				countTYC++;
-
-		//return false if the hand doesn't contain at least 12 different TYC tiles
-		if (countTYC < Tile.NUMBER_OF_YAOCHUU_TILES - 1) return false;
-		
-		
-		return true;
-	}
-	
-	//returns true if a 14-tile hand is a complete kokushi musou
-	public boolean kokushiMusouIsComplete(){
-		
-		if ((mTiles.size() == MAX_HAND_SIZE) &&
-			(kokushiMusouInTenpai() == true) &&
-			(kokushiMusouWaits().size() == Tile.NUMBER_OF_YAOCHUU_TILES))
-			return true;
-		
-		
-		return false;
-	}
-
-	//returns a list of the hand's waits, if it is in tenpai for kokushi musou
-	//returns an empty list if not in kokushi musou tenpai
-	public ArrayList<Tile> kokushiMusouWaits(){
-		
-		ArrayList<Tile> waits = new ArrayList<Tile>(1);
-		
-		Tile missingTYC = null;
-		if (kokushiMusouInTenpai() == true)
-		{
-			//look for a Yaochuu tile that the hand doesn't contain
-			ArrayList<Tile> listTYC = Tile.listOfYaochuuTiles();
-			for (Tile t: listTYC)
-				if (mTiles.contains(t) == false)
-					missingTYC = t;
-			
-			//if the hand contains exactly one of every Yaochuu tile, then it is a 13-sided wait for all Yaochuu tiles
-			if (missingTYC == null)
-				waits = listTYC;
-			else
-				//else, if the hand is missing a Yaochuu tile, that missing tile is the hand's wait
-				waits.add(missingTYC);
-		}
-		
-		return waits;
-	}
-	
-	
-	
-	//checks if the hand is in tenpai
-	//sets mTenpaiStaus flag if it is, and returns true
-	public boolean checkIfTenpai(){
-		
-		boolean isTenpai = false;
-		
-		isTenpai = (isTenpai || kokushiMusouInTenpai());
-		
-		mTenpaiStatus = isTenpai;
-		return mTenpaiStatus;
-	}
-	public boolean __updateTenpaiStatus(){return checkIfTenpai();}
-	
-	
-	
-
-	//***************************************************************************************************
-	//****END TENPAI CHECKERS
-	//***************************************************************************************************
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	
@@ -766,9 +284,9 @@ public class Hand {
 	
 
 	
-	////////////////////////////////////////////////////////////////////////////////////
-	//////BEGIN DEMO METHODS
-	////////////////////////////////////////////////////////////////////////////////////
+	//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	//xxxxBEGIN DEMO METHODS
+	//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 	//demo values
 	public void fill(){
 		mTiles.add(new Tile(1));
@@ -792,16 +310,7 @@ public class Hand {
 		
 		String partnersString = "";
 		ArrayList<Integer> wantedIndices = null;
-		
-		switch (meldType){
-		case Meld.MELD_TYPE_CHI_L: wantedIndices = mPartnerIndicesChiL; break;
-		case Meld.MELD_TYPE_CHI_M: wantedIndices = mPartnerIndicesChiM; break;
-		case Meld.MELD_TYPE_CHI_H: wantedIndices = mPartnerIndicesChiH; break;
-		case Meld.MELD_TYPE_PON: wantedIndices = mPartnerIndicesPon; break;
-		case Meld.MELD_TYPE_KAN: wantedIndices = mPartnerIndicesKan; break;
-		case Meld.MELD_TYPE_PAIR: wantedIndices = mPartnerIndicesPair; break;
-		default: return "none";
-		}
+		wantedIndices = mChecker.getPartnerIndices(meldType);
 		
 		for (Integer i: wantedIndices)
 			if (wantActualTiles) partnersString += mTiles.get(i).toString() + ", ";
@@ -811,9 +320,14 @@ public class Hand {
 		return partnersString;
 	}
 	public String partnerIndicesString(int meldType){return partnerIndicesString(meldType, false);}
-	////////////////////////////////////////////////////////////////////////////////////
-	//////END DEMO METHODS
-	////////////////////////////////////////////////////////////////////////////////////
+	
+	//returns a list of hot tile IDs for ALL tiles in the hand
+	public ArrayList<Integer> findAllHotTiles(){return mChecker.findAllHotTiles();}
+	//returns a list of callable tile IDs for ALL tiles in the hand
+	public ArrayList<Integer> findAllCallableTiles(){return mChecker.findAllCallableTiles();}
+	//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	//xxxxEND DEMO METHODS
+	//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 	
 	
 	
@@ -844,7 +358,7 @@ public class Hand {
 	//returns string of all tiles in the hand, and their indices
 	@Override
 	public String toString(){
-
+		
 		String handString = "";
 		
 		int i;
@@ -858,7 +372,15 @@ public class Hand {
 		for (i = 0; i < mTiles.size(); i++)
 			handString += mTiles.get(i).toString() + " ";
 		
+		if (DEBUG_SHOW_MELDS_ALONG_WITH_HAND)
+			for (i = 0; i < mMelds.size(); i++)
+				handString+= "\n+++Meld " + (i+1) + ": " + mMelds.get(i).toString();
+		
 		return handString;
 	}
+	
+	//iterator, returns mTile's iterator
+	@Override
+	public Iterator<Tile> iterator() {return mTiles.iterator();}
 
 }

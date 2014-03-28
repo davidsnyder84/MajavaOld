@@ -80,6 +80,10 @@ methods:
 	showHand - display the player's hand
 	showPond - display the player's pond
 	getPondAsString - get the player's pond as a string
+	
+	
+	static:
+	findKamichaOf - receives a seat wind (as a character), returns the seat wind of the received wind's kamicha
 */
 public class Player {
 	
@@ -140,7 +144,6 @@ public class Player {
 	private boolean mHoldingRinshanTile;
 	private boolean mRiichiStatus;
 	private boolean mFuritenStatus;
-	//private boolean mTenpaiStatus;
 	
 	//private ArrayList<Tile> mWaits;
 
@@ -205,11 +208,12 @@ public class Player {
 		
 		//discard a tile
 		discardedTile = __discardTile();
-		//set draw status to normal
+		
+		//set needed draw to normal, since we just discarded a tile
 		mDrawNeeded = DRAW_NORMAL;
 		
 		//put the tile in the pond
-		putTileInPond(discardedTile);
+		__putTileInPond(discardedTile);
 		
 		//return the discarded tile
 		return discardedTile;
@@ -217,7 +221,7 @@ public class Player {
 	
 	
 	//adds a tile to the pond
-	private void putTileInPond(Tile t){
+	private void __putTileInPond(Tile t){
 		mPond.addTile(t);
 	}
 	
@@ -443,10 +447,8 @@ public class Player {
 	{
 		int call = CALLED_NONE;
 		
-		if (mController == CONTROLLER_HUMAN)
-			call = __askReactionHuman(t);
-		else
-			call = __askReactionCom(t);
+		if (mController == CONTROLLER_HUMAN) call = __askReactionHuman(t);
+		else call = __askReactionCom(t);
 		
 		return call;
 	}
@@ -588,8 +590,7 @@ public class Player {
 		
 		//check if tile t is a hot tile. if t is not a hot tile, return false
 		ArrayList<Integer> hotList = mHand.findAllHotTiles();
-		if (hotList.contains(t.getId()) == false)
-			return false;
+		if (hotList.contains(t.getId()) == false) return false;
 		
 		//~~~~At this point, we know t is a hot tile
 		//we need to check which melds it can be called for, if any
@@ -636,18 +637,8 @@ public class Player {
 				mDrawNeeded = DRAW_KAN;
 		}
 		else
-			System.out.println("-----Error: No meld to make (no call was made!)");
+			System.out.println("-----Error: No meld to make (the player didn't make a call!!)");
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	
@@ -697,15 +688,9 @@ public class Player {
 	
 
 	
-	public boolean checkRiichi(){
-		return mRiichiStatus;
-	}
-	public boolean checkFuriten(){
-		return mFuritenStatus;
-	}
-	public boolean checkTenpai(){
-		return mHand.getTenpaiStatus();
-	}
+	public boolean checkRiichi(){return mRiichiStatus;}
+	public boolean checkFuriten(){return mFuritenStatus;}
+	public boolean checkTenpai(){return mHand.getTenpaiStatus();}
 	//returns call status as an int value
 	public int checkCallStatus(){
 		return mCallStatus;
@@ -713,16 +698,11 @@ public class Player {
 	//returns call status as a string
 	public String checkCallStatusString(){
 		String callString = "None";
-		if (mCallStatus == CALLED_CHI_L)
-			callString = "Chi";
-		else if (mCallStatus == CALLED_CHI_M)
-			callString = "Chi";
-		else if (mCallStatus == CALLED_CHI_H)
-			callString = "Chi";
-		else if (mCallStatus == CALLED_PON)
-			callString = "Pon";
-		else if (mCallStatus == CALLED_KAN)
-			callString = "Kan";
+		if (mCallStatus == CALLED_CHI_L) callString = "Chi";
+		else if (mCallStatus == CALLED_CHI_M) callString = "Chi";
+		else if (mCallStatus == CALLED_CHI_H) callString = "Chi";
+		else if (mCallStatus == CALLED_PON) callString = "Pon";
+		else if (mCallStatus == CALLED_KAN) callString = "Kan";
 		
 		return callString;
 	}
@@ -800,9 +780,7 @@ public class Player {
 	
 	
 	//accessors for points
-	public int getPoints(){
-		return mPoints;
-	}
+	public int getPoints(){return mPoints;}
 	//mutators for points, increase or decrease
 	public void pointsIncrease(int amount){
 		mPoints += amount;
@@ -831,9 +809,7 @@ public class Player {
 	
 	
 	//sort the player's hand in ascending order
-	public void sortHand(){
-		mHand.sortHand();
-	}
+	public void sortHand(){mHand.sortHand();}
 	
 	
 	
@@ -843,7 +819,7 @@ public class Player {
 		System.out.print("\n" + mSeatWind + " Player's hand (controller: " + getControllerAsString() + ", " + mPlayerName + "):");
 		if (mHand.getTenpaiStatus() == true) System.out.print("     $$$$!Tenpai!$$$$");
 		System.out.println("\n" + mHand.toString());
-		mHand.showMelds();
+		//mHand.showMelds();
 	}
 	//show player's melds
 	public void showMelds(){
