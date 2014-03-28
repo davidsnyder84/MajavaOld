@@ -1,0 +1,20 @@
+2013-10-10
+-added hot tile check
+-added canMakeXCall functions that check if a tile can be chiLMH/pon/kan'd
+-now prompts player when a call can be made, and tells them which calls are possible
+
+2013-10-12
+-modified canMakeXCall check functions to store partner indices in an array (5 diff arrays)
+-hand now stores callCandidate as tile (along with partner index arrays)
+-finally added ability to make melds (uses previously stored callCandidate and partner index arrays)
+-added nextTile function to tile, for use with dora indicators
+-updated documentation
+
+2013-10-13
+-wrote a fucntion that returns a list of all possible callable tiles for a hand (where do I use this lol)
+-made it so you can only call chi on a tile from your kamicha
+-added pauses after discards/calls for dramatic effect
+-fixed wall drawing at beginning of game (non-East players weren't drawing on their first turn)
+-kan draw seems to be working fine
+
+

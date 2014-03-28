@@ -1,0 +1,27 @@
+		/*
+		int id = 1;
+		id = face - '0';
+		if (face >= '1' && face <= '9')
+			if (suit == SUIT_PIN)
+				id += 9;
+			else //suit == SUIT_SOU
+				id += 18;
+		else
+			if (suit == SUIT_WIND)
+				if (face == 'E')
+					id = 28;
+				else if (face == 'S')
+					id = 29;
+				else if (face == 'W')
+					id = 30;
+				else //face == 'N'
+					id = 31;
+			else //suit == SUIT_DRAGON
+				if (face == 'W')
+					id = 32;
+				else if (face == 'G')
+					id = 33;
+				else //face == 'R'
+					id = 34;
+		*/
+		
