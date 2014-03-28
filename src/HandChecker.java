@@ -604,7 +604,6 @@ public class HandChecker {
 				if (mCanChiM) t.mstackPush(MeldType.CHI_M);
 				if (mCanChiL) t.mstackPush(MeldType.CHI_L);
 			}
-			
 		}
 		
 		return allCanMakeAtLeastOneMeld;

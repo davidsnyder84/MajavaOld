@@ -345,14 +345,14 @@ public class Hand implements Iterable<Tile>{
 	
 	
 	
-
+	/*
 	//stack functions (TODO I don't like these stack funcs here)
 	//returns true if all the meldtype stack for every tile is empty
 	public boolean mstackAllTileStacksAreEmpty(){
 		boolean allEmpty = true;
 		for (Tile t: mTiles) allEmpty = (allEmpty && t.mstackIsEmpty());
 		return allEmpty;
-	}
+	}*/
 	
 	
 	
