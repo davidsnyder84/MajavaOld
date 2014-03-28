@@ -12,7 +12,7 @@ data:
 	
 	mClosed - is true if the hand is fully concealed (no calls made on other discards)
 	mNumMeldsMade - the number of melds made
-	mNumMeldsMade - holds the wind of the player who owns the hand
+	mOwnerSeatWind - holds the wind of the player who owns the hand
 	
 	mCallCandidate - the most recently discarded tile. checks are run on it to see if it can be called.
 	mCanChiL, mCanChiM, mCanChiH, mCanPon, mCanKan, mCanRon - flags, set to true if a call can be made on mCallCandidate
@@ -78,7 +78,7 @@ public class Hand {
 	private boolean mClosed;
 	private int mNumMeldsMade; 
 	
-	private char mPlayerSeatWind;
+	private char mOwnerSeatWind;
 	
 
 	private boolean mCanChiL;
@@ -105,7 +105,7 @@ public class Hand {
 		mClosed = DEFAULT_CLOSED_STATUS;
 		mNumMeldsMade = 0;
 		
-		mPlayerSeatWind = playerWind;
+		mOwnerSeatWind = playerWind;
 		
 		//reset callable flags
 		__resetCallableFlags();
@@ -139,7 +139,8 @@ public class Hand {
 	}
 	//returns the number of melds made
 	public int getNumMeldsMade(){return mNumMeldsMade;}
-	public char getPlayerSeatWind(){return mPlayerSeatWind;}
+	//returns the hand owner's seat wind
+	public char getOwnerSeatWind(){return mOwnerSeatWind;}
 	
 	
 	
@@ -193,26 +194,6 @@ public class Hand {
 	
 	
 	
-	
-	
-	//returns a list of hot tile IDs for ALL tiles in the hand
-	public ArrayList<Integer> findAllHotTiles(){
-
-		ArrayList<Integer> allHotTileIds = new ArrayList<Integer>(16);
-		ArrayList<Integer> singleTileHotTiles = null;
-		
-		//get hot tiles for each tile in the hand
-		for (Tile t: mTiles)
-		{
-			singleTileHotTiles = t.findHotTiles();
-			for (Integer i: singleTileHotTiles)
-				if (allHotTileIds.contains(i) == false)
-					allHotTileIds.add(i);
-		}
-		
-		//return list of integer IDs
-		return allHotTileIds;
-	}
 	
 	
 	
@@ -394,7 +375,7 @@ public class Hand {
 		int i;
 		for (i = 0; i < mTiles.size(); i++)
 		{
-			if (mTiles.equals(t))
+			if (mTiles.get(i).equals(t))
 			{
 				count++;
 				//store the index in the list, if that's what we're doing
@@ -436,20 +417,27 @@ public class Hand {
 	*/
 	public boolean checkCallableTile(Tile candidate){
 		
-		//reset flags
+		//////reset flags
 		__resetCallableFlags();
 		mCallCandidate = candidate;
 		
-		//runs checks, set flags to the check results
-		mCanChiL = __canChiL();
-		mCanChiM = __canChiM();
-		mCanChiH = __canChiH();
-		mCanPon = __canPon();
-		if (mCanPon)
+		//////runs checks, set flags to the check results
+		//only allow chis from the player's kamicha, or from the player's own tiles
+		if ((candidate.getOrignalOwner() == mOwnerSeatWind) || 
+			(Player.findKamichaOf(mOwnerSeatWind) == candidate.getOrignalOwner())){
+			mCanChiL = __canChiL();
+			mCanChiM = __canChiM();
+			mCanChiH = __canChiH();
+		}
+		
+		//check pon. if can't pon, don't bother checking kan
+		if (mCanPon = __canPon())
 			mCanKan = __canKan();
+		
+		//check ron
 		mCanRon = __canRon();
 		
-		//return true if a call (any call) can be made
+		//////return true if a call (any call) can be made
 		return (mCanChiL || mCanChiM || mCanChiH || mCanPon || mCanKan || mCanRon);
 	}
 	
@@ -546,6 +534,84 @@ public class Hand {
 		
 		mNumMeldsMade++;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	//returns a list of hot tile IDs for ALL tiles in the hand
+	public ArrayList<Integer> findAllHotTiles(){
+
+		ArrayList<Integer> allHotTileIds = new ArrayList<Integer>(16);
+		ArrayList<Integer> singleTileHotTiles = null;
+		
+		//get hot tiles for each tile in the hand
+		for (Tile t: mTiles)
+		{
+			singleTileHotTiles = t.findHotTiles();
+			for (Integer i: singleTileHotTiles)
+				if (allHotTileIds.contains(i) == false)
+					allHotTileIds.add(i);
+		}
+		
+		//return list of integer IDs
+		return allHotTileIds;
+	}
+
+	//returns a list of callable tile IDs for ALL tiles in the hand
+	public ArrayList<Integer> findAllCallableTiles(){
+		
+		
+		ArrayList<Integer> allCallableTileIds = new  ArrayList<Integer>(4);
+		ArrayList<Integer> hotTileIds;
+		
+		
+		final boolean TEST_ALL_TILES = false;
+		
+		if (TEST_ALL_TILES)
+		{
+			hotTileIds = new ArrayList<Integer>(34);
+			for (int i = 1; i <= 34; i++)
+				hotTileIds.add(i);
+		}
+		else
+			hotTileIds = findAllHotTiles();
+		
+		
+		//examine all hot tiles
+		for (Integer i: hotTileIds)
+			//if tile i is callable
+			if (checkCallableTile(new Tile(i)))
+				//add its id to the list of callable tiles
+				allCallableTileIds.add(i);
+		
+		//return list of callable tile ids
+		return allCallableTileIds;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	

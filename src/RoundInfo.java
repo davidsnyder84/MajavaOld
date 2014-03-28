@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 
 
 
@@ -25,9 +27,31 @@ public class RoundInfo {
 	private char mRoundWind;
 	private int mGameType;
 	
+	private ArrayList<Tile> mDoraIndicators;
+	
+	private boolean mGameIsOver;
+	private int mGameResult;
 	
 	
-	public RoundInfo(){
+	
+	//4-arg, takes game type, round wind, dora indicators, and game result
+	public RoundInfo(int gameType, char roundWind, ArrayList<Tile> doraIndicators, int gameResult){
+		
+		mGameType = gameType;
+		mRoundWind = roundWind;
+		
+		mGameResult = gameResult;
+		//if game is undecided, gameIsOver = false
+		if (mGameResult == Table.RESULT_UNDECIDED)
+			mGameIsOver = false;
+		else
+			mGameIsOver = true;
+		
+		mDoraIndicators = doraIndicators;
+	}
+	//3-arg, takes game type, round wind, dora indicators, and game result. Assumes game is not over.
+	public RoundInfo(int gameType, char roundWind, ArrayList<Tile> doraIndicators){
+		this(gameType, roundWind, doraIndicators, Table.RESULT_UNDECIDED);
 	}
 	
 	
@@ -38,15 +62,22 @@ public class RoundInfo {
 	
 	
 	
-	
+	//accessors
 	public int getGameType(){
 		return mGameType;
 	}
-	
 	public char getRoundWind(){
 		return mRoundWind;
 	}
-	
+	public int getGameResult(){
+		return mGameResult;
+	}
+	public boolean gameIsOver(){
+		return mGameIsOver;
+	}
+	public ArrayList<Tile> getDoraIndicators(){
+		return mDoraIndicators;
+	}
 	
 	
 	

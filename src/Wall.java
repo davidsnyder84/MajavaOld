@@ -300,11 +300,19 @@ public class Wall {
 	//////BEGIN DEMO METHODS
 	////////////////////////////////////////////////////////////////////////////////////
 	public void loadDebugWall(){
+		
 		//desired hands (ENTER HERE)
-		int[] h1 = {1,1,1,2,3,4,5,6,7,8,9,9,9,3};
+		int[] h1 = {2,2,2,2,2,2,2,2,2,2,2,2,2,7};
 		int[] h2 = {2,2,2,2,2,2,2,2,2,2,2,2,2};
-		int[] h3 = {3,3,3,3,3,3,3,3,3,3,3,3,9};
+		int[] h3 = {3,3,3,3,3,3,3,3,3,3,3,3,3};
 		int[] h4 = {4,4,4,4,4,4,4,4,4,4,4,4,4};
+		
+		/*
+		int[] h1 = {1,2,2,2,3,4,5,6,7,8,9,9,9,3};
+		int[] h2 = {2,2,2,2,2,2,2,2,2,2,2,2,2};
+		int[] h3 = {3,3,3,3,3,3,3,3,3,3,3,3,3};
+		int[] h4 = {4,4,4,4,4,4,4,4,4,4,4,4,4};
+		*/
 		
 		
 		/*
@@ -385,6 +393,7 @@ public class Wall {
 		//north takes 1
 		mTiles.set(3*TAKEN_PER_ROUND + 4, tilesN.get(0));
 		tilesN.remove(0);
+		
 	}
 	////////////////////////////////////////////////////////////////////////////////////
 	//////END DEMO METHODS
@@ -406,7 +415,7 @@ public class Wall {
 		int i, j;
 		String wallString = "";
 		
-		final int TILES_PER_LINE = 12;
+		final int TILES_PER_LINE = 16;
 		for (i = 0; i < (mTiles.size() / TILES_PER_LINE) + 1; i++)
 		{
 			for (j = 0; j < TILES_PER_LINE && (j + TILES_PER_LINE*i < mTiles.size()); j++)

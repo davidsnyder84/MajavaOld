@@ -36,17 +36,14 @@ public class Meld {
 	public static final int MELD_TYPE_KAN = 5;
 	public static final int MELD_TYPE_PAIR = 8;
 	public static final int MELD_TYPE_DEFAULT = MELD_TYPE_UNKNOWN;
-	/*
 	public static final int MELD_TYPE_CHI = 123;
-	public static final int MELD_TYPE_GAY = 6;
-	public static final int MELD_TYPE_CHI_L = 11;
-	public static final int MELD_TYPE_CHI_M = 12;
-	public static final int MELD_TYPE_CHI_H = 13;
-	*/
+	
 	public static final char OWNER_UNKOWN = '?';
 	public static final char OWNER_DEFAULT = OWNER_UNKOWN;
-	
-	public static final boolean CLOSED_STATUS_DEFAULT = true;
+
+	public static final boolean CLOSED_STATUS_CLOSED = true;
+	public static final boolean CLOSED_STATUS_OPEN = false;
+	public static final boolean CLOSED_STATUS_DEFAULT = CLOSED_STATUS_CLOSED;
 
 	
 	
@@ -90,59 +87,6 @@ public class Meld {
 	public Meld(ArrayList<Tile> handTiles, int meldType){
 		this(new ArrayList<Tile>(handTiles.subList(0, handTiles.size() - 1)), handTiles.get(handTiles.size() - 1), meldType);
 	}
-	
-	/*
-	//Constructor, takes a list of tiles and a closed status (true/false)
-	public Meld(ArrayList<Tile> tiles, char ownerWind, boolean closed){
-		
-		//set the meld's list of tiles to the received list of tiles
-		mTiles = tiles;
-		
-		//update closed status
-		mClosed = closed;
-		mOwnerSeatWind = ownerWind;
-		
-		//meld type
-		mMeldType = MELD_TYPE_DEFAULT;
-	}
-	public Meld(ArrayList<Tile> tiles, char ownerWind){
-		this(tiles, ownerWind, DEFAULT_CLOSED_STATUS);
-	}
-	public Meld(ArrayList<Tile> tiles){
-		this(tiles, OWNER_DEFAULT);
-	}
-	 public Meld(ArrayList<Tile> tiles, char playerWind, boolean closed){
-		
-		//add the tiles to the meld's list of tiles
-		mTiles = new ArrayList<Tile>(0);
-		for(Tile t: tiles)
-			mTiles.add(t);
-		
-		//update closed status
-		mClosed = closed;
-		mPlayerSeatWind = playerWind;
-		
-		//meld type
-		mMeldType = DEFAULT_MELD_TYPE;
-	}
-	public Meld(Tile t1, Tile t2, Tile t3, Tile t4){
-		ArrayList<Tile> tiles = new ArrayList<Tile>(0);
-		tiles.add(t1);
-		tiles.add(t2);
-		tiles.add(t3);
-		tiles.add(t4);
-		this(tiles);
-	}
-	public Meld(Tile t1, Tile t2, Tile t3){
-		
-	}
-	public Meld(Tile t1, Tile t2){
-		
-	}
-	public Meld(){
-		
-	}
-	*/
 	
 	
 	
@@ -211,7 +155,7 @@ public class Meld {
 	
 	
 	
-	
+	//returns the amount of fu the meld is worth
 	public int calculateFu(){
 		int fu = 0;
 		

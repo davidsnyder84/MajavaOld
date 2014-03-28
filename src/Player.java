@@ -95,9 +95,14 @@ public class Player {
 	public static final char CONTROLLER_HUMAN = 'h';
 	public static final char CONTROLLER_COM = 'c';
 	public static final char CONTROLLER_DEFAULT = CONTROLLER_UNDECIDED;
+
+	public static final int COM_BEHAVIOR_DISCARD_LAST = 1;
+	public static final int COM_BEHAVIOR_DISCARD_FIRST = 2;
+	public static final int COM_BEHAVIOR_DISCARD_RANDOM = 3;
+	public static final int COM_BEHAVIOR_DISCARD_DEFAULT = COM_BEHAVIOR_DISCARD_LAST;
+	public static final int TIME_TO_SLEEP = 2000;
 	
 	public static final int POINTS_STARTING_AMOUNT = 25000;
-	
 
 	public static final int CALLED_NONE = 0;
 	public static final int CALLED_CHI = 123;
@@ -107,7 +112,6 @@ public class Player {
 	public static final int CALLED_PON = 4;
 	public static final int CALLED_KAN = 5;
 	public static final int CALLED_RON = 6;
-	public static final int CALLED_GAY = 66;
 	
 	public static final int DRAW_NONE = 0;
 	public static final int DRAW_NORMAL = 1;
@@ -305,6 +309,9 @@ public class Player {
 		{
 			System.out.print("\nWhich tile do you want to discard? (enter number): "); 
 			chosenDiscard = keyboard.nextInt();
+			
+			//entering 0 means "choose the last tile in my hand"
+			if (chosenDiscard == 0)	chosenDiscard = mHand.getSize();
 		}
 		
 		return chosenDiscard - 1;	//adjust for index
@@ -325,13 +332,15 @@ public class Player {
 	private int __askDiscardCom(){
 		
 		int chosenDiscard;
-		
+
 		//always choose the last tile in the hand (most recently drawn one)
 		chosenDiscard = mHand.getSize() - 1;
 		
+		//always choose the first tile in the hand
+		chosenDiscard = 0;
+		
 		//wait, since computer is fast
-		final int TIME_TO_SLEEP = 1200;
-		try {Thread.sleep(TIME_TO_SLEEP);} catch (InterruptedException e){}
+		//try {Thread.sleep(TIME_TO_SLEEP);} catch (InterruptedException e){}
 		
 		return chosenDiscard;
 	}
@@ -398,11 +407,11 @@ public class Player {
 			mCallStatus = __askSelfForReaction(t);
 		}
 		
-		/*
+		////////////////////WATCH THIS MOTHERFUCKER
+		//////////////////I DONT KNOW WHAT THIS WILL DO
 		//draw normally if no call
 		if (mCallStatus == CALLED_NONE)
 			mDrawNeeded = DRAW_NORMAL;
-		*/
 		
 		return mCallStatus;
 	}

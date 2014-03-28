@@ -65,8 +65,10 @@ public class Table {
 	public static final int RESULT_VICTORY_N = 8;
 	
 	//for debug use
-	public static final boolean DO_SINGLE_PLAYER_GAME = true;
-	public static final boolean SHUFFLE_SEATS = false;
+	public static final boolean DEBUG_DO_SINGLE_PLAYER_GAME = true;
+	public static final boolean DEBUG_SHUFFLE_SEATS = false;
+	public static final boolean DEBUG_WAIT_AFTER_COMPUTER = true;
+	public static final boolean DEBUG_LOAD_DEBUG_WALL = true;
 	
 	
 	
@@ -170,7 +172,7 @@ public class Table {
 		
 
 		//------------------------------------------------DEBUG INFO
-		//mWall.loadDebugWall();
+		if (DEBUG_LOAD_DEBUG_WALL) mWall.loadDebugWall();
 		System.out.println(mWall.toString() + "\n\n\n");
 		//------------------------------------------------DEBUG INFO
 		
@@ -283,7 +285,7 @@ public class Table {
 
 			//show who called the tile 
 			System.out.println("\n*********************************************************");
-			System.out.println("**********" + priorityCaller.getSeatWind() + " Player called the tile (" + discardedTile.toString() + ")! " + p1.checkCallStatusString() + "!!!**********");
+			System.out.println("**********" + priorityCaller.getSeatWind() + " Player called the tile (" + discardedTile.toString() + ")! " + priorityCaller.checkCallStatusString() + "!!!**********");
 			System.out.println("*********************************************************");
 		}
 		
@@ -305,6 +307,9 @@ public class Table {
 		
 		//it is now the calling player's turn
 		mWhoseTurn = priorityCaller.getPlayerNumber();
+		
+		//pause for dramatic effect
+		pauseWait();
 		
 		//reset reaction to none (since reaction has been handled)
 		mReaction = NO_REACTION;
@@ -516,7 +521,7 @@ public class Table {
 		showHandsOfHumanPlayers();
 		//show the discarded tile and the discarder's pond
 		System.out.println("\n\n\tTiles left: " + mWall.getNumTilesLeftInWall());
-		System.out.println("\t" + p.getSeatWind() + " Player's discard: " + discardedTile.toString());
+		System.out.println("\t" + p.getSeatWind() + " Player's discard: ^^^^^" + discardedTile.toString() + "^^^^^");
 		p.showPond();
 		
 		
@@ -524,6 +529,12 @@ public class Table {
 		mReaction += p.getShimocha().reactToDiscard(discardedTile);
 		mReaction += p.getToimen().reactToDiscard(discardedTile);
 		mReaction += p.getKamicha().reactToDiscard(discardedTile);
+		
+		//pause for dramatic effect
+		pauseWait();
+		if (mReaction == NO_REACTION)
+			pauseWait();
+		
 		
 		//update turn indicator
 		mWhoseTurn++;
@@ -558,7 +569,7 @@ public class Table {
 
 		//figure out how many humans are playing
 		int numHumans = 0;
-		if (DO_SINGLE_PLAYER_GAME)
+		if (DEBUG_DO_SINGLE_PLAYER_GAME)
 			numHumans = 1;
 		else
 		{
@@ -578,7 +589,7 @@ public class Table {
 			else
 				controllers.add(Player.CONTROLLER_COM);
 		
-		if (SHUFFLE_SEATS)
+		if (DEBUG_SHUFFLE_SEATS)
 		{
 			//shuffle the list controllers
 			GenSort<Character> sorter = new GenSort<Character>(controllers);
@@ -638,6 +649,14 @@ public class Table {
 		return mGameIsOver;
 	}
 	
+	//pauses for dramatic effect (like after a computer's turn)
+	public static void pauseWait(){
+		int time = 0;
+		if (DEBUG_WAIT_AFTER_COMPUTER) time = Player.TIME_TO_SLEEP / 2;
+		
+		try {Thread.sleep(time);} catch (InterruptedException e){}
+	}
+	
 	
 	
 	/*
@@ -646,8 +665,11 @@ public class Table {
 	*/
 	public void displayGameResult(){
 
-		 if (mGameIsOver)
-			 System.out.println("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~\nGame over!\n~~~~~~~~~~~~~~~~~~~~~~~~~");
+		 if (mGameIsOver){
+			 System.out.println("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+			 System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~Game over!~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+			 System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		 }
 		 String resultStr = "Result: ";
 		 
 		 if (mGameResult == RESULT_UNDECIDED)
