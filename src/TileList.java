@@ -257,9 +257,7 @@ public class TileList implements Iterable<Tile>{
 	
 	
 	//allow counting itself
-	public int findHowManyOf(Tile tile){
-		return findAllIndicesOf(tile, true).size();
-	}
+	public int findHowManyOf(Tile tile){return findAllIndicesOf(tile, true).size();}
 	
 	
 	
@@ -275,10 +273,10 @@ public class TileList implements Iterable<Tile>{
 	
 	
 	
-
-	public int indexOf(Tile t){
-		return mTiles.indexOf(t);
-	}
+	
+	public int indexOf(Tile t){return mTiles.indexOf(t);}
+	//indexOf, overloaded for Tile ID
+	public int indexOf(int tileID){return mTiles.indexOf(new Tile(tileID));}
 	
 	
 	

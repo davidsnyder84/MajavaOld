@@ -69,10 +69,10 @@ public class HandChecker {
 	//private static final int NOT_FOUND = -1;
 	public static final boolean DEFAULT_CLOSED_STATUS = true;
 	
-	public static final int NUM_TILES_NEEDED_TO_CHI = 2;
-	public static final int NUM_TILES_NEEDED_TO_PON = 2;
-	public static final int NUM_TILES_NEEDED_TO_KAN = 3;
-	public static final int NUM_TILES_NEEDED_TO_PAIR = 1;
+	public static final int NUM_PARTNERS_NEEDED_TO_CHI = 2;
+	public static final int NUM_PARTNERS_NEEDED_TO_PON = 2;
+	public static final int NUM_PARTNERS_NEEDED_TO_KAN = 3;
+	public static final int NUM_PARTNERS_NEEDED_TO_PAIR = 1;
 	
 	private static final int OFFSET_CHI_L1 = 1;
 	private static final int OFFSET_CHI_L2 = 2;
@@ -110,7 +110,7 @@ public class HandChecker {
 	private ArrayList<Integer> mPartnerIndicesPair;
 	private Tile mCallCandidate;
 	
-	private MeldTypeStackList mListMTSL;
+	private boolean pairHasBeenChosen = false;
 	
 	
 	
@@ -218,7 +218,7 @@ public class HandChecker {
 		
 		//decide who the chi partners should be (offset is decided based on chi type)
 		//search the hand for the desired chi partners (get the indices)
-		MahList<Integer> tempPartnerIndices = new MahList<Integer>(NUM_TILES_NEEDED_TO_CHI);
+		MahList<Integer> tempPartnerIndices = new MahList<Integer>(NUM_PARTNERS_NEEDED_TO_CHI);
 		tempPartnerIndices.add(mHandTiles.indexOf(new Tile(candidate.getId() + offset1)));
 		tempPartnerIndices.add(mHandTiles.indexOf(new Tile(candidate.getId() + offset2)));
 		
@@ -283,9 +283,9 @@ public class HandChecker {
 		}
 		return false;
 	}
-	private boolean __canPair(Tile candidate){return __canMultiType(candidate, mPartnerIndicesPair, NUM_TILES_NEEDED_TO_PAIR);}
-	private boolean __canPon(Tile candidate){return __canMultiType(candidate, mPartnerIndicesPon, NUM_TILES_NEEDED_TO_PON);}
-	private boolean __canKan(Tile candidate){return __canMultiType(candidate, mPartnerIndicesKan, NUM_TILES_NEEDED_TO_KAN);}
+	private boolean __canPair(Tile candidate){return __canMultiType(candidate, mPartnerIndicesPair, NUM_PARTNERS_NEEDED_TO_PAIR);}
+	private boolean __canPon(Tile candidate){return __canMultiType(candidate, mPartnerIndicesPon, NUM_PARTNERS_NEEDED_TO_PON);}
+	private boolean __canKan(Tile candidate){return __canMultiType(candidate, mPartnerIndicesKan, NUM_PARTNERS_NEEDED_TO_KAN);}
 	//overloaded. if no tile argument given, candidate = mCallCandidate is passsed
 	private boolean __canPair(){return __canPair(mCallCandidate);}
 	private boolean __canPon(){return __canPon(mCallCandidate);}
@@ -384,12 +384,12 @@ public class HandChecker {
 	//resets call flags to false, creates new empty partner index lists
 	private void __resetCallableFlags(){
 		mCanChiL = mCanChiM = mCanChiH = mCanPon = mCanKan = mCanRon = mCanPair = false;
-		mPartnerIndicesChiL = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_CHI);
-		mPartnerIndicesChiM = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_CHI);
-		mPartnerIndicesChiH = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_CHI);
-		mPartnerIndicesPon = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_PON);
-		mPartnerIndicesKan = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_KAN);
-		mPartnerIndicesPair = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_PAIR);
+		mPartnerIndicesChiL = new ArrayList<Integer>(NUM_PARTNERS_NEEDED_TO_CHI);
+		mPartnerIndicesChiM = new ArrayList<Integer>(NUM_PARTNERS_NEEDED_TO_CHI);
+		mPartnerIndicesChiH = new ArrayList<Integer>(NUM_PARTNERS_NEEDED_TO_CHI);
+		mPartnerIndicesPon = new ArrayList<Integer>(NUM_PARTNERS_NEEDED_TO_PON);
+		mPartnerIndicesKan = new ArrayList<Integer>(NUM_PARTNERS_NEEDED_TO_KAN);
+		mPartnerIndicesPair = new ArrayList<Integer>(NUM_PARTNERS_NEEDED_TO_PAIR);
 	}
 	
 	
@@ -462,8 +462,7 @@ public class HandChecker {
 		
 		final boolean TEST_ALL_TILES = false;
 		
-		if (TEST_ALL_TILES)
-		{
+		if (TEST_ALL_TILES){
 			hotTileIds = new ArrayList<Integer>(34);
 			for (int i = 1; i <= 34; i++)
 				hotTileIds.add(i);
@@ -517,10 +516,13 @@ public class HandChecker {
 	
 	
 	
-	
+
+	//***************************************************************************************************
 	//***************************************************************************************************
 	//****BEGIN TENPAI CHECKERS
 	//***************************************************************************************************
+	//***************************************************************************************************
+	
 	
 	//returns true if the hand is in tenpai for kokushi musou
 	//if this is true, it means that: handsize >= 13, hand has at least 12 different TYC tiles
@@ -623,9 +625,9 @@ public class HandChecker {
 	
 	
 	
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	//~~~~BEGIN MELD CHEKCERS
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//============================================================================
+	//====BEGIN CAN MELDS
+	//============================================================================
 	
 	/*
 	private method: __canChiType
@@ -643,10 +645,6 @@ public class HandChecker {
 	private boolean __canMeldChiL(Tile candidate){return ((candidate.getFace() != '8' && candidate.getFace() != '9') && __canMeldChiType(candidate, OFFSET_CHI_L1, OFFSET_CHI_L2));}
 	private boolean __canMeldChiM(Tile candidate){return ((candidate.getFace() != '1' && candidate.getFace() != '9') && __canMeldChiType(candidate, OFFSET_CHI_M1, OFFSET_CHI_M2));}
 	private boolean __canMeldChiH(Tile candidate){return ((candidate.getFace() != '1' && candidate.getFace() != '2') && __canMeldChiType(candidate, OFFSET_CHI_H1, OFFSET_CHI_H2));}
-	//overloaded. if no tile argument given, candidate = mCallCandidate is passsed
-//	private boolean __canMeldChiL(){return __canMeldChiL(mCallCandidate);}
-//	private boolean __canMeldChiM(){return __canMeldChiM(mCallCandidate);}
-//	private boolean __canMeldChiH(){return __canMeldChiH(mCallCandidate);}
 	
 	
 	
@@ -672,16 +670,10 @@ public class HandChecker {
 		//count how many occurences of the tile
 		return (mHandTiles.findHowManyOf(candidate) >= numPartnersNeeded);
 	}
-	private boolean __canMeldPair(Tile candidate){return __canMeldMultiType(candidate, NUM_TILES_NEEDED_TO_PAIR + 1);}
-	private boolean __canMeldPon(Tile candidate){return __canMeldMultiType(candidate, NUM_TILES_NEEDED_TO_PON + 1);}
+	private boolean __canMeldPair(Tile candidate){return __canMeldMultiType(candidate, NUM_PARTNERS_NEEDED_TO_PAIR + 1);}
+	private boolean __canMeldPon(Tile candidate){return __canMeldMultiType(candidate, NUM_PARTNERS_NEEDED_TO_PON + 1);}
 	@SuppressWarnings("unused")
-	private boolean __canMeldKan(Tile candidate){return __canMeldMultiType(candidate, NUM_TILES_NEEDED_TO_KAN+1);}
-	//overloaded. if no tile argument given, candidate = mCallCandidate is passsed
-//	private boolean __canMeldPair(){return __canMeldPair(mCallCandidate);}
-//	private boolean __canMeldPon(){return __canMeldPon(mCallCandidate);}
-//	private boolean __canMeldKan(){return __canMeldKan(mCallCandidate);}
-	
-	
+	private boolean __canMeldKan(Tile candidate){return __canMeldMultiType(candidate, NUM_PARTNERS_NEEDED_TO_KAN + 1);}
 	
 	
 	
@@ -723,28 +715,19 @@ public class HandChecker {
 		return (!meldStack.isEmpty());
 	}
 	
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	//~~~~END MELD CHEKCERS
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//============================================================================
+	//====END CAN MELDS
+	//============================================================================
 	
 	
 	
 	
 	
 	
-	public boolean populateMeldStacks(MeldTypeStackList listMTSL){
-		
-		Tile t;
-		MahStack<MeldType> m;
-		
+	public boolean populateMeldStacks(TileList handTiles, MeldTypeStackList listMTSL){
 		//check to see if every tile can make at least one meld
-		for (int i = 0; i < mHandTiles.size(); i++){
-			
-			t = mHandTiles.get(i);
-			m = listMTSL.get(i);
-			
-			if (checkMeldableTile(t, m) == false) return false;
-		}
+		for (int i = 0; i < handTiles.size(); i++)
+			if (checkMeldableTile(handTiles.get(i), listMTSL.get(i)) == false) return false;
 		
 		return true;
 	}
@@ -760,55 +743,11 @@ public class HandChecker {
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	/*
-	public boolean populateMTypeStacks(){
-		
-		boolean allCanMakeAtLeastOneMeld = true;
-		
-		for (Tile t: mHandTiles){
-			
-			if (checkCallableTile(t) || mCanPair){
-				if (mCanPair) t.mstackPush(MeldType.PAIR);
-				if (mCanPon) t.mstackPush(MeldType.PON);
-				if (mCanChiH) t.mstackPush(MeldType.CHI_H);
-				if (mCanChiM) t.mstackPush(MeldType.CHI_M);
-				if (mCanChiL) t.mstackPush(MeldType.CHI_L);
-			}
-			else allCanMakeAtLeastOneMeld = false;
-		}
-		
-		return allCanMakeAtLeastOneMeld;
-	}
-	*/
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	private boolean pairHasBeenChosen = false;
-	
 	public boolean isNormalComplete(){
 		
 		//populate stacks
 		MeldTypeStackList listMTSL = new MeldTypeStackList(mHandTiles.size());
-		if (populateMeldStacks(listMTSL) == false)
-			return false;
-		
+		if (populateMeldStacks(mHandTiles, listMTSL) == false) return false;
 		
 		pairHasBeenChosen = false;
 		return isCompleteHand(mHandTiles, listMTSL);
@@ -889,16 +828,22 @@ public class HandChecker {
 			
 			//~~~~Verify that currentTile's partners are still in the hand
 			//currentTileParterIDs = list of IDs of partners for currentTile's top MeldType
-			currentTileParterIDs = listMTSL.firstTopPartnerIDs(currentTile.getId());//currentTile.mstackTopParterIDs();
-			
-			//assume currentTile's partners are still in the hand
-			//check if currentTile's partners are still in the hand
-			currentTilePartersAreStillHere = true;
-			for (Integer id: currentTileParterIDs)
-				if (handTiles.contains(id) == false) currentTilePartersAreStillHere = false;	//TODO this is fishy. I think it gives false positives.
+			currentTileParterIDs = listMTSL.firstTopPartnerIDs(currentTile.getId());
 
 			//get the top meldType from currentTile's stack
-			currentTileMeldType = listMTSL.firstPop();//currentTile.mstackPop();	//(remove it)
+			currentTileMeldType = listMTSL.firstPop();	//(remove it)
+
+
+			//check if currentTile's partners are still in the hand
+			currentTilePartersAreStillHere = true;
+			if (currentTileMeldType.isChi())
+//				currentTilePartersAreStillHere = (handTiles.contains(currentTileParterIDs.get(0)) && handTiles.contains(currentTileParterIDs.get(1)));
+				if (!handTiles.contains(currentTileParterIDs.get(0)) || !handTiles.contains(currentTileParterIDs.get(1)))
+					currentTilePartersAreStillHere = false;
+			else{
+				if (currentTileMeldType == MeldType.PAIR && handTiles.findHowManyOf(currentTile) < NUM_PARTNERS_NEEDED_TO_PAIR + 1) currentTilePartersAreStillHere = false;
+				if (currentTileMeldType == MeldType.PON && handTiles.findHowManyOf(currentTile) < NUM_PARTNERS_NEEDED_TO_PON + 1) currentTilePartersAreStillHere = false;
+			}
 			
 			
 			
@@ -915,19 +860,16 @@ public class HandChecker {
 				
 				//if chi, just find the partners
 				if (currentTileMeldType.isChi()){
-					partnerIndices.add(handTiles.indexOf(new Tile(currentTileParterIDs.get(0))));
-					partnerIndices.add(handTiles.indexOf(new Tile(currentTileParterIDs.get(1))));
+					partnerIndices.add(handTiles.indexOf(currentTileParterIDs.get(0)));
+					partnerIndices.add(handTiles.indexOf(currentTileParterIDs.get(1)));
 				}
 				else{
 					//else if pon/pair, make sure you don't count the tile itsef
-					
-					partnerIndices = handTiles.findAllIndicesOf(new Tile(currentTileParterIDs.get(0)));	//TODO I changed a 1 to a 0 here
-					//remove the first index (this is the index of currentTile)
-					partnerIndices.removeFirst();
+					partnerIndices = handTiles.findAllIndicesOf(currentTile);
 					
 					//trim the lists down to size to fit the meld type
-					if (currentTileMeldType == MeldType.PAIR) while(partnerIndices.size() > 1) partnerIndices.removeLast();
-					if (currentTileMeldType == MeldType.PON) while(partnerIndices.size() > 2) partnerIndices.removeLast();
+					if (currentTileMeldType == MeldType.PAIR) while(partnerIndices.size() > NUM_PARTNERS_NEEDED_TO_PAIR) partnerIndices.removeLast();
+					if (currentTileMeldType == MeldType.PON) while(partnerIndices.size() > NUM_PARTNERS_NEEDED_TO_PON) partnerIndices.removeLast();
 				}
 				
 				
@@ -938,11 +880,8 @@ public class HandChecker {
 				toMeldTiles.add(currentTile);
 				for (Integer index: partnerIndices) toMeldTiles.add(handTiles.get(index));
 				
-				
-				
 
 				//make a copy of the hand and stacklist, and remove the meld tiles from the copies
-//				handTilesMinusThisMeld = new TileList();
 				handTilesMinusThisMeld = handTiles.makeCopy();
 				listMTSLMinusThisMeld = listMTSL.makeCopy();
 				
@@ -996,20 +935,19 @@ public class HandChecker {
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
 	//checks if the hand is in tenpai
 	//sets mTenpaiStaus flag if it is, and returns true
 	private boolean __checkIfTenpai(){
 		
 		boolean isTenpai = false;
+		boolean isKokushiTenpai = false, isChiitoitsuTenpai = false, isNormalTenpai = false;
 		
-		isTenpai = (isTenpai || kokushiMusouInTenpai());
+		isKokushiTenpai = kokushiMusouInTenpai();
+//		isChiitoitsuTenpai = chiitoitosisitu
+		isNormalTenpai = false;
+		
+		
+		isTenpai = (isKokushiTenpai || isChiitoitsuTenpai || isNormalTenpai);
 		
 		mTenpaiStatus = isTenpai;
 		return mTenpaiStatus;
@@ -1018,7 +956,9 @@ public class HandChecker {
 	
 
 	//***************************************************************************************************
+	//***************************************************************************************************
 	//****END TENPAI CHECKERS
+	//***************************************************************************************************
 	//***************************************************************************************************
 	
 	
@@ -1087,17 +1027,12 @@ public class HandChecker {
 	public boolean ableToPair(){return mCanPair;}
 	
 	
-	
 	//returns true if the hand is in tenpai
 	public boolean getTenpaiStatus(){return mTenpaiStatus;}
 	
 	//returns true if the hand is fully concealed, false if an open meld has been made
 	public boolean getClosedStatus(){return mClosed;}
 	
-	
-	
-	//satisfy compiler whining
-	public void lookAtMelds(){mHandMelds.size();}//yep, i'm looking at them
 	
 	
 	
@@ -1121,14 +1056,19 @@ public class HandChecker {
 		h.addTile(new Tile(3));
 		h.addTile(new Tile(4));
 		h.addTile(new Tile(4));
-		h.addTile(new Tile(5));
-		h.addTile(new Tile(5));
+		h.addTile(new Tile(6));
+		h.addTile(new Tile(6));
 		h.sortHand();
 
 		System.out.println(h.toString());
 		System.out.println("\nHand is complete normal?: " + h.mChecker.isNormalComplete());
+		
+		
+		DemoHandGen.main(null);
 	}
-	
+
+	//satisfy compiler whining
+	public void lookAtMelds(){mHandMelds.size();}//yep, i'm looking at them
 	
 	
 	
