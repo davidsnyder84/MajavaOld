@@ -115,6 +115,15 @@ public class TileList implements Iterable<Tile>{
 		for (Tile t: mTiles) copy.add(new Tile(t));
 		return copy;
 	}
+	//return a new TileList with a COPY (independent) of each tile in the list
+	public TileList makeCopyNoDuplicates(){
+		TileList copy = new TileList(mTiles.size());
+		
+		for (Tile t: mTiles)
+			if (!copy.contains(t))
+				copy.add(new Tile(t));
+		return copy;
+	}
 	
 	
 	//contains, overloaded to accept tileID
@@ -319,6 +328,30 @@ public class TileList implements Iterable<Tile>{
 	public ArrayList<Tile> getArrayList(){return mTiles;}
 	
 	
+	
+	
+	@Override
+	public String toString(){
+		String tilesString = "";
+		//add the tiles to the string
+		for (Tile t: mTiles) tilesString += t.toString() + " ";
+		if (tilesString != "") tilesString = tilesString.substring(0, tilesString.length() - 1);
+		
+		return tilesString;
+	}
+	
+	
+	@Override
+	public boolean equals(Object other){
+		if (other == null || (other instanceof TileList) == false) return false;
+		if (((TileList)other).size() != this.size()) return false;
+		
+		int size = this.size(); 
+		for(int i = 0; i < size; i++)
+			if (!get(i).equals(((TileList)other).get(i))) return false;
+		
+		return true;
+	}
 	
 	
 }

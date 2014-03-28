@@ -360,18 +360,19 @@ public class Hand implements Iterable<Tile>{
 	public String toString(){
 		
 		String handString = "";
-		
 		int i;
-		for (i = 0; i < mTiles.size(); i++)
-			if (i+1 < 10)
-				handString += (i+1) + "  ";
-			else
-				handString += (i+1) + " ";
 		
+		//show indices above the hand
+		for (i = 0; i < mTiles.size(); i++)
+			if (i+1 < 10) handString += (i+1) + "  ";
+			else handString += (i+1) + " ";
 		handString += "\n";
+		
+		//show the tiles, separated by spaces
 		for (i = 0; i < mTiles.size(); i++)
 			handString += mTiles.get(i).toString() + " ";
 		
+		//show the completed melds
 		if (DEBUG_SHOW_MELDS_ALONG_WITH_HAND)
 			for (i = 0; i < mMelds.size(); i++)
 				handString+= "\n+++Meld " + (i+1) + ": " + mMelds.get(i).toString();

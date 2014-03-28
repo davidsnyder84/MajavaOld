@@ -83,9 +83,6 @@ public class Tile implements Comparable<Tile> {
 	private boolean mRedDora;
 	
 	
-//	private MahStack<MeldType> mMeldTypeStack;
-	
-	
 	
 	//2-arg Constructor, takes tile ID and boolean value for if it's a Red Dora 
 	public Tile(int id, boolean isRed){
@@ -96,9 +93,6 @@ public class Tile implements Comparable<Tile> {
 
 		mOriginalOwner = OWNER_NONE;
 		mRedDora = isRed;
-		
-		
-//		mMeldTypeStack = new MahStack<MeldType>(0);
 	}
 	//1-arg Constructor, takes tile ID
 	public Tile(int id){
@@ -112,10 +106,12 @@ public class Tile implements Comparable<Tile> {
 	public Tile(String suitfaceString){
 		this(repr_idOfStringRepr(suitfaceString.toUpperCase()));
 	}
-	//2-arg, takes char values of suit and face
-	public Tile(char suit, char face){
-		this(Character.toString(Character.toUpperCase(suit)) + Character.toString(Character.toUpperCase(face)));
+	//2-arg, takes id and sets an onwer's seat wind
+	public Tile(int id, char ownerWind){
+		this(id);
+		mOriginalOwner = ownerWind;
 	}
+	
 	
 	public Tile(Tile other){
 		mID = other.mID;
@@ -309,40 +305,6 @@ public class Tile implements Comparable<Tile> {
 		return tileString;
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	/*
-	//stack functions (TODO I don't like these stack funcs here)
-	public boolean mstackPush(MeldType meldType){return mMeldTypeStack.push(meldType);}
-	public MeldType mstackPop(){return mMeldTypeStack.pop();}
-	public MeldType mstackTop(){return mMeldTypeStack.top();}
-	public boolean mstackIsEmpty(){return mMeldTypeStack.isEmpty();}
-	
-	//returns a list of the partner IDs for the top meldType on the stack
-	public ArrayList<Integer> mstackTopParterIDs(){
-		
-		ArrayList<Integer> partnerIDs = new ArrayList<Integer>(2);
-		
-		switch(mMeldTypeStack.top()){
-		case CHI_L: partnerIDs.add(mID + 1); partnerIDs.add(mID + 2); break;
-		case CHI_M: partnerIDs.add(mID - 1); partnerIDs.add(mID + 1); break;
-		case CHI_H: partnerIDs.add(mID - 2); partnerIDs.add(mID - 1); break;
-		case PON: partnerIDs.add(mID); partnerIDs.add(mID); partnerIDs.add(mID); break;
-		case KAN: partnerIDs.add(mID); partnerIDs.add(mID); partnerIDs.add(mID); partnerIDs.add(mID); break;
-		case PAIR: partnerIDs.add(mID); partnerIDs.add(mID); break;
-		default: break;
-		}
-		return partnerIDs;
-	}
-	*/
 	
 	
 	

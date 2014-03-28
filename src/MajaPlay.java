@@ -15,7 +15,7 @@ public class MajaPlay {
 		
 //		testCompleteNormal();
 		
-		testCallPartners();
+//		testCallPartners();
 		
 		//meldEnumPlay();
 		
@@ -59,13 +59,15 @@ public class MajaPlay {
 		
 		//kokushiTenpaiTest();
 		
+		chiitoiTenpaiTest();
+		
 		//mahListPlay();
+		
+//		listEqualsTest();
 		
 		
 		System.out.println();
 	}
-	
-	
 	
 	
 	public static void testCompleteNormal(){
@@ -73,39 +75,6 @@ public class MajaPlay {
 		Hand h = new Hand(ownerSeat);
 		//Tile q = null;
 		TileList waits = null;
-		
-		/*
-		h.addTile(new Tile(1));	//1
-		h.addTile(new Tile(2));	//2
-		h.addTile(new Tile(3));	//3
-		h.addTile(new Tile(4));	//4
-		h.addTile(new Tile(5));	//5
-		h.addTile(new Tile(6));	//6
-		h.addTile(new Tile(7));	//7
-		h.addTile(new Tile(8));	//8
-		h.addTile(new Tile(9));	//9
-		h.addTile(new Tile("WN"));	//10
-		h.addTile(new Tile("DW"));	//11
-		h.addTile(new Tile("DG"));	//12
-		h.addTile(new Tile("DR"));	//13
-		h.addTile(new Tile("m8"));	//14
-		*/
-		/*
-		h.addTile(new Tile(1));
-		h.addTile(new Tile(1));
-		h.addTile(new Tile(1));
-		h.addTile(new Tile(2));
-		h.addTile(new Tile(3));
-		h.addTile(new Tile(4));
-		h.addTile(new Tile(5));
-		h.addTile(new Tile(6));
-		h.addTile(new Tile(7));
-		h.addTile(new Tile(8));
-		h.addTile(new Tile(9));
-		h.addTile(new Tile(9));
-		h.addTile(new Tile(9));
-		h.addTile(new Tile(10));
-		*/
 		
 		h.addTile(new Tile(1));
 		h.addTile(new Tile(1));
@@ -117,8 +86,6 @@ public class MajaPlay {
 		h.addTile(new Tile(5));
 		h.sortHand();
 		
-		
-		
 
 		System.out.println(h.toString());
 		
@@ -127,7 +94,26 @@ public class MajaPlay {
 		
 	}
 	
-	
+	public static void chiitoiTenpaiTest(){
+		
+		Hand h = new Hand(ownerSeat);
+		Tile wait = null;
+		
+		TileList handTiles = new TileList(2,2,5,5,7,7,10,10,20,20,21,21,30,30);
+		handTiles.remove(13);
+		for (Tile t: handTiles) h.addTile(t);
+		
+
+		System.out.println(h.toString());
+		
+
+		System.out.println("\nIn tenpai for chiitoi?: " + h.mChecker.chiitoitsuInTenpai());
+		wait = h.mChecker.chiitoitsuWait();
+		if (wait != null) System.out.print("Wait: " + wait.toString());
+		
+//		System.out.println("\n\nChiitoi complete?: " + h.mChecker.chiitoitsuIsComplete());
+		
+	}
 	
 
 	public static void kokushiTenpaiTest(){
@@ -769,6 +755,29 @@ public class MajaPlay {
 		h.addTile(new Tile("B1"));	//5
 		
 		for (Tile t: h) System.out.println(t.toString());
+	}
+
+	
+	public static void listEqualsTest(){
+		
+		TileList handTiles = new TileList(2,2,5,5,7,7,10,10,20,20,21,21,30,30);
+//		handTiles = new TileList(2,2,5,5,7,7,10,10,20,20,21,21,30,30);
+		
+		TileList evenTiles = handTiles.getMultiple(0,2,4,6,8,10,12);
+		TileList oddTiles = handTiles.getMultiple(1,3,5,7,9,11,13);
+		
+		oddTiles.get(1).setRedDora();
+		oddTiles.get(2).setOwner('N');
+		
+		System.out.println("List1: " + evenTiles.toString());
+		System.out.println("List2: " + oddTiles.toString());
+		System.out.println("List1 equals List2?: " + evenTiles.equals(oddTiles));
+		
+
+		TileList dupes = new TileList(2,2,2,3,4,4,5,6,6,6,7);
+		TileList noDupes = dupes.makeCopyNoDuplicates();
+		System.out.println("\n\nYedupes: " + dupes.toString());
+		System.out.println("Nodupes: " + noDupes.toString());
 	}
 	
 	

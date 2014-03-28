@@ -114,6 +114,8 @@ public class HandChecker {
 	private boolean pairHasBeenChosen = false;
 	private ArrayList<Meld> mFinishingMelds;
 	
+	private TileList mTenpaiWaits;
+	private Tile mChiitoitsuWait;
 	
 	
 	
@@ -494,29 +496,6 @@ public class HandChecker {
 	
 	
 	
-	
-	
-	
-	public TileList findTenpaiWaits(){
-		
-		ArrayList<Integer> hotTileIDs = findAllHotTiles();
-		TileList hotTiles = new TileList(hotTileIDs.size());
-		for (Integer id: hotTileIDs) hotTiles.add(id);
-
-		TileList waits = new TileList();
-		TileList handTilesCopy = null;
-		
-		for (Tile t: hotTiles){
-			handTilesCopy = mHandTiles.makeCopy();
-			handTilesCopy.add(t);
-			if (isNormalComplete(handTilesCopy)) waits.add(t);
-		}
-		
-		return waits;
-	}
-	
-	
-	
 	//---------------------------------------------------------------------------------------------------
 	//----END FINDERS
 	//---------------------------------------------------------------------------------------------------
@@ -554,19 +533,75 @@ public class HandChecker {
 	//***************************************************************************************************
 	
 	
+	
+	
+	
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	//checks if the hand is in tenpai
+	//sets mTenpaiStaus flag if it is, and returns true
+	private boolean __checkIfTenpai(){
+		
+		boolean isTenpai = false;
+		boolean isKokushiTenpai = false, isChiitoitsuTenpai = false, isNormalTenpai = false;
+		
+		mTenpaiWaits = new TileList();
+		
+		//check for kokushi musou tenpai, waits are also found here
+		isKokushiTenpai = kokushiMusouInTenpai();
+
+		//check if the hand is in normal tenpai, waits are also found here (don't check if in already kokushi tenpai)
+		if (!isKokushiTenpai)
+			isNormalTenpai = (!findTenpaiWaits().isEmpty());
+		
+		//check for chiitoitsu tenpai, wait is also found here (only check if no kokushi tenpai and no normal tenpai)
+		if (!isKokushiTenpai && !isNormalTenpai)
+			isChiitoitsuTenpai = chiitoitsuInTenpai();
+		
+		
+		isTenpai = (isKokushiTenpai || isChiitoitsuTenpai || isNormalTenpai);
+		mTenpaiStatus = isTenpai;
+		return mTenpaiStatus;
+	}
+	public boolean updateTenpaiStatus(){return __checkIfTenpai();}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	//returns true if the hand is in tenpai for kokushi musou
 	//if this is true, it means that: handsize >= 13, hand has at least 12 different TYC tiles
 	public boolean kokushiMusouInTenpai(){
 		
-		boolean couldBeKokushi = true;
-		
-		//if any melds have been made, kokushi musou is impossible
+		//if any melds have been made, kokushi musou is impossible, return false
 		if (mHand.getNumMeldsMade() > 0) return false;
+		//if the hand contains even one non-honor tile, return false
+		for (Tile t: mHandTiles) if (!t.isYaochuu()) return false;
 		
-		
-		//couldBeKokushi will be set to false if the hand contains a non-honor tile
-		for (Tile t: mHandTiles) couldBeKokushi = (couldBeKokushi && t.isYaochuu());
-		if (couldBeKokushi == false) return false;
 		
 		//check if the hand contains at least 12 different TYC tiles
 		TileList listTYC = Tile.listOfYaochuuTiles();
@@ -577,7 +612,6 @@ public class HandChecker {
 
 		//return false if the hand doesn't contain at least 12 different TYC tiles
 		if (countTYC < Tile.NUMBER_OF_YAOCHUU_TILES - 1) return false;
-		
 		
 		return true;
 	}
@@ -600,8 +634,7 @@ public class HandChecker {
 		TileList waits = new TileList(1);
 		
 		Tile missingTYC = null;
-		if (kokushiMusouInTenpai() == true)
-		{
+		if (kokushiMusouInTenpai() == true){
 			//look for a Yaochuu tile that the hand doesn't contain
 			TileList listTYC = Tile.listOfYaochuuTiles();
 			for (Tile t: listTYC)
@@ -616,6 +649,8 @@ public class HandChecker {
 				waits.add(missingTYC);
 		}
 		
+		//store the waits in mTenpaiWaits if there are any
+		if (!waits.isEmpty()) mTenpaiWaits = waits;
 		return waits;
 	}
 	
@@ -629,7 +664,52 @@ public class HandChecker {
 	
 	
 	
+	//TODO FIX THIS CHIITOI SHIT
+	//returns true if the hand is in tenpai for chiitoitsu
+	public boolean chiitoitsuInTenpai(){
+		
+		//if any melds have been made, chiitoitsu is impossible, return false
+		if (mHand.getNumMeldsMade() > 0) return false;
+		
+		//if chiitoitsu tenpai, the hand should have exactly 7 different types of tiles (By my rules, 4 of a kind != 2 pairs)
+		if (mHandTiles.makeCopyNoDuplicates().size() != 7) return false;
+		
+		
+		//at this point, we know that the hand is in chiitoitsu tenpai
+		//find the tile that's missing its pair partner
+		Tile missingTile = null;
+		int i = 0;
+		while (missingTile == null && i < Hand.MAX_HAND_SIZE){
+			if (i < Hand.MAX_HAND_SIZE - 1 && !mHandTiles.get(i).equals(mHandTiles.get(i+1)))
+				missingTile = mHandTiles.get(i);
+			i += 2;
+		}
+		
+		if (missingTile == null) missingTile = mHandTiles.get(i);
+		
+//		if (missingTile != null) mTenpaiWaits.add(missingTile); 
+//			mChiitoitsuWait = missingTile;
+		//add the missing tile to the wait list (it will be the only wait)
+		mTenpaiWaits = new TileList(1);
+		mTenpaiWaits.add(missingTile);
+		mChiitoitsuWait = missingTile;
+		return true;
+	}
 	
+	
+	//returns true if a 14-tile hand is a complete chiitoitsu
+	public boolean chiitoitsuIsComplete(){
+		
+		//chiitoitsu is impossible if a meld has been made
+		if (mHandTiles.size() < Hand.MAX_HAND_SIZE) return false;
+		
+		//even tiles should equal odd tiles, if chiitoitsu
+		TileList evenTiles = mHandTiles.getMultiple(0,2,4,6,8,10,12);
+		TileList oddTiles = mHandTiles.getMultiple(1,3,5,7,9,11,13);
+		return evenTiles.equals(oddTiles);
+	}
+	
+	public Tile chiitoitsuWait(){return mChiitoitsuWait;}
 	
 	
 	
@@ -669,12 +749,12 @@ public class HandChecker {
 	return true if hand contains both (candidate's ID + offset1) and (candidate's ID + offset2)
 	return false if either of them are missing
 	*/
-	private boolean __canClosedChiType(Tile candidate, int offset1, int offset2){
-		return (mHandTiles.contains(candidate.getId() + offset1) && mHandTiles.contains(candidate.getId() + offset2));
+	private boolean __canClosedChiType(Tile candidate, TileList handTiles, int offset1, int offset2){
+		return (handTiles.contains(candidate.getId() + offset1) && handTiles.contains(candidate.getId() + offset2));
 	}
-	private boolean __canClosedChiL(Tile candidate){return ((candidate.getFace() != '8' && candidate.getFace() != '9') && __canClosedChiType(candidate, OFFSET_CHI_L1, OFFSET_CHI_L2));}
-	private boolean __canClosedChiM(Tile candidate){return ((candidate.getFace() != '1' && candidate.getFace() != '9') && __canClosedChiType(candidate, OFFSET_CHI_M1, OFFSET_CHI_M2));}
-	private boolean __canClosedChiH(Tile candidate){return ((candidate.getFace() != '1' && candidate.getFace() != '2') && __canClosedChiType(candidate, OFFSET_CHI_H1, OFFSET_CHI_H2));}
+	private boolean __canClosedChiL(Tile candidate, TileList handTiles){return ((candidate.getFace() != '8' && candidate.getFace() != '9') && __canClosedChiType(candidate, handTiles, OFFSET_CHI_L1, OFFSET_CHI_L2));}
+	private boolean __canClosedChiM(Tile candidate, TileList handTiles){return ((candidate.getFace() != '1' && candidate.getFace() != '9') && __canClosedChiType(candidate, handTiles, OFFSET_CHI_M1, OFFSET_CHI_M2));}
+	private boolean __canClosedChiH(Tile candidate, TileList handTiles){return ((candidate.getFace() != '1' && candidate.getFace() != '2') && __canClosedChiType(candidate, handTiles, OFFSET_CHI_H1, OFFSET_CHI_H2));}
 	
 	
 	/*
@@ -683,15 +763,15 @@ public class HandChecker {
 	
 	input: candidate is the tile to search for copies of, numPartnersNeeded is the number of copies needed
 	*/
-	private boolean __canClosedMultiType(Tile candidate, int numPartnersNeeded){
+	private boolean __canClosedMultiType(Tile candidate, TileList handTiles, int numPartnersNeeded){
 		//count how many occurences of the tile
-		int count = (mHandTiles.findHowManyOf(candidate) );
+		int count = (handTiles.findHowManyOf(candidate) );
 		return count >= numPartnersNeeded;
 	}
-	private boolean __canClosedPair(Tile candidate){return __canClosedMultiType(candidate, NUM_PARTNERS_NEEDED_TO_PAIR + 1);}
-	private boolean __canClosedPon(Tile candidate){return __canClosedMultiType(candidate, NUM_PARTNERS_NEEDED_TO_PON + 1);}
+	private boolean __canClosedPair(Tile candidate, TileList handTiles){return __canClosedMultiType(candidate, handTiles, NUM_PARTNERS_NEEDED_TO_PAIR + 1);}
+	private boolean __canClosedPon(Tile candidate, TileList handTiles){return __canClosedMultiType(candidate, handTiles, NUM_PARTNERS_NEEDED_TO_PON + 1);}
 	@SuppressWarnings("unused")
-	private boolean __canClosedKan(Tile candidate){return __canClosedMultiType(candidate, NUM_PARTNERS_NEEDED_TO_KAN + 1);}
+	private boolean __canClosedKan(Tile candidate, TileList handTiles){return __canClosedMultiType(candidate, handTiles, NUM_PARTNERS_NEEDED_TO_KAN + 1);}
 	
 	
 	
@@ -711,29 +791,26 @@ public class HandChecker {
 	(order of stack should be top->L,M,H,Pon,Pair)
 	return true if meldStack is not empty
 	*/
-	public boolean checkMeldableTile(Tile candidate, MahStack<MeldType> meldStack){
+	public boolean checkMeldableTile(Tile candidate, TileList handTiles, MahStack<MeldType> meldStack){
 		
 		//check pon. if can pon, push both pon and pair. if can't pon, check pair.
-		if (__canClosedPon(candidate)){
+		if (__canClosedPon(candidate, handTiles)){
 			meldStack.push(MeldType.PAIR);
 			meldStack.push(MeldType.PON);
 		}
-		else if (__canClosedPair(candidate)) meldStack.push(MeldType.PAIR);
+		else if (__canClosedPair(candidate, handTiles)) meldStack.push(MeldType.PAIR);
 		
-		//only allow chis from the player's kamicha, or from the player's own tiles. don't check chi if candidate is an honor tile
-		if (!candidate.isHonor() && (
-			(candidate.getOrignalOwner() == mHand.getOwnerSeatWind()) || 
-			(candidate.getOrignalOwner() == Player.findKamichaOf(mHand.getOwnerSeatWind()))) ){
-			if (__canClosedChiH(candidate)) meldStack.push(MeldType.CHI_H);
-			if (__canClosedChiM(candidate)) meldStack.push(MeldType.CHI_M);
-			if (__canClosedChiL(candidate)) meldStack.push(MeldType.CHI_L);
+		//don't check chi if candidate is an honor tile
+		if (!candidate.isHonor()){
+			if (__canClosedChiH(candidate, handTiles)) meldStack.push(MeldType.CHI_H);
+			if (__canClosedChiM(candidate, handTiles)) meldStack.push(MeldType.CHI_M);
+			if (__canClosedChiL(candidate, handTiles)) meldStack.push(MeldType.CHI_L);
 		}
 		
 		//~~~~return true if a call (any call) can be made
 		return (!meldStack.isEmpty());
 	}
-//	public boolean checkMeldableTile(Tile candidate, MahStack<MeldType> meldStack){
-//	}
+	public boolean checkMeldableTile(Tile candidate, MahStack<MeldType> meldStack){return checkMeldableTile(candidate, mHandTiles, meldStack);}
 	
 	//============================================================================
 	//====END CAN MELDS
@@ -760,7 +837,35 @@ public class HandChecker {
 	
 	
 	
+
 	
+	
+	
+	public TileList findTenpaiWaits(){
+		//TODO find tenpai waits
+		
+		TileList waits = new TileList();
+		
+		TileList handTilesCopy;
+		ArrayList<Integer> hotTileIDs = findAllHotTiles();
+		Tile currentHotTile;
+		
+		for (Integer id: hotTileIDs){
+			//get a hot tile (and mark it with the hand's seat wind, so chi is valid)
+			currentHotTile = new Tile(id, mHand.getOwnerSeatWind());
+			
+			//make a copy of the hand, add the current hot tile to that copy, sort the copy
+			handTilesCopy = mHandTiles.makeCopy();
+			handTilesCopy.add(currentHotTile); handTilesCopy.sort();
+			
+			//check if the copy, with the added tile, is complete
+			if (isNormalComplete(handTilesCopy)) waits.add(currentHotTile);
+		}
+		
+		//store the waits in mTenpaiWaits, if there are any
+		if (!waits.isEmpty()) mTenpaiWaits = waits;
+		return waits;
+	}
 	
 	
 	
@@ -794,7 +899,7 @@ public class HandChecker {
 	public boolean populateMeldStacks(TileList handTiles, MeldTypeStackList listMTSL){
 		//check to see if every tile can make at least one meld
 		for (int i = 0; i < handTiles.size(); i++)
-			if (checkMeldableTile(handTiles.get(i), listMTSL.get(i)) == false) return false;
+			if (checkMeldableTile(handTiles.get(i), handTiles, listMTSL.get(i)) == false) return false;
 		
 		return true;
 	}
@@ -958,58 +1063,6 @@ public class HandChecker {
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	//checks if the hand is in tenpai
-	//sets mTenpaiStaus flag if it is, and returns true
-	private boolean __checkIfTenpai(){
-		
-		boolean isTenpai = false;
-		boolean isKokushiTenpai = false, isChiitoitsuTenpai = false, isNormalTenpai = false;
-		
-		isKokushiTenpai = kokushiMusouInTenpai();
-//		isChiitoitsuTenpai = chiitoitosisitu();
-		isNormalTenpai = false;
-		
-		
-		isTenpai = (isKokushiTenpai || isChiitoitsuTenpai || isNormalTenpai);
-		
-		mTenpaiStatus = isTenpai;
-		return mTenpaiStatus;
-	}
-	public boolean updateTenpaiStatus(){return __checkIfTenpai();}
-	
 
 	//***************************************************************************************************
 	//***************************************************************************************************
@@ -1117,23 +1170,36 @@ public class HandChecker {
 		h.addTile(new Tile(4));
 		h.addTile(new Tile(4));
 		*/
-		h.addTile(new Tile(2));
 //		h.addTile(new Tile(3));
+		h.addTile(new Tile(9));
+		h.addTile(new Tile(9));
+		h.addTile(new Tile(9));
+		
+		h.addTile(new Tile(11));
+		h.addTile(new Tile(12));
+		h.addTile(new Tile(24));
+		h.addTile(new Tile(24));
 		
 		h.sortHand();
-
+		
+		
+		boolean DO_TENPAI = true;
+		
 		System.out.println(h.toString());
 		
-		TileList waits = h.mChecker.findTenpaiWaits();
-		System.out.print("Waits: ");
-		String waitString = "";
-		for (Tile t: waits) waitString += t.toString() + ", ";
-		System.out.println(waitString);
+		if (DO_TENPAI){
+			TileList waits = h.mChecker.findTenpaiWaits();
+			System.out.print("Waits: ");
+			String waitString = "";
+			for (Tile t: waits) waitString += t.toString() + ", ";
+			System.out.println(waitString);
+		}
+		else{
+			System.out.println("\nHand is complete normal?: " + h.mChecker.isNormalComplete());
+		}
 		
-//		System.out.println("\nHand is complete normal?: " + h.mChecker.isNormalComplete());
 		
-		
-//		DemoHandGen.main(null);
+		DemoHandGen.main(null);
 	}
 
 	//satisfy compiler whining
