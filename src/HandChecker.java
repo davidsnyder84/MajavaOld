@@ -110,6 +110,8 @@ public class HandChecker {
 	private ArrayList<Integer> mPartnerIndicesPair;
 	private Tile mCallCandidate;
 	
+	private MeldTypeStackList mListMTSL;
+	
 	
 	
 	
@@ -125,6 +127,8 @@ public class HandChecker {
 		//reset callable flags
 		__resetCallableFlags();
 		mCallCandidate = null;
+		
+//		mListMTSL = new MeldTypeStackList(Hand.MAX_HAND_SIZE);
 	}
 	//copy constructor, makes another checker for the hand
 	//creates a COPY OF the other checker tiles/melds lists
@@ -153,6 +157,8 @@ public class HandChecker {
 		
 		mTenpaiStatus = other.mTenpaiStatus;
 		mClosed = other.mClosed;
+		
+//		mListMTSL
 	}
 	/*
 	//creates a COPY of the hand's tiles/melds to check (don't use this unless you NEED a copy)
@@ -590,25 +596,199 @@ public class HandChecker {
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//~~~~BEGIN MELD CHEKCERS
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	
+	/*
+	private method: __canChiType
+	returns true if a candidate tile can make a chi with other tiles in the hand
+	
+	input: candidate is the tile to search for chi partners for
+	 	   offset1 and offset2 are the offsets of candidate's ID to look for
+	
+	return true if hand contains both (candidate's ID + offset1) and (candidate's ID + offset2)
+	return false if either of them are missing
+	*/
+	private boolean __canMeldChiType(Tile candidate, int offset1, int offset2){
+		return (mHandTiles.contains(candidate.getId() + offset1) && mHandTiles.contains(candidate.getId() + offset2));
+	}
+	private boolean __canMeldChiL(Tile candidate){return ((candidate.getFace() != '8' && candidate.getFace() != '9') && __canMeldChiType(candidate, OFFSET_CHI_L1, OFFSET_CHI_L2));}
+	private boolean __canMeldChiM(Tile candidate){return ((candidate.getFace() != '1' && candidate.getFace() != '9') && __canMeldChiType(candidate, OFFSET_CHI_M1, OFFSET_CHI_M2));}
+	private boolean __canMeldChiH(Tile candidate){return ((candidate.getFace() != '1' && candidate.getFace() != '2') && __canMeldChiType(candidate, OFFSET_CHI_H1, OFFSET_CHI_H2));}
+	//overloaded. if no tile argument given, candidate = mCallCandidate is passsed
+//	private boolean __canMeldChiL(){return __canMeldChiL(mCallCandidate);}
+//	private boolean __canMeldChiM(){return __canMeldChiM(mCallCandidate);}
+//	private boolean __canMeldChiH(){return __canMeldChiH(mCallCandidate);}
+	
+	
+	
+	
+	/*
+	private method: __canMultiType
+	checks if a multi (pair/pon/kan) can be made with the new tile
+	
+	input: candidate is the tile to search for chi partners for
+		   storePartnersHere is the list that will hold the partner indices, if chi is possible
+	 	   offset1 and offset2 are the offsets of mCallCandidate's ID to look for
+	 	   
+	if the multi type is possible: populates the meld partner list and returns true
+	
+	
+	if (there are enough partner tile in the hand to form the multi)
+		store the partner indices in the storePartnersHere list
+		return true
+	end if
+	else return false
+	*/
+	private boolean __canMeldMultiType(Tile candidate, int numPartnersNeeded){
+		//count how many occurences of the tile
+		return (mHandTiles.findHowManyOf(candidate) >= numPartnersNeeded);
+	}
+	private boolean __canMeldPair(Tile candidate){return __canMeldMultiType(candidate, NUM_TILES_NEEDED_TO_PAIR + 1);}
+	private boolean __canMeldPon(Tile candidate){return __canMeldMultiType(candidate, NUM_TILES_NEEDED_TO_PON + 1);}
+	@SuppressWarnings("unused")
+	private boolean __canMeldKan(Tile candidate){return __canMeldMultiType(candidate, NUM_TILES_NEEDED_TO_KAN+1);}
+	//overloaded. if no tile argument given, candidate = mCallCandidate is passsed
+//	private boolean __canMeldPair(){return __canMeldPair(mCallCandidate);}
+//	private boolean __canMeldPon(){return __canMeldPon(mCallCandidate);}
+//	private boolean __canMeldKan(){return __canMeldKan(mCallCandidate);}
+	
+	
+	
+	
+	
+		
+	/*
+	method: checkMeldableTile
+	checks if a tile is meldable
+	if a call is possible, pushes the meld type on meldStack and returns true
+	
+	input: candidate is the tile to check if callable
+		   meldStack will receive the types of melds that are possible for candidate
+		   
+	returns true if the tile can make a ChiL, ChiM, ChiH, Pon, or Pair
+	
+	
+	check pon/pair, check chi
+	(order of stack should be top->L,M,H,Pon,Pair)
+	return true if meldStack is not empty
+	*/
+	public boolean checkMeldableTile(Tile candidate, MahStack<MeldType> meldStack){
+		
+		//check pon. if can pon, push both pon and pair. if can't pon, check pair.
+		if (__canMeldPon(candidate)){
+			meldStack.push(MeldType.PAIR);
+			meldStack.push(MeldType.PON);
+		}
+		else if (__canMeldPair(candidate)) meldStack.push(MeldType.PAIR);
+		
+		//only allow chis from the player's kamicha, or from the player's own tiles. don't check chi if candidate is an honor tile
+		if (!candidate.isHonor() && (
+			(candidate.getOrignalOwner() == mHand.getOwnerSeatWind()) || 
+			(candidate.getOrignalOwner() == Player.findKamichaOf(mHand.getOwnerSeatWind()))) ){
+			if (__canMeldChiH(candidate)) meldStack.push(MeldType.CHI_H);
+			if (__canMeldChiM(candidate)) meldStack.push(MeldType.CHI_M);
+			if (__canMeldChiL(candidate)) meldStack.push(MeldType.CHI_L);
+		}
+		
+		//~~~~return true if a call (any call) can be made
+		return (!meldStack.isEmpty());
+	}
+	
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//~~~~END MELD CHEKCERS
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	
+	
+	
+	
+	
+	
+	public boolean populateMeldStacks(MeldTypeStackList listMTSL){
+		
+		Tile t;
+		MahStack<MeldType> m;
+		
+		//check to see if every tile can make at least one meld
+		for (int i = 0; i < mHandTiles.size(); i++){
+			
+			t = mHandTiles.get(i);
+			m = listMTSL.get(i);
+			
+			if (checkMeldableTile(t, m) == false) return false;
+		}
+		
+		return true;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/*
 	public boolean populateMTypeStacks(){
 		
-		boolean allCanMakeAtLeastOneMeld = false;
+		boolean allCanMakeAtLeastOneMeld = true;
 		
 		for (Tile t: mHandTiles){
 			
 			if (checkCallableTile(t) || mCanPair){
-				allCanMakeAtLeastOneMeld = true;
 				if (mCanPair) t.mstackPush(MeldType.PAIR);
 				if (mCanPon) t.mstackPush(MeldType.PON);
 				if (mCanChiH) t.mstackPush(MeldType.CHI_H);
 				if (mCanChiM) t.mstackPush(MeldType.CHI_M);
 				if (mCanChiL) t.mstackPush(MeldType.CHI_L);
 			}
+			else allCanMakeAtLeastOneMeld = false;
 		}
 		
 		return allCanMakeAtLeastOneMeld;
 	}
-	
+	*/
 	
 	
 	
@@ -623,10 +803,15 @@ public class HandChecker {
 	private boolean pairHasBeenChosen = false;
 	
 	public boolean isNormalComplete(){
+		
 		//populate stacks
-		if (populateMTypeStacks() == false) return false;
+		MeldTypeStackList listMTSL = new MeldTypeStackList(mHandTiles.size());
+		if (populateMeldStacks(listMTSL) == false)
+			return false;
+		
+		
 		pairHasBeenChosen = false;
-		return isCompleteHand(mHandTiles);
+		return isCompleteHand(mHandTiles, listMTSL);
 	}
 	
 	
@@ -640,6 +825,8 @@ public class HandChecker {
 	if a hand is complete, should populate meld lists and flags and stuff (it doesn't yet)
 	
 	input: handTiles is the list of hand tiles to check for completeness
+		   listMTSL is a list of MeldType stacks corresponding to each tile in handTiles
+		   
 	returns true if the list of hand tiles is complete (is a winner)
 	
 	
@@ -656,9 +843,11 @@ public class HandChecker {
 			
 			partnerIndices = find the indices of currentTile's partners for the currentTileMeldType
 			toMeldTiles = list of tiles from the hand, includes currentTile and its partner tiles
-			handTilesMinusThisMeld = copy of handTiles, but with the toMeldTiles removed
 			
-			if (isCompleteHand(handTilesMinusThisMeld)) (recursive call)
+			handTilesMinusThisMeld = copy of handTiles, but with the toMeldTiles removed
+			listMTSLMinusThisMeld = copy of listMTSL, but with the stacks for toMeldTiles removed
+			
+			if (isCompleteHand(tiles/stacks minus this meld)) (recursive call)
 				return true (the hand is complete)
 			else
 				if (currentTileMeldType is pair): pairHasBeenChosen = false (relinquish the pair privelege)
@@ -669,7 +858,7 @@ public class HandChecker {
 	end while
 	return false (currentTile could not make any meld, so the hand cannot be complete)
 	*/
-	public boolean isCompleteHand(TileList handTiles){
+	public boolean isCompleteHand(TileList handTiles, MeldTypeStackList listMTSL){
 		
 		//if the hand is empty, it is complete
 		if (handTiles.isEmpty()) return true;
@@ -678,6 +867,7 @@ public class HandChecker {
 		
 		TileList toMeldTiles = null;
 		TileList handTilesMinusThisMeld = null;
+		MeldTypeStackList listMTSLMinusThisMeld = null;
 		
 
 		Tile currentTile = null;
@@ -694,21 +884,38 @@ public class HandChecker {
 		
 		
 		//loop until every possible meld type has been tried for the current tile
-		while(currentTile.mstackIsEmpty() == false){
+		while(listMTSL.firstIsEmpty() == false){
 
 			
 			//~~~~Verify that currentTile's partners are still in the hand
 			//currentTileParterIDs = list of IDs of partners for currentTile's top MeldType
-			currentTileParterIDs = currentTile.mstackTopParterIDs();
+			currentTileParterIDs = listMTSL.firstTopPartnerIDs(currentTile.getId());//currentTile.mstackTopParterIDs();
 			
 			//assume currentTile's partners are still in the hand
 			//check if currentTile's partners are still in the hand
-			currentTilePartersAreStillHere = true;
-			for (Integer id: currentTileParterIDs)
-				if (handTiles.contains(id) == false) currentTilePartersAreStillHere = false;
+			
+			
 
 			//get the top meldType from currentTile's stack
-			currentTileMeldType = currentTile.mstackPop();	//(remove it)
+			currentTileMeldType = listMTSL.firstPop();//currentTile.mstackPop();	//(remove it)
+
+			
+			currentTilePartersAreStillHere = true;
+			
+			if (currentTileMeldType.isChi()){
+				for (Integer id: currentTileParterIDs)
+					if (handTiles.contains(id) == false) currentTilePartersAreStillHere = false;	//TODO this is fishy. I think it gives false positives.
+			}
+			else{
+				if (currentTileMeldType == MeldType.PAIR && handTiles.findHowManyOf(currentTile) < 2) currentTilePartersAreStillHere = false;
+				if (currentTileMeldType == MeldType.PON && handTiles.findHowManyOf(currentTile) < 3) currentTilePartersAreStillHere = false;
+			}
+			
+			
+			
+			
+			
+			
 			
 			
 			
@@ -751,18 +958,21 @@ public class HandChecker {
 				
 				
 
-				//make a copy of the hand, and remove the meld tiles from the copy
-				handTilesMinusThisMeld = new TileList();
+				//make a copy of the hand and stacklist, and remove the meld tiles from the copies
+//				handTilesMinusThisMeld = new TileList();
 				handTilesMinusThisMeld = handTiles.makeCopy();
+				listMTSLMinusThisMeld = listMTSL.makeCopy();
+				
 				while (partnerIndices.isEmpty() == false){
 					handTilesMinusThisMeld.remove(partnerIndices.get(partnerIndices.size() - 1).intValue());
+					listMTSLMinusThisMeld.remove(partnerIndices.get(partnerIndices.size() - 1).intValue());
 					partnerIndices.remove(partnerIndices.size() - 1);
 				}
 				handTilesMinusThisMeld.remove(0);
-				
+				listMTSLMinusThisMeld.remove(0);
 				
 				//~~~~Recursive call, check if the hand is still complete without the removed meld tiles
-				if (isCompleteHand(handTilesMinusThisMeld)){
+				if (isCompleteHand(handTilesMinusThisMeld, listMTSLMinusThisMeld)){
 					return true;
 				}
 				else{
@@ -905,6 +1115,38 @@ public class HandChecker {
 	
 	//satisfy compiler whining
 	public void lookAtMelds(){mHandMelds.size();}//yep, i'm looking at them
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	public static void main(String[] args){
+		
+		Hand h = new Hand(MajaPlay.ownerSeat);
+		
+		h.addTile(new Tile(1));
+		h.addTile(new Tile(1));
+		h.addTile(new Tile(3));
+		h.addTile(new Tile(3));
+		h.addTile(new Tile(4));
+		h.addTile(new Tile(4));
+		h.addTile(new Tile(6));
+		h.addTile(new Tile(6));
+		h.sortHand();
+
+		System.out.println(h.toString());
+		System.out.println("\nHand is complete normal?: " + h.mChecker.isNormalComplete());
+	}
+	
+	
 	
 	
 	

@@ -1,7 +1,5 @@
 import java.util.ArrayList;
 
-import utility.MahStack;
-
 
 
 
@@ -85,7 +83,7 @@ public class Tile implements Comparable<Tile> {
 	private boolean mRedDora;
 	
 	
-	private MahStack<MeldType> mMeldTypeStack;
+//	private MahStack<MeldType> mMeldTypeStack;
 	
 	
 	
@@ -100,7 +98,7 @@ public class Tile implements Comparable<Tile> {
 		mRedDora = isRed;
 		
 		
-		mMeldTypeStack = new MahStack<MeldType>(0);
+//		mMeldTypeStack = new MahStack<MeldType>(0);
 	}
 	//1-arg Constructor, takes tile ID
 	public Tile(int id){
@@ -126,7 +124,7 @@ public class Tile implements Comparable<Tile> {
 		mOriginalOwner = other.mOriginalOwner;
 		mRedDora = other.mRedDora;
 		
-		mMeldTypeStack = new MahStack<MeldType>(other.mMeldTypeStack);
+//		mMeldTypeStack = new MahStack<MeldType>(other.mMeldTypeStack);
 	}
 	
 	/*
@@ -321,7 +319,7 @@ public class Tile implements Comparable<Tile> {
 	
 	
 	
-	
+	/*
 	//stack functions (TODO I don't like these stack funcs here)
 	public boolean mstackPush(MeldType meldType){return mMeldTypeStack.push(meldType);}
 	public MeldType mstackPop(){return mMeldTypeStack.pop();}
@@ -344,7 +342,7 @@ public class Tile implements Comparable<Tile> {
 		}
 		return partnerIDs;
 	}
-	
+	*/
 	
 	
 	

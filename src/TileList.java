@@ -255,8 +255,10 @@ public class TileList implements Iterable<Tile>{
 	//overloaded, omitting allowCountingItself will default to false (do not count itself)
 	public MahList<Integer> findAllIndicesOf(Tile tile){return findAllIndicesOf(tile, false);}
 	
+	
+	//allow counting itself
 	public int findHowManyOf(Tile tile){
-		return findAllIndicesOf(tile, false).size();
+		return findAllIndicesOf(tile, true).size();
 	}
 	
 	
