@@ -108,6 +108,9 @@ public class Hand {
 	private ArrayList<Integer> mPartnerIndicesPair;
 	private Tile mCallCandidate;
 	
+	private HandChecker mChecker;
+	
+	
 	
 	
 	
@@ -458,11 +461,11 @@ public class Hand {
 	*/
 	public boolean checkCallableTile(Tile candidate){
 		
-		//////reset flags
+		//~~~~reset flags
 		__resetCallableFlags();
 		mCallCandidate = candidate;
 		
-		//////runs checks, set flags to the check results
+		//~~~~runs checks, set flags to the check results
 		//only allow chis from the player's kamicha, or from the player's own tiles
 		//don't check chi if mCallCandidate is an honor tile
 		if (!mCallCandidate.isHonor() && (
@@ -481,7 +484,7 @@ public class Hand {
 		//check ron
 		mCanRon = __canRon();
 		
-		//////return true if a call (any call) can be made
+		//~~~~return true if a call (any call) can be made
 		return (mCanChiL || mCanChiM || mCanChiH || mCanPon || mCanKan || mCanRon);
 	}
 	
@@ -588,6 +591,10 @@ public class Hand {
 		
 		//update the hand's closed status after making the meld
 		__updateClosedStatus();
+		
+		//reset call flags and candidate variable, since the call has been completed
+		__resetCallableFlags();
+		mCallCandidate = null;
 		
 	}
 	

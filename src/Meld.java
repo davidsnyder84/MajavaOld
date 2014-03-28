@@ -180,19 +180,20 @@ public class Meld {
 	
 	
 	//accessors
-	public int getMeldType(){
-		return mMeldType;
-	}
+	public int getMeldType(){return mMeldType;}
+	public boolean isClosed(){return mClosed;}
+	public char getOwnerSeatWind(){return mOwnerSeatWind;}
+	public char getResponsible(){return mPlayerResponsible;}
 	
-	public boolean isClosed(){
-		return mClosed;
+
+	//returns the tile at the given index in the meld, returns null if index is outside of the meld's range
+	public Tile getTile(int index){
+		if (index >= 0 && index < mTiles.size()) return mTiles.get(index);
+		return null;
 	}
-	
-	public char getOwnerSeatWind(){
-		return mOwnerSeatWind;
-	}
-	public char getResponsible(){
-		return mPlayerResponsible;
+	//returns the first tile in the meld
+	public Tile getFirstTile(){
+		return mTiles.get(0);
 	}
 	
 	
