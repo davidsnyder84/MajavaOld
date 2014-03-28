@@ -24,7 +24,7 @@ public class GenSort <T extends Comparable<T> > {
 		if (list != null)
 		{
 			mListToSort = list;
-			mListLength = list.size();
+			checkListLength();
 		}
 		else
 		{
@@ -48,6 +48,7 @@ public class GenSort <T extends Comparable<T> > {
 		
 		int current, walker, smallest;
 		T temp;
+		checkListLength();
 		
 		for (current = 0; current < mListLength; current++)
 		{
@@ -64,28 +65,52 @@ public class GenSort <T extends Comparable<T> > {
 		
 	}
 	
+	
+	
 	//sorts mListToSort with a shitty selection sort, descending order
 	public void sortDescending(){
 			
-		int current, walker, smallest;
+		int current, walker, biggest;
 		T temp;
+		checkListLength();
 		
 		for (current = 0; current < mListLength; current++)
 		{
-			smallest = current;
+			biggest = current;
 			for (walker = current + 1; walker < mListLength; walker++)
-				if (mListToSort.get(walker).compareTo(mListToSort.get(smallest)) > 0)
-					smallest = walker;
+				if (mListToSort.get(walker).compareTo(mListToSort.get(biggest)) >  0)
+					biggest = walker;
 			
-			//swap the current element and the smallest element
-			temp = mListToSort.get(smallest);
-			mListToSort.set(smallest, mListToSort.get(current));
+			//swap the current element and the biggest element
+			temp = mListToSort.get(biggest);
+			mListToSort.set(biggest, mListToSort.get(current));
 			mListToSort.set(current, temp);
 		}
 		
 	}
-	
-	
+	/*
+	//sorts mListToSort with a shitty selection sort, descending order
+	public void sortDescending(){
+			
+		int current, walker, biggest;
+		T temp;
+		checkListLength();
+		
+		for (current = mListLength - 1; current >= 0; current--)
+		{
+			biggest = current;
+			for (walker = current - 1; walker >= 0; walker--)
+				if (mListToSort.get(walker).compareTo(mListToSort.get(biggest)) <  0)
+					biggest = walker;
+			
+			//swap the current element and the biggest element
+			temp = mListToSort.get(biggest);
+			mListToSort.set(biggest, mListToSort.get(current));
+			mListToSort.set(current, temp);
+		}
+		
+	}
+	*/
 	
 	
 	
@@ -95,6 +120,7 @@ public class GenSort <T extends Comparable<T> > {
 		Random random = new Random();
 		int swapIndex = -1;
 		T temp = null;
+		checkListLength();
 		
 		int curIndex;
 		for (curIndex = 0; curIndex < mListLength; curIndex++)
@@ -110,6 +136,11 @@ public class GenSort <T extends Comparable<T> > {
 		
 	}
 	
+	
+	//checks the list length (must be done before a sort)
+	public int checkListLength(){
+		return mListLength = mListToSort.size();
+	}
 	
 	
 	

@@ -22,12 +22,12 @@ data:
 methods:
 	
 	constructors:
-	1-arg, takes player's seat wind
-	creates list of tiles and melds, initializes flags and player info
+	1-arg, takes player's seat wind - creates list of tiles and melds, initializes flags and hand info
+	copy constructor, makes an exact copy of a hand
 	
 	mutators:
 	addTile - adds a tile to the hand (overloaded for actual tile, or an integer tile ID)
-	removeTile - removes the tile at the given index
+	removeTile - removes the tile at the given index, and checks if removing the tile puts the hand in tenpai
 	sortHand - sorts the hand in ascending order
  	
  	accessors:
@@ -38,6 +38,7 @@ methods:
 	getNumMeldsMade - returns the number of melds made
 	findAllHotTiles - returns a list of hot tile IDs for ALL tiles in the hand
 	ableToChiL, ableToChiM, ableToChiH, ableToPon, ableToKan, ableToRon - return true if a call can be made on mCallCandidate
+	getTenpaiStatus - returns true if the hand is in tenpai
 	
 	private:
 	__resetCallableFlags - resets call flags to false, creates new empty partner index lists
@@ -47,9 +48,12 @@ methods:
 	__canChiType - checks if mCallCandidate can make a chi. populates chi partner list, sets canChi flag, returns true if chi is possible
 	__canPon - checks if mCallCandidate can make a pon, populates pon partner list, sets canPon flag, returns true if pon is possible
 	__canKan - checks if mCallCandidate can make a kan, populates kan partner list, sets canKan flag, returns true if kan is possible
-	__howManyOfThisTileInHand - returns how many copies of a tile are in the hand, can also populate pon/kan partner index list
+	__canPair - checks if mCallCandidate can make a pair, populates pair partner list, sets canPair flag, returns true if pair is possible
+	__howManyOfThisTileInHand - returns how many copies of a tile are in the hand, can fill a list with the indexes where the tile is found
 	__canRon - returns true if the player can call ron on the candidate tile
 	__storePartnerIndices - takes a list and several integer indices, stores the indices in the list
+	__updateClosedStatus - checks if the hand is closed or open, ajusts flag accordingly
+	__updateTenpaiStatus - checks if the hand is in tenpai, adjusts flag accordingly
 	
 	
 	other:
@@ -170,13 +174,12 @@ public class Hand {
 		return mTiles.size();
 	}
 	//returns true if the hand is fully concealed, false if an open meld has been made
-	public boolean isClosed(){
-		return mClosed;
-	}
+	public boolean isClosed(){return mClosed;}
 	//returns the number of melds made
 	public int getNumMeldsMade(){return mNumMeldsMade;}
 	//returns the hand owner's seat wind
 	public char getOwnerSeatWind(){return mOwnerSeatWind;}
+	//returns true if the hand is in tenpai
 	public boolean getTenpaiStatus(){return mTenpaiStatus;}
 	
 	
@@ -203,15 +206,25 @@ public class Hand {
 	
 	
 	
-	//removes the tile at the given index
-	//returns true if successful, returns false if index is outside of the hand's range
+	
+	/*
+	method: removeTile
+	removes the tile at the given index, and checks if removing the tile puts the hand in tenpai
+	returns true if successful, returns false if index is outside of the hand's range
+	
+	remove the tile
+	sort the hand
+	check if removing the tile put the hand in tenpai (modifies mTenpaiStatus flag)
+	*/
 	public boolean removeTile(int index){
-		if (index >= 0 && index < mTiles.size())
-		{
+		if (index >= 0 && index < mTiles.size()){
 			//remove the tile
 			mTiles.remove(index);
+			
 			//sort hand
 			sortHand();
+			//check if removing the tile put the hand in tenpai
+			checkIfTenpai();
 			return true;
 		}
 		return false;
@@ -543,6 +556,7 @@ public class Hand {
 	form a new meld with the tiles
 	remove the tiles from the hand
 	numMeldsMade++
+	update hand's closed status after making the meld
 	*/
 	public void makeMeld(int meldType){
 		
@@ -551,16 +565,11 @@ public class Hand {
 		
 		//figure out which partner list to use for the indices, based on the call type
 		ArrayList<Integer> partnerIndices = null;
-		if (meldType == Meld.MELD_TYPE_CHI_L)
-			partnerIndices = mPartnerIndicesChiL;
-		else if (meldType == Meld.MELD_TYPE_CHI_M)
-			partnerIndices = mPartnerIndicesChiM;
-		else if (meldType == Meld.MELD_TYPE_CHI_H)
-			partnerIndices = mPartnerIndicesChiH;
-		else if (meldType == Meld.MELD_TYPE_PON)
-			partnerIndices = mPartnerIndicesPon;
-		else if (meldType == Meld.MELD_TYPE_KAN)
-			partnerIndices = mPartnerIndicesKan;
+		if (meldType == Meld.MELD_TYPE_CHI_L) partnerIndices = mPartnerIndicesChiL;
+		else if (meldType == Meld.MELD_TYPE_CHI_M) partnerIndices = mPartnerIndicesChiM;
+		else if (meldType == Meld.MELD_TYPE_CHI_H) partnerIndices = mPartnerIndicesChiH;
+		else if (meldType == Meld.MELD_TYPE_PON) partnerIndices = mPartnerIndicesPon;
+		else if (meldType == Meld.MELD_TYPE_KAN) partnerIndices = mPartnerIndicesKan;
 		
 		
 		//add the tiles from the hand to the list
@@ -571,16 +580,26 @@ public class Hand {
 		mMelds.add(new Meld(tilesFromHand, mCallCandidate, meldType));
 		
 		//remove the tiles from the hand
-		while (partnerIndices.isEmpty() == false)
-		{
-			mTiles.remove(partnerIndices.get(partnerIndices.size() - 1).intValue());
+		while (partnerIndices.isEmpty() == false){
+			removeTile(partnerIndices.get(partnerIndices.size() - 1).intValue());
 			partnerIndices.remove(partnerIndices.size() - 1);
 		}
-		
 		mNumMeldsMade++;
+		
+		//update the hand's closed status after making the meld
+		__updateClosedStatus();
+		
 	}
 	
 	
+	//checks if the hand is closed or open, ajusts flag accordingly
+	private boolean __updateClosedStatus(){
+		boolean meldsAreAllClosed = true;
+		//if all the melds are closed, then the hand is closed
+		for (Meld m: mMelds) meldsAreAllClosed = (meldsAreAllClosed && m.isClosed());
+		
+		return mClosed = meldsAreAllClosed;
+	}
 	
 	
 	
@@ -740,6 +759,8 @@ public class Hand {
 		mTenpaiStatus = isTenpai;
 		return mTenpaiStatus;
 	}
+	public boolean __updateTenpaiStatus(){return checkIfTenpai();}
+	
 	
 	
 

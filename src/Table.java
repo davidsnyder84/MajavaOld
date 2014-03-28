@@ -488,7 +488,7 @@ public class Table {
 		int drawNeeded = Player.DRAW_NONE;
 		Tile drawnTile = null;
 		
-		////////handle drawing a tile
+		//~~~~~~handle drawing a tile
 		drawNeeded = p.checkDrawNeeded();
 		//if the player needs to draw a tile, draw a tile
 		if (drawNeeded != Player.DRAW_NONE)
@@ -514,7 +514,7 @@ public class Table {
 		}
 		
 		
-		////////get player's discard (ankans, riichi, and such are handled inside here)
+		//~~~~~~get player's discard (ankans, riichi, and such are handled inside here)
 		discardedTile = p.takeTurn();
 		
 		//show the human player their hand
@@ -525,21 +525,19 @@ public class Table {
 		p.showPond();
 		
 		
-		////////get reactions from the other players
+		//~~~~~~get reactions from the other players
 		mReaction += p.getShimocha().reactToDiscard(discardedTile);
 		mReaction += p.getToimen().reactToDiscard(discardedTile);
 		mReaction += p.getKamicha().reactToDiscard(discardedTile);
 		
 		//pause for dramatic effect
 		pauseWait();
-		if (mReaction == NO_REACTION)
-			pauseWait();
+		if (mReaction == NO_REACTION) pauseWait();
 		
 		
 		//update turn indicator
 		mWhoseTurn++;
-		if (mWhoseTurn > NUM_PLAYERS)
-			mWhoseTurn = 1;
+		if (mWhoseTurn > NUM_PLAYERS) mWhoseTurn = 1;
 		
 		//return the tile that was discarded
 		return discardedTile;
@@ -571,8 +569,7 @@ public class Table {
 		int numHumans = 0;
 		if (DEBUG_DO_SINGLE_PLAYER_GAME)
 			numHumans = 1;
-		else
-		{
+		else{
 			@SuppressWarnings("resource")
 			Scanner keyboard = new Scanner(System.in);
 			System.out.println("How many humans will be playing? (Enter 1-4): ");
@@ -589,8 +586,7 @@ public class Table {
 			else
 				controllers.add(Player.CONTROLLER_COM);
 		
-		if (DEBUG_SHUFFLE_SEATS)
-		{
+		if (DEBUG_SHUFFLE_SEATS){
 			//shuffle the list controllers
 			GenSort<Character> sorter = new GenSort<Character>(controllers);
 			sorter.shuffle();
@@ -601,6 +597,12 @@ public class Table {
 		p2.setController(controllers.get(1));
 		p3.setController(controllers.get(2));
 		p4.setController(controllers.get(3));
+		
+		//set my human player name
+		if (p1.getController() == Player.CONTROLLER_HUMAN) p1.setPlayerName("Word");
+		if (p2.getController() == Player.CONTROLLER_HUMAN) p2.setPlayerName("Word");
+		if (p3.getController() == Player.CONTROLLER_HUMAN) p3.setPlayerName("Word");
+		if (p4.getController() == Player.CONTROLLER_HUMAN) p4.setPlayerName("Word");
 		
 		//assign neighbor links
 		p1.setNeighbors(p2, p3, p4);
@@ -619,35 +621,21 @@ public class Table {
 		if (player is human): show their hand
 	*/
 	public void showHandsOfHumanPlayers(){
-		if (p1.getController() == Player.CONTROLLER_HUMAN)
-			p1.showHand();
-		if (p2.getController() == Player.CONTROLLER_HUMAN)
-			p2.showHand();
-		if (p3.getController() == Player.CONTROLLER_HUMAN)
-			p3.showHand();
-		if (p4.getController() == Player.CONTROLLER_HUMAN)
-			p4.showHand();
+		if (p1.getController() == Player.CONTROLLER_HUMAN) p1.showHand();
+		if (p2.getController() == Player.CONTROLLER_HUMAN) p2.showHand();
+		if (p3.getController() == Player.CONTROLLER_HUMAN) p3.showHand();
+		if (p4.getController() == Player.CONTROLLER_HUMAN) p4.showHand();
 	}
 	
 	
 	
 	
+	//accessors
+	public int getGameType(){return mGameType;}
+	public char getRoundWind(){return mRoundWind;}
+	public int getGameResult(){return mGameResult;}
+	public boolean gameIsOver(){return mGameIsOver;}
 	
-	public int getGameType(){
-		return mGameType;
-	}
-	
-	public char getRoundWind(){
-		return mRoundWind;
-	}
-	
-	public int getGameResult(){
-		return mGameResult;
-	}
-	
-	public boolean gameIsOver(){
-		return mGameIsOver;
-	}
 	
 	//pauses for dramatic effect (like after a computer's turn)
 	public static void pauseWait(){

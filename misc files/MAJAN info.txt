@@ -1,4 +1,0 @@
-menu:   see pond, round info, see melds, save/load, quit game, cancel
-action: kan, riichi, tsumo
-
-

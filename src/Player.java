@@ -120,6 +120,10 @@ public class Player {
 	public static final Tile WANT_SOMETHING = null;
 	public static final int WANT_KAN_DRAW = 20;
 	
+	public static final String PLAYERNAME_DEFAULT = "Matsunaga";
+	
+	
+	
 	
 	
 	private Hand mHand;
@@ -128,6 +132,7 @@ public class Player {
 	
 	private char mSeatWind;
 	private char mController;
+	private String mPlayerName;
 	
 	private int mCallStatus;
 	private int mDrawNeeded;
@@ -135,7 +140,7 @@ public class Player {
 	private boolean mHoldingRinshanTile;
 	private boolean mRiichiStatus;
 	private boolean mFuritenStatus;
-	private boolean mTenpaiStatus;
+	//private boolean mTenpaiStatus;
 	
 	//private ArrayList<Tile> mWaits;
 
@@ -153,14 +158,15 @@ public class Player {
 	
 	
 	
-	public Player(char seat, char controller){
+	public Player(char seat, char controller, String pName){
 		
 		mSeatWind = seat;
 		mController = controller;
-		mPoints = POINTS_STARTING_AMOUNT;
+		mPlayerName = pName;
 		
 		mHand = new Hand(mSeatWind);
 		mPond = new Pond();
+		mPoints = POINTS_STARTING_AMOUNT;
 		
 		mCallStatus = CALLED_NONE;
 		mDrawNeeded = DRAW_NORMAL;
@@ -168,10 +174,11 @@ public class Player {
 		mRiichiStatus = false;
 		mFuritenStatus = false;
 		mHoldingRinshanTile = false;
-		mTenpaiStatus = false;
-		
+		//mTenpaiStatus = false;
 	}
-	
+	public Player(char seat, char controller){
+		this(seat, controller, PLAYERNAME_DEFAULT);
+	}
 	public Player(char seat){
 		this(seat, CONTROLLER_DEFAULT);
 	}
@@ -185,13 +192,10 @@ public class Player {
 	/*
 	method: takeTurn
 	walks the player through their discard turn
-	
 	returns their discarded tile
-	
 	
 	discardedTile = discard a tile
 	set drawNeeded = normal draw for next turn
-	
 	put discardedTile in the pond
 	return discardedTile
 	*/
@@ -236,14 +240,14 @@ public class Player {
 	private Tile __discardTile(){
 		
 		Tile discardedTile;
-		int chosenDiscard;
+		int chosenDiscardIndex;
 		
 		//ask player for which tile to discard
-		chosenDiscard = __askSelfForDiscard();
+		chosenDiscardIndex = __askSelfForDiscard();
 		
 		//remove tile from hand
-		discardedTile = mHand.getTile(chosenDiscard);
-		mHand.removeTile(chosenDiscard);
+		discardedTile = mHand.getTile(chosenDiscardIndex);
+		mHand.removeTile(chosenDiscardIndex);
 		
 		//set discarder attribute on discarded tile
 		//discardedTile.setDiscarder(mSeatWind);
@@ -271,14 +275,14 @@ public class Player {
 	*/
 	private int __askSelfForDiscard()
 	{
-		int chosenDiscard;
+		int chosenDiscardIndex;
 		
 		if (mController == CONTROLLER_HUMAN)
-			chosenDiscard = __askDiscardHuman();
+			chosenDiscardIndex = __askDiscardHuman();
 		else
-			chosenDiscard = __askDiscardCom();
+			chosenDiscardIndex = __askDiscardCom();
 		
-		return chosenDiscard;
+		return chosenDiscardIndex;
 	}
 	
 	
@@ -296,7 +300,7 @@ public class Player {
 	*/
 	private int __askDiscardHuman(){
 		
-		int chosenDiscard = 0;
+		int chosenDiscardIndex = 0;
 		
 		//show hand
 		showHand();
@@ -305,16 +309,16 @@ public class Player {
 		@SuppressWarnings("resource")
 		Scanner keyboard = new Scanner(System.in);
 		//disallow numbers outside the range of the hand size
-		while (chosenDiscard < 1 || chosenDiscard > mHand.getSize())
+		while (chosenDiscardIndex < 1 || chosenDiscardIndex > mHand.getSize())
 		{
 			System.out.print("\nWhich tile do you want to discard? (enter number): "); 
-			chosenDiscard = keyboard.nextInt();
+			chosenDiscardIndex = keyboard.nextInt();
 			
 			//entering 0 means "choose the last tile in my hand"
-			if (chosenDiscard == 0)	chosenDiscard = mHand.getSize();
+			if (chosenDiscardIndex == 0) chosenDiscardIndex = mHand.getSize();
 		}
 		
-		return chosenDiscard - 1;	//adjust for index
+		return chosenDiscardIndex - 1;	//adjust for index
 	}
 	
 	
@@ -331,18 +335,18 @@ public class Player {
 	*/
 	private int __askDiscardCom(){
 		
-		int chosenDiscard;
+		int chosenDiscardIndex;
 
 		//always choose the last tile in the hand (most recently drawn one)
-		chosenDiscard = mHand.getSize() - 1;
+		chosenDiscardIndex = mHand.getSize() - 1;
 		
 		//always choose the first tile in the hand
-		chosenDiscard = 0;
+		chosenDiscardIndex = 0;
 		
 		//wait, since computer is fast
 		//try {Thread.sleep(TIME_TO_SLEEP);} catch (InterruptedException e){}
 		
-		return chosenDiscard;
+		return chosenDiscardIndex;
 	}
 	
 	
@@ -521,20 +525,13 @@ public class Player {
 		}
 		
 		//decide call based on player's choice
-		if (choice == CHOICE_CHI_L)
-			call = Player.CALLED_CHI_L;
-		else if (choice == CHOICE_CHI_M)
-			call = Player.CALLED_CHI_M;
-		else if (choice == CHOICE_CHI_H)
-			call = Player.CALLED_CHI_H;
-		else if (choice == CHOICE_PON)
-			call = Player.CALLED_PON;
-		else if (choice == CHOICE_KAN)
-			call = Player.CALLED_KAN;
-		else if (choice == CHOICE_RON)
-			call = Player.CALLED_RON;
-		else if (choice == CHOICE_NONE)
-			call = Player.CALLED_NONE;
+		if (choice == CHOICE_CHI_L) call = Player.CALLED_CHI_L;
+		else if (choice == CHOICE_CHI_M) call = Player.CALLED_CHI_M;
+		else if (choice == CHOICE_CHI_H) call = Player.CALLED_CHI_H;
+		else if (choice == CHOICE_PON) call = Player.CALLED_PON;
+		else if (choice == CHOICE_KAN) call = Player.CALLED_KAN;
+		else if (choice == CHOICE_RON) call = Player.CALLED_RON;
+		else if (choice == CHOICE_NONE) call = Player.CALLED_NONE;
 
 		//return call
 		return call;
@@ -594,7 +591,7 @@ public class Player {
 		if (hotList.contains(t.getId()) == false)
 			return false;
 		
-		//////At this point, we know t is a hot tile
+		//~~~~At this point, we know t is a hot tile
 		//we need to check which melds it can be called for, if any
 		//check if t can be called to make a meld
 		ableToCall = mHand.checkCallableTile(t);
@@ -622,16 +619,11 @@ public class Player {
 		{
 			//determine type of meld, based on call status
 			int meldType = Meld.MELD_TYPE_UNKNOWN;
-			if (mCallStatus == CALLED_CHI_L)
-				meldType = Meld.MELD_TYPE_CHI_L;
-			else if (mCallStatus == CALLED_CHI_M)
-				meldType = Meld.MELD_TYPE_CHI_M;
-			else if (mCallStatus == CALLED_CHI_H)
-				meldType = Meld.MELD_TYPE_CHI_H;
-			else if (mCallStatus == CALLED_PON)
-				meldType = Meld.MELD_TYPE_PON;
-			else if (mCallStatus == CALLED_KAN)
-				meldType = Meld.MELD_TYPE_KAN;
+			if (mCallStatus == CALLED_CHI_L) meldType = Meld.MELD_TYPE_CHI_L;
+			else if (mCallStatus == CALLED_CHI_M) meldType = Meld.MELD_TYPE_CHI_M;
+			else if (mCallStatus == CALLED_CHI_H) meldType = Meld.MELD_TYPE_CHI_H;
+			else if (mCallStatus == CALLED_PON) meldType = Meld.MELD_TYPE_PON;
+			else if (mCallStatus == CALLED_KAN) meldType = Meld.MELD_TYPE_KAN;
 			
 			//make the meld
 			mHand.makeMeld(meldType);
@@ -645,7 +637,6 @@ public class Player {
 		}
 		else
 			System.out.println("-----Error: No meld to make (no call was made!)");
-		
 	}
 	
 	
@@ -686,25 +677,21 @@ public class Player {
 	
 	
 	//accessors
-	public int getHandSize(){
-		return mHand.getSize();
-	}
-	public char getSeatWind(){
-		return mSeatWind;
-	}
+	public int getHandSize(){return mHand.getSize();}
+	public char getSeatWind(){return mSeatWind;}
 	//returns 1,2,3,4, corresponding to seat wind E,S,W,N
 	public int getPlayerNumber(){
-		if (mSeatWind == SEAT_EAST)
-			return 1;
-		else if (mSeatWind == SEAT_SOUTH)
-			return 2;
-		else if (mSeatWind == SEAT_WEST)
-			return 3;
-		else
-			return 4;
+		if (mSeatWind == SEAT_EAST) return 1;
+		else if (mSeatWind == SEAT_SOUTH) return 2;
+		else if (mSeatWind == SEAT_WEST) return 3;
+		else if (mSeatWind == SEAT_NORTH) return 4;
+		else return 0;
 	}
-	public char getController(){
-		return mController;
+	public String getPlayerName(){return mPlayerName;}
+	public char getController(){return mController;}
+	public String getControllerAsString(){
+		if (mController == CONTROLLER_HUMAN) return "Human";
+		else return "Computer";
 	}
 	
 	
@@ -717,7 +704,7 @@ public class Player {
 		return mFuritenStatus;
 	}
 	public boolean checkTenpai(){
-		return mTenpaiStatus;
+		return mHand.getTenpaiStatus();
 	}
 	//returns call status as an int value
 	public int checkCallStatus(){
@@ -804,6 +791,9 @@ public class Player {
 		
 		return false;
 	}
+	public void setPlayerName(String newName){
+		if (newName != null) mPlayerName = newName;
+	}
 	
 	
 	
@@ -847,21 +837,25 @@ public class Player {
 	
 	
 	
+
+	//show the player's hand
+	public void showHand(){
+		System.out.print("\n" + mSeatWind + " Player's hand (controller: " + getControllerAsString() + ", " + mPlayerName + "):");
+		if (mHand.getTenpaiStatus() == true) System.out.print("     $$$$!Tenpai!$$$$");
+		System.out.println("\n" + mHand.toString());
+		mHand.showMelds();
+	}
+	//show player's melds
+	public void showMelds(){
+		mHand.showMelds();
+	}
 	
+	//show pond
 	public void showPond(){
 		System.out.println(mSeatWind + " Player's pond " + mController + ":\n" + mPond.toString());
 	}
 	public String getPondAsString(){
 		return (mSeatWind + " Player's pond:\n" + mPond.toString());
-	}
-	
-	public void showHand(){
-		System.out.println("\n" + mSeatWind + " Player's hand " + mController + ":\n" + mHand.toString());
-		mHand.showMelds();
-	}
-
-	public void showMelds(){
-		mHand.showMelds();
 	}
 	
 	

@@ -3,6 +3,7 @@ import java.util.Collections;
 import java.util.List;
 
 import utility.GenSort;
+import utility.MahList;
 
 
 public class MajaPlay {
@@ -47,9 +48,9 @@ public class MajaPlay {
 		//finalListTest();
 		
 		
-		kokushiTenpaiTest();
+		//kokushiTenpaiTest();
 		
-		
+		mahListPlay();
 		
 		
 		System.out.println();
@@ -634,6 +635,46 @@ public class MajaPlay {
 		System.out.print("\n\nList1: "); for (Integer i: list1) System.out.print(i.toString() + ", ");
 	}
 	
+	
+	public static void mahListPlay(){
+		MahList<Integer> list = new MahList<Integer>();
+		list.add(3);
+		list.add(5);
+		list.add(7);
+		list.add(9);
+		list.add(11);
+		
+
+		Integer[] intArray = new Integer[5];
+		intArray[0] = 2;
+		intArray[1] = 4;
+		intArray[2] = 6;
+		intArray[3] = 8;
+		intArray[4] = 10;
+		
+		MahList<Integer> sublist = new MahList<Integer>(4, 7, 3, 1, 5);
+		sublist.sort();
+		
+		
+		
+		System.out.print("list: ");
+		for (Integer i: list)
+			System.out.print(i.toString() + ", ");
+
+		System.out.print("\nsub : ");
+		for (Integer i: sublist)
+			System.out.print(i.toString() + ", ");
+		
+		
+		
+		sublist.add(6);
+		sublist.add(2);
+		sublist.sort();
+		System.out.print("\nsub : ");
+		for (Integer i: sublist)
+			System.out.print(i.toString() + ", ");
+		
+	}
 	
 	
 }
