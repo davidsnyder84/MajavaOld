@@ -1,8 +1,43 @@
+TENPAIS:
+interesting info:
+you can only ron if you are in tenpai (you were in tenpai before the tile was discarded)
+you can only ron during another player's turn
+you can only tsumo if you are in tenpai (you were in tenpai before you drew the tile)
+you can only tsumo during your turn
+
+going from "no-ten" to "tenpai" can happen when:
+	player perspective:
+	//you draw a tile at the beginning of your turn
+	//you draw a bonus tile after making a kan during your turn
+	you discard a tile during your turn
+	you make an ankan
+	you make complete a minkan
+	
+	hand perspective:
+	when a tile is removed
+
+if it is possible to win on a tile, tenpai will always be true
+exception: tenhou bypasses tenpai. solution: check for tenpai at beginning of game (before starting turns)
+
+
+
 
 
 if (only one meld is possible for t) && (t cannot be a pair)
-	MUST make that meld with t
+	MUST make that meld with t and its partners
 	(this is the only meld t can be in)
+end if
+
+
+
+
+
+
+
+
+
+
+
 
 
 

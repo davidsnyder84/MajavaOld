@@ -11,6 +11,7 @@ data:
 	mMelds - list of melds made from the hand
 	
 	mClosed - is true if the hand is fully concealed (no calls made on other discards)
+	mTenpaiStatus - is true if the hand is in tenpai (one tile away from winning)
 	mNumMeldsMade - the number of melds made
 	mOwnerSeatWind - holds the wind of the player who owns the hand
 	
@@ -68,7 +69,7 @@ public class Hand {
 	public static final int NUM_TILES_NEEDED_TO_CHI = 2;
 	public static final int NUM_TILES_NEEDED_TO_PON = 2;
 	public static final int NUM_TILES_NEEDED_TO_KAN = 3;
-	public static final int NUM_TILES_NEEDED_TO_PAIR = 3;
+	public static final int NUM_TILES_NEEDED_TO_PAIR = 1;
 	
 	public static final boolean DEFAULT_CLOSED_STATUS = true;
 	
@@ -82,6 +83,7 @@ public class Hand {
 	private ArrayList<Meld> mMelds;
 	
 	private boolean mClosed;
+	private boolean mTenpaiStatus;
 	private int mNumMeldsMade; 
 	
 	private char mOwnerSeatWind;
@@ -111,8 +113,8 @@ public class Hand {
 		mMelds = new ArrayList<Meld>(MAX_NUM_MELDS);
 		
 		mClosed = DEFAULT_CLOSED_STATUS;
+		mTenpaiStatus = false;
 		mNumMeldsMade = 0;
-		
 		mOwnerSeatWind = playerWind;
 		
 		//reset callable flags
@@ -123,7 +125,7 @@ public class Hand {
 	public Hand(){
 		this(Player.SEAT_UNDECIDED);
 	}
-	//copy constructor, makes an exact copy of the hand
+	//copy constructor, makes an exact copy of a hand
 	public Hand(Hand other){
 
 		for (Tile t: other.mTiles) mTiles.add(t);
@@ -146,6 +148,7 @@ public class Hand {
 		for (Integer i: other.mPartnerIndicesPair) mPartnerIndicesPair.add(i);
 		
 		mClosed = other.mClosed;
+		mTenpaiStatus = other.mTenpaiStatus;
 		mNumMeldsMade = other.mNumMeldsMade;
 		mOwnerSeatWind = other.mOwnerSeatWind;
 	}
@@ -174,6 +177,7 @@ public class Hand {
 	public int getNumMeldsMade(){return mNumMeldsMade;}
 	//returns the hand owner's seat wind
 	public char getOwnerSeatWind(){return mOwnerSeatWind;}
+	public boolean getTenpaiStatus(){return mTenpaiStatus;}
 	
 	
 	
@@ -247,85 +251,53 @@ public class Hand {
 	private method: __canChiType
 	checks if a chi can be made with the new tile
 	
-	input: chiType is the type of chi to check (ChiL, ChiM, ChiH)
+	input: storePartnersHere is the list that will hold the partner indices, if chi is possible
+	 	   offset1 and offset2 are the offsets of mCallCandidate's ID to look for
 	
-	populates the chi partner list, sets canChi flag, and returns true if chi type is possible
+	returns true if chi type is possible, populates the received chi partner list, sets canChi flag
 	
 	
-	if (candidate is an honor tile): return false
-	partnerIndex1 = partnerIndex2 = NOT_FOUND
-	
-	desiredID1 and desiredID2 = IDs of the tiles that form the specififed chi type with candidate
-	if (candidate cannot form the specified chi type, ie: ChiH with M1): return false
-	
-	partnerIndex1 and partnerIndex2 = search hand for desiredIDs, take first occurence of each
+	partnerIndex1/2 = search hand for (mCallCandidate's ID + offset1/2), take first occurence of each
 	if (indexes were found for both partners)
-		set appropriate canChi flag
-		store partner indices in appropriate chiPartnerIndices list
 		can = true
+		store partner indices in the received list
 	end if
 	return can
 	*/
-	private boolean __canChiType(int chiType){
+	private boolean __canChiType(ArrayList<Integer> storePartnersHere, int offset1, int offset2){
 		
-		//if true, the player definitely CAN make a chi
+		//if this is true, the player can make a chi
 		boolean can = false;
-		int tID = mCallCandidate.getId();
-		int partnerIndex1 = NOT_FOUND, partnerIndex2 = NOT_FOUND;
-		int desiredID1 = 0, desiredID2 = 0;
 		
-		//can't chi on an honor tile, return false
-		if (mCallCandidate.isHonor()) return false;
-		
-		//decide who the partners should be, based on chi type
-		if (chiType == Meld.MELD_TYPE_CHI_L && !(mCallCandidate.getFace() == '8' || mCallCandidate.getFace() == '9'))
-			{desiredID1 = tID + 1; desiredID2 = tID + 2;}
-		else if (chiType == Meld.MELD_TYPE_CHI_M && !(mCallCandidate.getFace() == '1' || mCallCandidate.getFace() == '9'))
-			{desiredID1 = tID - 1; desiredID2 = tID + 1;}
-		else if (chiType == Meld.MELD_TYPE_CHI_H && !(mCallCandidate.getFace() == '1' || mCallCandidate.getFace() == '2'))
-			{desiredID1 = tID - 2; desiredID2 = tID - 1;}
-		else return false;
-		//return false if a chi cannot be made with the tile 
-		
-		
+		//decide who the chi partners should be (offset is decided based on chi type)
 		//search the hand for the desired chi partners (get the indices)
-		partnerIndex1 = mTiles.indexOf(new Tile(desiredID1));
-		partnerIndex2 = mTiles.indexOf(new Tile(desiredID2));
+		int partnerIndex1 = NOT_FOUND, partnerIndex2 = NOT_FOUND;
+		partnerIndex1 = mTiles.indexOf(new Tile(mCallCandidate.getId() + offset1));
+		partnerIndex2 = mTiles.indexOf(new Tile(mCallCandidate.getId() + offset2));
 		
 		
-		if (partnerIndex1 != NOT_FOUND && partnerIndex2 != NOT_FOUND)
-		{
-			//store the indices in the appropriate partners list
-			ArrayList<Integer> storeHere = null;
-			if (chiType == Meld.MELD_TYPE_CHI_L){
-				storeHere = mPartnerIndicesChiL;
-				can = mCanChiL = true;
-			}
-			else if (chiType == Meld.MELD_TYPE_CHI_M){
-				storeHere = mPartnerIndicesChiM;
-				can = mCanChiM = true;
-			}
-			else if (chiType == Meld.MELD_TYPE_CHI_H){
-				storeHere = mPartnerIndicesChiH;
-				can = mCanChiH = true;
-			}
+		//if both parters were found in the hand
+		if (partnerIndex1 != NOT_FOUND && partnerIndex2 != NOT_FOUND){
+			can = true;
 			
 			//sore the indices of the partners in a partner list
-			__storePartnerIndices(storeHere, partnerIndex1, partnerIndex2);
+			__storePartnerIndices(storePartnersHere, partnerIndex1, partnerIndex2);
 		}
-		
 		return can;
 	}
 	
 	//done
 	private boolean __canChiL(){
-		return __canChiType(Meld.MELD_TYPE_CHI_L);
+		if (mCallCandidate.getFace() == '8' || mCallCandidate.getFace() == '9') return false;
+		return mCanChiL = __canChiType(mPartnerIndicesChiL, 1, 2);
 	}
 	private boolean __canChiM(){
-		return __canChiType(Meld.MELD_TYPE_CHI_M);
+		if (mCallCandidate.getFace() == '1' || mCallCandidate.getFace() == '9') return false;
+		return mCanChiM = __canChiType(mPartnerIndicesChiM, -1, 1);
 	}
 	private boolean __canChiH(){
-		return __canChiType(Meld.MELD_TYPE_CHI_H);
+		if (mCallCandidate.getFace() == '1' || mCallCandidate.getFace() == '2') return false;
+		return mCanChiH = __canChiType(mPartnerIndicesChiH, -2, -1);
 	}
 	
 	
@@ -391,7 +363,7 @@ public class Hand {
 	private boolean __canPair(){
 		
 		boolean can = false;
-		ArrayList<Integer> tempPartnerIndices = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_KAN);
+		ArrayList<Integer> tempPartnerIndices = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_PAIR);
 		
 		//count how many occurences fo the tile, and store the indices of the occurences in tempPartnerIndices
 		int count = __howManyOfThisTileInHand(mCallCandidate, tempPartnerIndices);
@@ -479,8 +451,10 @@ public class Hand {
 		
 		//////runs checks, set flags to the check results
 		//only allow chis from the player's kamicha, or from the player's own tiles
-		if ((candidate.getOrignalOwner() == mOwnerSeatWind) || 
-			(candidate.getOrignalOwner() == Player.findKamichaOf(mOwnerSeatWind))){
+		//don't check chi if mCallCandidate is an honor tile
+		if (!mCallCandidate.isHonor() && (
+			(candidate.getOrignalOwner() == mOwnerSeatWind) || 
+			(candidate.getOrignalOwner() == Player.findKamichaOf(mOwnerSeatWind))) ){
 			mCanChiL = __canChiL();
 			mCanChiM = __canChiM();
 			mCanChiH = __canChiH();
@@ -670,9 +644,6 @@ public class Hand {
 	
 	
 	
-	
-	
-	
 	public void findAllMachis(){
 		
 		
@@ -681,8 +652,18 @@ public class Hand {
 	
 	
 	
+	
+	
+	
+	
+
+	//***************************************************************************************************
+	//****BEGIN TENPAI CHECKERS
+	//***************************************************************************************************
+	
 	//returns true if the hand is in tenpai for kokushi musou
-	public boolean kokushiMusouTenpaiStatus(){
+	//if this is true, it means that: handsize >= 13, hand has at least 12 different TYC tiles
+	public boolean kokushiMusouInTenpai(){
 		
 		boolean couldBeKokushi = true;
 		
@@ -712,7 +693,7 @@ public class Hand {
 	public boolean kokushiMusouIsComplete(){
 		
 		if ((mTiles.size() == MAX_HAND_SIZE) &&
-			(kokushiMusouTenpaiStatus() == true) &&
+			(kokushiMusouInTenpai() == true) &&
 			(kokushiMusouWaits().size() == Tile.NUMBER_OF_YAOCHUU_TILES))
 			return true;
 		
@@ -727,7 +708,7 @@ public class Hand {
 		ArrayList<Tile> waits = new ArrayList<Tile>(1);
 		
 		Tile missingTYC = null;
-		if (kokushiMusouTenpaiStatus() == true)
+		if (kokushiMusouInTenpai() == true)
 		{
 			//look for a Yaochuu tile that the hand doesn't contain
 			ArrayList<Tile> listTYC = Tile.listOfYaochuuTiles();
@@ -748,10 +729,23 @@ public class Hand {
 	
 	
 	
+	//checks if the hand is in tenpai
+	//sets mTenpaiStaus flag if it is, and returns true
+	public boolean checkIfTenpai(){
+		
+		boolean isTenpai = false;
+		
+		isTenpai = (isTenpai || kokushiMusouInTenpai());
+		
+		mTenpaiStatus = isTenpai;
+		return mTenpaiStatus;
+	}
 	
 	
-	
-	
+
+	//***************************************************************************************************
+	//****END TENPAI CHECKERS
+	//***************************************************************************************************
 	
 	
 	
@@ -793,31 +787,26 @@ public class Hand {
 	}
 	//true returns a string of indices (indices are +1 to match display)
 	//false returns a string of actual tile values
-	public String partnerIndicesString(int meldType, boolean actualTiles){
+	public String partnerIndicesString(int meldType, boolean wantActualTiles){
 		
 		String partnersString = "";
 		ArrayList<Integer> wantedIndices = null;
 		
 		switch (meldType){
-		case Meld.MELD_TYPE_CHI_L:
-			wantedIndices = mPartnerIndicesChiL; break;
-		case Meld.MELD_TYPE_CHI_M:
-			wantedIndices = mPartnerIndicesChiM; break;
-		case Meld.MELD_TYPE_CHI_H:
-			wantedIndices = mPartnerIndicesChiH; break;
-		case Meld.MELD_TYPE_PON:
-			wantedIndices = mPartnerIndicesPon; break;
-		case Meld.MELD_TYPE_KAN:
-			wantedIndices = mPartnerIndicesKan; break;
+		case Meld.MELD_TYPE_CHI_L: wantedIndices = mPartnerIndicesChiL; break;
+		case Meld.MELD_TYPE_CHI_M: wantedIndices = mPartnerIndicesChiM; break;
+		case Meld.MELD_TYPE_CHI_H: wantedIndices = mPartnerIndicesChiH; break;
+		case Meld.MELD_TYPE_PON: wantedIndices = mPartnerIndicesPon; break;
+		case Meld.MELD_TYPE_KAN: wantedIndices = mPartnerIndicesKan; break;
+		case Meld.MELD_TYPE_PAIR: wantedIndices = mPartnerIndicesPair; break;
 		default: return "none";
 		}
 		
 		for (Integer i: wantedIndices)
-			if (actualTiles)
-				partnersString += mTiles.get(i).toString() + ", ";
-			else
-				partnersString += Integer.toString(i+1) + ", ";
+			if (wantActualTiles) partnersString += mTiles.get(i).toString() + ", ";
+			else partnersString += Integer.toString(i+1) + ", ";
 		
+		if (partnersString != "") partnersString = partnersString.substring(0, partnersString.length() - 2);
 		return partnersString;
 	}
 	public String partnerIndicesString(int meldType){return partnerIndicesString(meldType, false);}

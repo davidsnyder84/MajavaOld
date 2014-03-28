@@ -10,15 +10,14 @@ public class MajaPlay {
 	
 	public static void main(String[] args) {
 		
+		
+		//testCallPartners();
+		
 		//testHots();
 		
 		//testContains();
 		
 		//testCalls();
-		
-		
-		//testCallPartners();
-		
 		
 		//testPlayerCall();
 		
@@ -47,21 +46,13 @@ public class MajaPlay {
 		
 		//finalListTest();
 		
+		
 		kokushiTenpaiTest();
 		
 		
 		
 		
-		/*
-		ArrayList<Tile> waits = Tile.listOfYaochuuTiles();
-		System.out.print("TYCs: ");
-		for (Tile t: waits)
-			System.out.print(t.toString() + ", ");
-		
-		
-		
 		System.out.println();
-		*/
 	}
 	
 	
@@ -74,35 +65,83 @@ public class MajaPlay {
 		Tile q = null;
 		ArrayList<Tile> waits = null;
 
-		h.addTile(new Tile("M1"));
-		h.addTile(new Tile("M9"));
-		h.addTile(new Tile("C1"));
-		h.addTile(new Tile("C9"));
-		h.addTile(new Tile("B1"));
-		h.addTile(new Tile("B9"));
-		h.addTile(new Tile("WE"));
-		h.addTile(new Tile("WS"));
-		h.addTile(new Tile("WW"));
-		h.addTile(new Tile("WN"));
-		h.addTile(new Tile("DW"));
-		h.addTile(new Tile("DG"));
-		h.addTile(new Tile("DR"));
-		h.addTile(new Tile("DR"));	//extra tile
+		h.addTile(new Tile("M1"));	//1
+		h.addTile(new Tile("M9"));	//2
+		h.addTile(new Tile("C1"));	//3
+		h.addTile(new Tile("C9"));	//4
+		h.addTile(new Tile("B1"));	//5
+		h.addTile(new Tile("B9"));	//6
+		h.addTile(new Tile("WE"));	//7
+		h.addTile(new Tile("WS"));	//8
+		h.addTile(new Tile("WW"));	//9
+		h.addTile(new Tile("WN"));	//10
+		h.addTile(new Tile("DW"));	//11
+		h.addTile(new Tile("DG"));	//12
+		h.addTile(new Tile("DR"));	//13
+//		h.addTile(new Tile("m8"));	//14
+//		h.addTile(new Tile("DR"));	//extra tile
 		h.sortHand();
 		
 		System.out.println(h.toString());
 		
 
-		System.out.println("\nIn tenpai for kokushi musou?: " + h.kokushiMusouTenpaiStatus());
+		System.out.println("\nIn tenpai for kokushi musou?: " + h.kokushiMusouInTenpai());
 		
 		waits = h.kokushiMusouWaits();
 		System.out.print(waits.size() + "-sided wait: ");
 		for (Tile t: waits)
 			System.out.print(t.toString() + ", ");
 		
+		System.out.println("\n\nKokushi musou complete?: " + h.kokushiMusouIsComplete());
 	}
 	
 	
+	
+	public static void testCallPartners(){
+
+		final char ONWER_SEAT = Player.SEAT_SOUTH;
+		Tile q = null;
+		Hand h = new Hand(ONWER_SEAT);
+
+		h.addTile(1);
+		h.addTile(2);
+		h.addTile(2);
+		h.addTile(3);
+		h.addTile(4);
+		h.addTile(4);
+		h.addTile(4);
+		h.addTile(5);
+		h.addTile(6);
+		
+		q = new Tile(8);
+		q.setOwner(Player.findKamichaOf(ONWER_SEAT));
+		
+		
+		h.checkCallableTile(q);
+		
+
+		System.out.println(h.toString());
+		System.out.println("\nDiscarded tile: " + q.toString());
+		
+		System.out.print("\nChi-L?: " + h.ableToChiL());
+		if (h.ableToChiL())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_L, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_L));
+		
+		System.out.print("\nChi-M?: " + h.ableToChiM());
+		if (h.ableToChiM())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_M, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_M));
+		
+		System.out.print("\nChi-H?: " + h.ableToChiH());
+		if (h.ableToChiH())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_H, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_H));
+		
+		System.out.print("\nPon?  : " + h.ableToPon());
+		if (h.ableToPon())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_PON, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_PON));
+
+		System.out.print("\nKan?  : " + h.ableToKan());
+		if (h.ableToKan())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_KAN, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_KAN));
+		
+		System.out.print("\nPair? : " + h.ableToPair());
+		if (h.ableToPair())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_PAIR, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_PAIR));
+		
+	}
 	
 	
 	
@@ -384,59 +423,6 @@ public class MajaPlay {
 		System.out.println("Player's call status: " + whatCalled + " (status: " + status + ")");
 		
 	}
-	
-	
-	
-	
-	
-	public static void testCallPartners(){
-
-		final char ONWER_SEAT = Player.SEAT_SOUTH;
-		Tile q = null;
-		Hand h = new Hand(ONWER_SEAT);
-
-		h.addTile(1);
-		h.addTile(2);
-		h.addTile(2);
-		h.addTile(3);
-		h.addTile(4);
-		h.addTile(4);
-		h.addTile(4);
-		h.addTile(5);
-		h.addTile(6);
-		
-		q = new Tile(4);
-		q.setOwner(Player.findKamichaOf(ONWER_SEAT));
-		
-		
-		h.checkCallableTile(q);
-		
-
-		System.out.println(h.toString());
-		System.out.println("\nDiscarded tile: " + q.toString());
-		
-		System.out.print("\nChi-L?: " + h.ableToChiL());
-		if (h.ableToChiL())
-			System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_L, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_L));
-		
-		System.out.print("\nChi-M?: " + h.ableToChiM());
-		if (h.ableToChiM())
-			System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_M, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_M));
-		
-		System.out.print("\nChi-H?: " + h.ableToChiH());
-		if (h.ableToChiH())
-			System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_H, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_H));
-		
-		System.out.print("\nPon?  : " + h.ableToPon());
-		if (h.ableToPon())
-			System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_PON, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_PON));
-		
-		System.out.print("\nKan?  : " + h.ableToKan());
-		if (h.ableToKan())
-			System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_KAN, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_KAN));
-		
-	}
-	
 	
 	
 	

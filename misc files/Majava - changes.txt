@@ -25,7 +25,10 @@
 -changed Tile's compareTo function so that Red 5's come after non-red 5's
 -added isHonor() and isTerminal() boolean methods to Tile
 -modified Tile constructor to convert string arguments to uppercase
-
+-restructured __canChi functions to be more efficient and nicer-looking
+-added functions to check for a hand for Kokushi musou
+	-can check: kokushi tenpai?, kokushi complete?, list of waits if in kokushi tenpai
+-added function to check if a hand is in tnepai (only checks kokushi tenpai now)
 
 
 
