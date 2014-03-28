@@ -13,9 +13,9 @@ public class MajaPlay {
 	public static void main(String[] args) {
 		
 		
-		testCompleteNormal();
+//		testCompleteNormal();
 		
-		//testCallPartners();
+		testCallPartners();
 		
 		//meldEnumPlay();
 		

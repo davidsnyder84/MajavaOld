@@ -111,6 +111,7 @@ public class HandChecker {
 	private Tile mCallCandidate;
 	
 	private boolean pairHasBeenChosen = false;
+	private MahStack<Meld> mFinishingMelds;
 	
 	
 	
@@ -630,7 +631,7 @@ public class HandChecker {
 	//============================================================================
 	
 	/*
-	private method: __canChiType
+	private method: __canClosedChiType
 	returns true if a candidate tile can make a chi with other tiles in the hand
 	
 	input: candidate is the tile to search for chi partners for
@@ -639,41 +640,28 @@ public class HandChecker {
 	return true if hand contains both (candidate's ID + offset1) and (candidate's ID + offset2)
 	return false if either of them are missing
 	*/
-	private boolean __canMeldChiType(Tile candidate, int offset1, int offset2){
+	private boolean __canClosedChiType(Tile candidate, int offset1, int offset2){
 		return (mHandTiles.contains(candidate.getId() + offset1) && mHandTiles.contains(candidate.getId() + offset2));
 	}
-	private boolean __canMeldChiL(Tile candidate){return ((candidate.getFace() != '8' && candidate.getFace() != '9') && __canMeldChiType(candidate, OFFSET_CHI_L1, OFFSET_CHI_L2));}
-	private boolean __canMeldChiM(Tile candidate){return ((candidate.getFace() != '1' && candidate.getFace() != '9') && __canMeldChiType(candidate, OFFSET_CHI_M1, OFFSET_CHI_M2));}
-	private boolean __canMeldChiH(Tile candidate){return ((candidate.getFace() != '1' && candidate.getFace() != '2') && __canMeldChiType(candidate, OFFSET_CHI_H1, OFFSET_CHI_H2));}
-	
-	
+	private boolean __canClosedChiL(Tile candidate){return ((candidate.getFace() != '8' && candidate.getFace() != '9') && __canClosedChiType(candidate, OFFSET_CHI_L1, OFFSET_CHI_L2));}
+	private boolean __canClosedChiM(Tile candidate){return ((candidate.getFace() != '1' && candidate.getFace() != '9') && __canClosedChiType(candidate, OFFSET_CHI_M1, OFFSET_CHI_M2));}
+	private boolean __canClosedChiH(Tile candidate){return ((candidate.getFace() != '1' && candidate.getFace() != '2') && __canClosedChiType(candidate, OFFSET_CHI_H1, OFFSET_CHI_H2));}
 	
 	
 	/*
-	private method: __canMultiType
-	checks if a multi (pair/pon/kan) can be made with the new tile
+	private method: __canClosedMultiType
+	returns true if the hand contains at least "numPartnersNeeded" copies of candidate
 	
-	input: candidate is the tile to search for chi partners for
-		   storePartnersHere is the list that will hold the partner indices, if chi is possible
-	 	   offset1 and offset2 are the offsets of mCallCandidate's ID to look for
-	 	   
-	if the multi type is possible: populates the meld partner list and returns true
-	
-	
-	if (there are enough partner tile in the hand to form the multi)
-		store the partner indices in the storePartnersHere list
-		return true
-	end if
-	else return false
+	input: candidate is the tile to search for copies of, numPartnersNeeded is the number of copies needed
 	*/
-	private boolean __canMeldMultiType(Tile candidate, int numPartnersNeeded){
+	private boolean __canClosedMultiType(Tile candidate, int numPartnersNeeded){
 		//count how many occurences of the tile
 		return (mHandTiles.findHowManyOf(candidate) >= numPartnersNeeded);
 	}
-	private boolean __canMeldPair(Tile candidate){return __canMeldMultiType(candidate, NUM_PARTNERS_NEEDED_TO_PAIR + 1);}
-	private boolean __canMeldPon(Tile candidate){return __canMeldMultiType(candidate, NUM_PARTNERS_NEEDED_TO_PON + 1);}
+	private boolean __canClosedPair(Tile candidate){return __canClosedMultiType(candidate, NUM_PARTNERS_NEEDED_TO_PAIR + 1);}
+	private boolean __canClosedPon(Tile candidate){return __canClosedMultiType(candidate, NUM_PARTNERS_NEEDED_TO_PON + 1);}
 	@SuppressWarnings("unused")
-	private boolean __canMeldKan(Tile candidate){return __canMeldMultiType(candidate, NUM_PARTNERS_NEEDED_TO_KAN + 1);}
+	private boolean __canClosedKan(Tile candidate){return __canClosedMultiType(candidate, NUM_PARTNERS_NEEDED_TO_KAN + 1);}
 	
 	
 	
@@ -696,19 +684,19 @@ public class HandChecker {
 	public boolean checkMeldableTile(Tile candidate, MahStack<MeldType> meldStack){
 		
 		//check pon. if can pon, push both pon and pair. if can't pon, check pair.
-		if (__canMeldPon(candidate)){
+		if (__canClosedPon(candidate)){
 			meldStack.push(MeldType.PAIR);
 			meldStack.push(MeldType.PON);
 		}
-		else if (__canMeldPair(candidate)) meldStack.push(MeldType.PAIR);
+		else if (__canClosedPair(candidate)) meldStack.push(MeldType.PAIR);
 		
 		//only allow chis from the player's kamicha, or from the player's own tiles. don't check chi if candidate is an honor tile
 		if (!candidate.isHonor() && (
 			(candidate.getOrignalOwner() == mHand.getOwnerSeatWind()) || 
 			(candidate.getOrignalOwner() == Player.findKamichaOf(mHand.getOwnerSeatWind()))) ){
-			if (__canMeldChiH(candidate)) meldStack.push(MeldType.CHI_H);
-			if (__canMeldChiM(candidate)) meldStack.push(MeldType.CHI_M);
-			if (__canMeldChiL(candidate)) meldStack.push(MeldType.CHI_L);
+			if (__canClosedChiH(candidate)) meldStack.push(MeldType.CHI_H);
+			if (__canClosedChiM(candidate)) meldStack.push(MeldType.CHI_M);
+			if (__canClosedChiL(candidate)) meldStack.push(MeldType.CHI_L);
 		}
 		
 		//~~~~return true if a call (any call) can be made
@@ -724,6 +712,38 @@ public class HandChecker {
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	/*
+	method: isNormalComplete
+	returns true if list of handTiles is complete (is a winning hand)
+	*/
+	public boolean isNormalComplete(TileList handTiles){
+		
+		//populate stacks
+		MeldTypeStackList listMTSL = new MeldTypeStackList(handTiles.size());
+		if (populateMeldStacks(handTiles, listMTSL) == false) return false;
+		
+		pairHasBeenChosen = false;
+		return isCompleteHand(handTiles, listMTSL);
+	}
+	//overloaded, checks mHandTiles by default
+	public boolean isNormalComplete(){return isNormalComplete(mHandTiles);}
+	
+	/*
+	method: populateMeldStacks
+	populates the meld type stacks for all of the hand tiles
+	returns true if all tiles can make a meld, returns false if a tile cannot make a meld
+	
+	input: handTiles is the list of tiles to check
+		   listMTSL is a list of meld type stacks, will be populated corresponding to the tiles in handTiles
+	*/
 	public boolean populateMeldStacks(TileList handTiles, MeldTypeStackList listMTSL){
 		//check to see if every tile can make at least one meld
 		for (int i = 0; i < handTiles.size(); i++)
@@ -731,30 +751,6 @@ public class HandChecker {
 		
 		return true;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	public boolean isNormalComplete(){
-		
-		//populate stacks
-		MeldTypeStackList listMTSL = new MeldTypeStackList(mHandTiles.size());
-		if (populateMeldStacks(mHandTiles, listMTSL) == false) return false;
-		
-		pairHasBeenChosen = false;
-		return isCompleteHand(mHandTiles, listMTSL);
-	}
-	
-	
-	
 	
 	
 	
@@ -837,7 +833,6 @@ public class HandChecker {
 			//check if currentTile's partners are still in the hand
 			currentTilePartersAreStillHere = true;
 			if (currentTileMeldType.isChi())
-//				currentTilePartersAreStillHere = (handTiles.contains(currentTileParterIDs.get(0)) && handTiles.contains(currentTileParterIDs.get(1)));
 				if (!handTiles.contains(currentTileParterIDs.get(0)) || !handTiles.contains(currentTileParterIDs.get(1)))
 					currentTilePartersAreStillHere = false;
 			else{
@@ -943,7 +938,7 @@ public class HandChecker {
 		boolean isKokushiTenpai = false, isChiitoitsuTenpai = false, isNormalTenpai = false;
 		
 		isKokushiTenpai = kokushiMusouInTenpai();
-//		isChiitoitsuTenpai = chiitoitosisitu
+//		isChiitoitsuTenpai = chiitoitosisitu();
 		isNormalTenpai = false;
 		
 		
