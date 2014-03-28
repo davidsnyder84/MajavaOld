@@ -267,25 +267,23 @@ public class Hand {
 	
 	/*
 	private method: __canChiType
-	checks if a chi can be made with the new tile
+	checks if a candidate tile can make a chi with other tiles in the hand
 	
-	input: storePartnersHere is the list that will hold the partner indices, if chi is possible
+	input: candidate is the tile to search for chi partners for
+		   storePartnersHere is the list that will hold the partner indices, if chi is possible
 	 	   offset1 and offset2 are the offsets of mCallCandidate's ID to look for
 	
-	returns true if chi type is possible, populates the received chi partner list, sets canChi flag
+	if chi type is possible: populates the meld partner list and returns true
 	
 	
-	partnerIndex1/2 = search hand for (mCallCandidate's ID + offset1/2), take first occurence of each
+	tempPartnerIndices = search hand for (candidate's ID + offset1/2), take first occurence of each
 	if (indexes were found for both partners)
-		can = true
 		store partner indices in the received list
+		return true
 	end if
-	return can
+	return false
 	*/
 	private boolean __canChiType(Tile candidate, ArrayList<Integer> storePartnersHere, int offset1, int offset2){
-		
-		//if this is true, the player can make a chi
-		boolean can = false;
 		
 		//decide who the chi partners should be (offset is decided based on chi type)
 		//search the hand for the desired chi partners (get the indices)
@@ -295,24 +293,25 @@ public class Hand {
 		
 		//if both parters were found in the hand
 		if (tempPartnerIndices.getFirst() != MahList.NOT_FOUND && tempPartnerIndices.getLast() != MahList.NOT_FOUND){
-			can = true;
 			
 			//sore the indices of the partners in a partner list
 			__storePartnerIndices(storePartnersHere, tempPartnerIndices);
+			
+			return true;
 		}
-		return can;
+		return false;
 	}
 	private boolean __canChiL(Tile candidate){
 		if (candidate.getFace() == '8' || candidate.getFace() == '9') return false;
-		return mCanChiL = __canChiType(candidate, mPartnerIndicesChiL, 1, 2);
+		return __canChiType(candidate, mPartnerIndicesChiL, 1, 2);
 	}
 	private boolean __canChiM(Tile candidate){
 		if (candidate.getFace() == '1' || candidate.getFace() == '9') return false;
-		return mCanChiM = __canChiType(candidate, mPartnerIndicesChiM, -1, 1);
+		return __canChiType(candidate, mPartnerIndicesChiM, -1, 1);
 	}
 	private boolean __canChiH(Tile candidate){
 		if (candidate.getFace() == '1' || candidate.getFace() == '2') return false;
-		return mCanChiH = __canChiType(candidate, mPartnerIndicesChiH, -2, -1);
+		return __canChiType(candidate, mPartnerIndicesChiH, -2, -1);
 	}
 	//overloaded. if no tile argument given, candidate = mCallCandidate is passsed
 	private boolean __canChiL(){return  __canChiL(mCallCandidate);}
@@ -323,41 +322,44 @@ public class Hand {
 	
 	/*
 	private method: __canMultiType
-	checks if a multi can be made with the new tile
-	if the multi is possible: populates the meld partner list and returns true
+	checks if a multi (pair/pon/kan) can be made with the new tile
 	
-	count = how many of this tile is in the hand
+	input: candidate is the tile to search for chi partners for
+		   storePartnersHere is the list that will hold the partner indices, if chi is possible
+	 	   offset1 and offset2 are the offsets of mCallCandidate's ID to look for
+	 	   
+	if the multi type is possible: populates the meld partner list and returns true
+	
+	
 	if (there are enough partner tile in the hand to form the multi)
 		store the partner indices in the storePartnersHere list
-		can = true
+		return true
 	end if
-	return can
+	else return false
 	*/
 	private boolean __canMultiType(Tile candidate, ArrayList<Integer> storePartnersHere, int numPartnersNeeded){
-		boolean can = false;
 		
 		//count how many occurences of the tile, and store the indices of the occurences in tempPartnerIndices
 		MahList<Integer> tempPartnerIndices = new MahList<Integer>(numPartnersNeeded);
-		int count = __howManyOfThisTileInHand(candidate, tempPartnerIndices.getArrayList());
 		
 		//meld is possible if there are enough partners in the hand to form the meld
-		if (count >= numPartnersNeeded){
+		if (__howManyOfThisTileInHand(candidate, tempPartnerIndices.getArrayList()) >= numPartnersNeeded){
 
 			//store the partner indices in the pon partner index list
 			__storePartnerIndices(storePartnersHere, tempPartnerIndices.subList(0, numPartnersNeeded));
 			
-			can = true;
+			return true;
 		}
-		return can;
+		return false;
 	}
 	private boolean __canPair(Tile candidate){
-		return mCanPair = __canMultiType(candidate, mPartnerIndicesPair, NUM_TILES_NEEDED_TO_PAIR);
+		return __canMultiType(candidate, mPartnerIndicesPair, NUM_TILES_NEEDED_TO_PAIR);
 	}
 	private boolean __canPon(Tile candidate){
-		return mCanPon = __canMultiType(candidate, mPartnerIndicesPon, NUM_TILES_NEEDED_TO_PON);
+		return __canMultiType(candidate, mPartnerIndicesPon, NUM_TILES_NEEDED_TO_PON);
 	}
 	private boolean __canKan(Tile candidate){
-		return mCanKan = __canMultiType(candidate, mPartnerIndicesKan, NUM_TILES_NEEDED_TO_KAN);
+		return __canMultiType(candidate, mPartnerIndicesKan, NUM_TILES_NEEDED_TO_KAN);
 	}
 	//overloaded. if no tile argument given, candidate = mCallCandidate is passsed
 	private boolean __canPair(){return __canPair(mCallCandidate);}
@@ -437,7 +439,7 @@ public class Hand {
 		//~~~~runs checks, set flags to the check results
 		//only allow chis from the player's kamicha, or from the player's own tiles
 		//don't check chi if candidate is an honor tile
-		if (!mCallCandidate.isHonor() && (
+		if (!candidate.isHonor() && (
 			(candidate.getOrignalOwner() == mOwnerSeatWind) || 
 			(candidate.getOrignalOwner() == Player.findKamichaOf(mOwnerSeatWind))) ){
 			mCanChiL = __canChiL();
