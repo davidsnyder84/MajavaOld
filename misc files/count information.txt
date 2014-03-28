@@ -1,0 +1,22 @@
+34 different tiles
+9 man, 9 sou, 9 pin, 4 wind, 3 dragon
+
+4 of each
+34 * 4 = 136
+
+136 tiles in game
+122 tiles in regular wall
+14 tiles in dead wall
+
+
+
+
+
+
+
+
+
+
+
+
+
