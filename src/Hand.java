@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 
 import utility.GenSort;
+import utility.MahList;
 
 /*
 Class: Hand
@@ -108,7 +109,7 @@ public class Hand {
 	private ArrayList<Integer> mPartnerIndicesPair;
 	private Tile mCallCandidate;
 	
-	private HandChecker mChecker;
+	//private HandChecker mChecker;
 	
 	
 	
@@ -258,10 +259,11 @@ public class Hand {
 	
 	
 	
+
 	
-	//////////////////////////////////////////////////////////////////////////////
-	//////BEGIN MELD CHEKCERS
-	//////////////////////////////////////////////////////////////////////////////
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//~~~~BEGIN MELD CHEKCERS
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	
 	/*
 	private method: __canChiType
@@ -287,22 +289,19 @@ public class Hand {
 		
 		//decide who the chi partners should be (offset is decided based on chi type)
 		//search the hand for the desired chi partners (get the indices)
-		int partnerIndex1 = NOT_FOUND, partnerIndex2 = NOT_FOUND;
-		partnerIndex1 = mTiles.indexOf(new Tile(mCallCandidate.getId() + offset1));
-		partnerIndex2 = mTiles.indexOf(new Tile(mCallCandidate.getId() + offset2));
-		
+		MahList<Integer> tempPartnerIndices = new MahList<Integer>(NUM_TILES_NEEDED_TO_CHI);
+		tempPartnerIndices.add(mTiles.indexOf(new Tile(mCallCandidate.getId() + offset1)));
+		tempPartnerIndices.add(mTiles.indexOf(new Tile(mCallCandidate.getId() + offset2)));
 		
 		//if both parters were found in the hand
-		if (partnerIndex1 != NOT_FOUND && partnerIndex2 != NOT_FOUND){
+		if (tempPartnerIndices.getFirst() != NOT_FOUND && tempPartnerIndices.getLast() != NOT_FOUND){
 			can = true;
 			
 			//sore the indices of the partners in a partner list
-			__storePartnerIndices(storePartnersHere, partnerIndex1, partnerIndex2);
+			__storePartnerIndices(storePartnersHere, tempPartnerIndices);
 		}
 		return can;
 	}
-	
-	//done
 	private boolean __canChiL(){
 		if (mCallCandidate.getFace() == '8' || mCallCandidate.getFace() == '9') return false;
 		return mCanChiL = __canChiType(mPartnerIndicesChiL, 1, 2);
@@ -317,86 +316,45 @@ public class Hand {
 	}
 	
 	
+	
 	/*
-	private method: __canPon
-	checks if a pon can be made with the new tile
-	populates the pon partner list, sets canPon flag, and returns true if pon is possible
+	private method: __canMultiType
+	checks if a multi can be made with the new tile
+	if the multi is possible: populates the meld partner list and returns true
 	
 	count = how many of this tile is in the hand
-	if (there are already 2 of the tile in the hand)
-		canPon = true
+	if (there are enough partner tile in the hand to form the multi)
+		store the partner indices in the storePartnersHere list
+		can = true
 	end if
 	return can
 	*/
-	private boolean __canPon(){
-		
+	private boolean __canMultiType(int numPartnersNeeded, ArrayList<Integer> storePartnersHere){
 		boolean can = false;
-		ArrayList<Integer> tempPartnerIndices = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_PON);
 		
-		//count how many occurences fo the tile, and store the indices of the occurences in tempPartnerIndices
-		int count = __howManyOfThisTileInHand(mCallCandidate, tempPartnerIndices);
+		//count how many occurences of the tile, and store the indices of the occurences in tempPartnerIndices
+		MahList<Integer> tempPartnerIndices = new MahList<Integer>(numPartnersNeeded);
+		int count = __howManyOfThisTileInHand(mCallCandidate, tempPartnerIndices.getArrayList());
 		
-		//pon is possible if there are enough occurences of the tile in the hand to form a pon
-		if (count >= NUM_TILES_NEEDED_TO_PON){
-			
+		//meld is possible if there are enough partners in the hand to form the meld
+		if (count >= numPartnersNeeded){
+
 			//store the partner indices in the pon partner index list
-			__storePartnerIndices(mPartnerIndicesPon, tempPartnerIndices.get(0), tempPartnerIndices.get(1));
+			__storePartnerIndices(storePartnersHere, tempPartnerIndices.subList(0, numPartnersNeeded));
 			
-			can = mCanPon = true;	//can = true
+			can = true;
 		}
 		return can;
 	}
-	
-	/*
-	private method: __canKan
-	checks if a kan can be made with the new tile
-	populates the kan partner list, sets canKan flag, and returns true if kan is possible
-	*/
-	private boolean __canKan(){
-		
-		boolean can = false;
-		ArrayList<Integer> tempPartnerIndices = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_KAN);
-		
-		//count how many occurences fo the tile, and store the indices of the occurences in tempPartnerIndices
-		int count = __howManyOfThisTileInHand(mCallCandidate, tempPartnerIndices);
-		
-		//kan is possible if there are enough occurences of the tile in the hand to form a kan
-		if (count >= NUM_TILES_NEEDED_TO_KAN){
-			
-			//store the partner indices in the kan partner index list
-			__storePartnerIndices(mPartnerIndicesKan, tempPartnerIndices.get(0), tempPartnerIndices.get(1), tempPartnerIndices.get(2));
-			
-			can = mCanKan = true;	//can = true
-		}
-		return can;
-	}
-	
-	/*
-	private method: __canPair
-	checks if a pair can be made with the new tile
-	populates the pair partner list, sets canPair flag, and returns true if pair is possible
-	*/
 	private boolean __canPair(){
-		
-		boolean can = false;
-		ArrayList<Integer> tempPartnerIndices = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_PAIR);
-		
-		//count how many occurences fo the tile, and store the indices of the occurences in tempPartnerIndices
-		int count = __howManyOfThisTileInHand(mCallCandidate, tempPartnerIndices);
-		
-		//pair is possible if there are enough occurences of the tile in the hand to form a pair (need only one other copy of the tile in the hand)
-		if (count >= NUM_TILES_NEEDED_TO_PAIR){
-			
-			//store the partner indices in the pair partner index list
-			__storePartnerIndices(mPartnerIndicesPair, tempPartnerIndices.get(0));
-			
-			can = mCanPair = true;	//can = true
-		}
-		return can;
+		return mCanPair = __canMultiType(NUM_TILES_NEEDED_TO_PAIR, mPartnerIndicesPair);
 	}
-	
-	
-	
+	private boolean __canPon(){
+		return mCanPon = __canMultiType(NUM_TILES_NEEDED_TO_PON, mPartnerIndicesPon);
+	}
+	private boolean __canKan(){
+		return mCanKan = __canMultiType(NUM_TILES_NEEDED_TO_KAN, mPartnerIndicesKan);
+	}
 	
 	/*
 	private method: __howManyOfThisTileInHand
@@ -438,6 +396,10 @@ public class Hand {
 		return __howManyOfThisTileInHand(t, null);
 	}
 	
+	
+	
+	
+	
 	//returns true if the player can call ron on the candidate tile
 	public boolean __canRon(){
 		return false;
@@ -445,6 +407,7 @@ public class Hand {
 	
 	
 	
+		
 	/*
 	method: checkCallableTile
 	checks if a tile is callable
@@ -467,7 +430,7 @@ public class Hand {
 		
 		//~~~~runs checks, set flags to the check results
 		//only allow chis from the player's kamicha, or from the player's own tiles
-		//don't check chi if mCallCandidate is an honor tile
+		//don't check chi if candidate is an honor tile
 		if (!mCallCandidate.isHonor() && (
 			(candidate.getOrignalOwner() == mOwnerSeatWind) || 
 			(candidate.getOrignalOwner() == Player.findKamichaOf(mOwnerSeatWind))) ){
@@ -481,13 +444,22 @@ public class Hand {
 			if (mCanPon = __canPon())
 				mCanKan = __canKan();
 		
-		//check ron
-		mCanRon = __canRon();
+		//if in tenpai, check ron
+		if (getTenpaiStatus() == true)
+			mCanRon = __canRon();
 		
 		//~~~~return true if a call (any call) can be made
 		return (mCanChiL || mCanChiM || mCanChiH || mCanPon || mCanKan || mCanRon);
 	}
 	
+	
+	
+	
+	//takes a list and several integer indices, stores the indices in the list
+	private void __storePartnerIndices(ArrayList<Integer> storeHere, MahList<Integer> partnerIndices){
+		for (int i: partnerIndices)
+			storeHere.add(i);
+	}
 	
 	//resets call flags to false, creates new empty partner index lists
 	private void __resetCallableFlags(){
@@ -499,13 +471,6 @@ public class Hand {
 		mPartnerIndicesKan = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_KAN);
 		mPartnerIndicesPair = new ArrayList<Integer>(NUM_TILES_NEEDED_TO_PAIR);
 	}
-	
-	//takes a list and several integer indices, stores the indices in the list
-	private void __storePartnerIndices(ArrayList<Integer> storeHere, int... partnerIndices){
-		for (int i: partnerIndices)
-			storeHere.add(i);
-	}
-	
 	
 	//returns true if a specific call can be made on mCallCandidate
 	public boolean ableToChiL(){return mCanChiL;}
@@ -529,9 +494,9 @@ public class Hand {
 		return count;
 	}
 	
-	//////////////////////////////////////////////////////////////////////////////
-	//////END MELD CHEKCERS
-	//////////////////////////////////////////////////////////////////////////////
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//~~~~END MELD CHEKCERS
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	
 	
 	

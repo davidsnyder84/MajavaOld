@@ -253,6 +253,9 @@ public class MahList <T extends Comparable<T> > implements Iterable<T>{
 	//****END ARRAYLIST FUNCS
 	//***************************************************************************************************
 	
+	//returns a reference to the MahList's arrayList (parentheses this is a good idea)
+	public ArrayList<T> getArrayList(){return mList;}
+	
 	
 	
 	
