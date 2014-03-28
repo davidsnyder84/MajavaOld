@@ -6,6 +6,9 @@ public class Majava {
 	//disallow instantiation of this class
 	private Majava(){}
 	
+	
+	
+	
 	public static void main(String[] args) {
 		
 		System.out.println("Welcome to Majava!");

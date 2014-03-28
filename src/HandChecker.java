@@ -632,55 +632,72 @@ public class HandChecker {
 	
 	
 	
-	public boolean isCompleteHand(TileList handTiles){
+	
+	
+	/*
+	method: isCompleteHand
+	checks if a hand is complete
+	if a hand is complete, should populate meld lists and flags and stuff (it doesn't yet)
+	
+	input: handTiles is the list of hand tiles to check for completeness
+	returns true if the list of hand tiles is complete (is a winner)
+	
+	
+	if (handTiles is empty): return true (an empty hand is complete)
+	currentTile = first tile in handTiles
+	
+	while (currentTile's stack of valid meld types is not empty)
 		
+		currentTileMeldType = pop a meldtype off of currentTile's stack (this is the meld type we will try)
+		
+		if ((currentTile's partners for the meld are still in the hand) && (if pairHasBeenChosen, currentTileMeldType must not be a pair))
+			
+			if (currentTileMeldType is pair): pairHasBeenChosen = true (take the pair privelege)
+			
+			partnerIndices = find the indices of currentTile's partners for the currentTileMeldType
+			toMeldTiles = list of tiles from the hand, includes currentTile and its partner tiles
+			handTilesMinusThisMeld = copy of handTiles, but with the toMeldTiles removed
+			
+			if (isCompleteHand(handTilesMinusThisMeld)) (recursive call)
+				return true (the hand is complete)
+			else
+				if (currentTileMeldType is pair): pairHasBeenChosen = false (relinquish the pair privelege)
+			end if
+			
+		end if
+		
+	end while
+	return false (currentTile could not make any meld, so the hand cannot be complete)
+	*/
+	public boolean isCompleteHand(TileList handTiles){
 		
 		//if the hand is empty, it is complete
 		if (handTiles.isEmpty()) return true;
 		
 		
-		//////////////
-//		int startingHandSize = mHand.getSize();
-//		int startingNumMeldsMade = mHand.getNumMeldsMade();
-//		Hand hand = mHand;
 		
-//		int numMeldsNeededToComplete = Hand.MAX_NUM_MELDS - startingNumMeldsMade;
-//		boolean yes = false;
-		
-		
-//		MahStack<Meld> completedMelds = new MahStack<Meld>();
-
-		//make copy of hand?
-		//////////////////
-		
-		
-		
-		
-		
+		TileList toMeldTiles = null;
 		TileList handTilesMinusThisMeld = null;
 		
-		
-//		int currentTileIndex = 0;
 
 		Tile currentTile = null;
-		MeldType currentTileMType;
-		ArrayList<Integer> currentTileParterIDs;
+		MeldType currentTileMeldType;
+		ArrayList<Integer> currentTileParterIDs = null;
 		boolean currentTilePartersAreStillHere = true;
+		MahList<Integer> partnerIndices = null;
 		
 		
 		
 		
 		//currrentTile = first tile in the hand
-		currentTile = handTiles.get(0);
+		currentTile = handTiles.getFirst();
 		
 		
-		
+		//loop until every possible meld type has been tried for the current tile
 		while(currentTile.mstackIsEmpty() == false){
+
 			
-			//if (currentTile.getFace() == '5')
-				//System.out.println();
-			
-			
+			//~~~~Verify that currentTile's partners are still in the hand
 			//currentTileParterIDs = list of IDs of partners for currentTile's top MeldType
 			currentTileParterIDs = currentTile.mstackTopParterIDs();
 			
@@ -691,62 +708,66 @@ public class HandChecker {
 				if (handTiles.contains(id) == false) currentTilePartersAreStillHere = false;
 
 			//get the top meldType from currentTile's stack
-			currentTileMType = currentTile.mstackPop();	//(remove it)
+			currentTileMeldType = currentTile.mstackPop();	//(remove it)
 			
 			
 			
-			
-			if (currentTilePartersAreStillHere && !(pairHasBeenChosen && currentTileMType == MeldType.PAIR)){
+			//~~~~Separate the tiles if the meld is possible
+			//if (currentTile's partners for the meld are still in the hand) AND (if pair has already been chosen, currentTileMeldType must not be a pair)
+			if (currentTilePartersAreStillHere && !(pairHasBeenChosen && currentTileMeldType == MeldType.PAIR))
+			{
+				//take the pair privelige
+				if (currentTileMeldType == MeldType.PAIR) pairHasBeenChosen = true;
 				
 				
-				
-				if (currentTileMType == MeldType.PAIR) pairHasBeenChosen = true;
-				
-				MahList<Integer> partnerIndices = new MahList<Integer>();
-				
+				//~~~~Find the inidces of currentTile's partners
+				partnerIndices = new MahList<Integer>();
 				
 				//if chi, just find the partners
-				if (currentTileMType.isChi()){
+				if (currentTileMeldType.isChi()){
 					partnerIndices.add(handTiles.indexOf(new Tile(currentTileParterIDs.get(0))));
 					partnerIndices.add(handTiles.indexOf(new Tile(currentTileParterIDs.get(1))));
 				}
 				else{
 					//else if pon/pair, make sure you don't count the tile itsef
 					
-					
 					partnerIndices = handTiles.findAllIndicesOf(new Tile(currentTileParterIDs.get(0)));	//TODO I changed a 1 to a 0 here
 					//remove the first index (this is the index of currentTile)
 					partnerIndices.removeFirst();
 					
 					//trim the lists down to size to fit the meld type
-					if (currentTileMType == MeldType.PAIR) while(partnerIndices.size() > 1) partnerIndices.removeLast();
-					if (currentTileMType == MeldType.PON) while(partnerIndices.size() > 2) partnerIndices.removeLast();
+					if (currentTileMeldType == MeldType.PAIR) while(partnerIndices.size() > 1) partnerIndices.removeLast();
+					if (currentTileMeldType == MeldType.PON) while(partnerIndices.size() > 2) partnerIndices.removeLast();
 				}
 				
 				
-				
+
+				//~~~~Add the tiles to a meld tile list
 				//add the currentTile to the meldlist, add the hand tiles to the meldlist
-				TileList toMeldTiles = new TileList();
+				toMeldTiles = new TileList();
 				toMeldTiles.add(currentTile);
 				for (Integer index: partnerIndices) toMeldTiles.add(handTiles.get(index));
 				
 				
 				
-				
+
+				//make a copy of the hand, and remove the meld tiles from the copy
 				handTilesMinusThisMeld = new TileList();
 				handTilesMinusThisMeld = handTiles.makeCopy();
-				//remove the tiles from the copy of the hand
 				while (partnerIndices.isEmpty() == false){
 					handTilesMinusThisMeld.remove(partnerIndices.get(partnerIndices.size() - 1).intValue());
 					partnerIndices.remove(partnerIndices.size() - 1);
 				}
 				handTilesMinusThisMeld.remove(0);
 				
+				
+				//~~~~Recursive call, check if the hand is still complete without the removed meld tiles
 				if (isCompleteHand(handTilesMinusThisMeld)){
 					return true;
 				}
 				else{
-					if (currentTileMType == MeldType.PAIR) pairHasBeenChosen = false;
+					//relinquish the pair privelege, if it was taken
+					if (currentTileMeldType == MeldType.PAIR) pairHasBeenChosen = false;
 				}
 				
 				
