@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 
+import utility.GenSort;
 import utility.MahList;
 import utility.MahStack;
 
@@ -111,7 +112,7 @@ public class HandChecker {
 	private Tile mCallCandidate;
 	
 	private boolean pairHasBeenChosen = false;
-	private MahStack<Meld> mFinishingMelds;
+	private ArrayList<Meld> mFinishingMelds;
 	
 	
 	
@@ -488,6 +489,34 @@ public class HandChecker {
 		
 	}
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	public TileList findTenpaiWaits(){
+		
+		ArrayList<Integer> hotTileIDs = findAllHotTiles();
+		TileList hotTiles = new TileList(hotTileIDs.size());
+		for (Integer id: hotTileIDs) hotTiles.add(id);
+
+		TileList waits = new TileList();
+		TileList handTilesCopy = null;
+		
+		for (Tile t: hotTiles){
+			handTilesCopy = mHandTiles.makeCopy();
+			handTilesCopy.add(t);
+			if (isNormalComplete(handTilesCopy)) waits.add(t);
+		}
+		
+		return waits;
+	}
+	
+	
+	
 	//---------------------------------------------------------------------------------------------------
 	//----END FINDERS
 	//---------------------------------------------------------------------------------------------------
@@ -656,7 +685,8 @@ public class HandChecker {
 	*/
 	private boolean __canClosedMultiType(Tile candidate, int numPartnersNeeded){
 		//count how many occurences of the tile
-		return (mHandTiles.findHowManyOf(candidate) >= numPartnersNeeded);
+		int count = (mHandTiles.findHowManyOf(candidate) );
+		return count >= numPartnersNeeded;
 	}
 	private boolean __canClosedPair(Tile candidate){return __canClosedMultiType(candidate, NUM_PARTNERS_NEEDED_TO_PAIR + 1);}
 	private boolean __canClosedPon(Tile candidate){return __canClosedMultiType(candidate, NUM_PARTNERS_NEEDED_TO_PON + 1);}
@@ -702,6 +732,8 @@ public class HandChecker {
 		//~~~~return true if a call (any call) can be made
 		return (!meldStack.isEmpty());
 	}
+//	public boolean checkMeldableTile(Tile candidate, MahStack<MeldType> meldStack){
+//	}
 	
 	//============================================================================
 	//====END CAN MELDS
@@ -711,6 +743,20 @@ public class HandChecker {
 	
 	
 	
+	
+	
+	
+	//demo completed melds
+	public boolean demoComplete(){
+		boolean complete;
+		if (complete = isNormalComplete(mHandTiles)){
+			for (Meld m: mFinishingMelds) mHandMelds.add(m);
+			GenSort<Meld> meldSorter = new GenSort<Meld>(mHandMelds);
+			meldSorter.sort();
+		}
+		
+		return complete;
+	}
 	
 	
 	
@@ -731,6 +777,7 @@ public class HandChecker {
 		if (populateMeldStacks(handTiles, listMTSL) == false) return false;
 		
 		pairHasBeenChosen = false;
+		mFinishingMelds = new ArrayList<Meld>(5);
 		return isCompleteHand(handTiles, listMTSL);
 	}
 	//overloaded, checks mHandTiles by default
@@ -832,9 +879,10 @@ public class HandChecker {
 
 			//check if currentTile's partners are still in the hand
 			currentTilePartersAreStillHere = true;
-			if (currentTileMeldType.isChi())
+			if (currentTileMeldType.isChi()){
 				if (!handTiles.contains(currentTileParterIDs.get(0)) || !handTiles.contains(currentTileParterIDs.get(1)))
 					currentTilePartersAreStillHere = false;
+			}
 			else{
 				if (currentTileMeldType == MeldType.PAIR && handTiles.findHowManyOf(currentTile) < NUM_PARTNERS_NEEDED_TO_PAIR + 1) currentTilePartersAreStillHere = false;
 				if (currentTileMeldType == MeldType.PON && handTiles.findHowManyOf(currentTile) < NUM_PARTNERS_NEEDED_TO_PON + 1) currentTilePartersAreStillHere = false;
@@ -890,6 +938,7 @@ public class HandChecker {
 				
 				//~~~~Recursive call, check if the hand is still complete without the removed meld tiles
 				if (isCompleteHand(handTilesMinusThisMeld, listMTSLMinusThisMeld)){
+					mFinishingMelds.add(new Meld(toMeldTiles, currentTileMeldType));	//add the meld tiles to the finishing melds stack
 					return true;
 				}
 				else{
@@ -901,10 +950,22 @@ public class HandChecker {
 			}
 			
 		}
-		
+		//TODO
 		
 		return false;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -1045,21 +1106,34 @@ public class HandChecker {
 		
 		Hand h = new Hand(MajaPlay.ownerSeat);
 		
+		/*
 		h.addTile(new Tile(1));
 		h.addTile(new Tile(1));
+		h.addTile(new Tile(2));
+		h.addTile(new Tile(2));
+		h.addTile(new Tile(2));
 		h.addTile(new Tile(3));
 		h.addTile(new Tile(3));
 		h.addTile(new Tile(4));
 		h.addTile(new Tile(4));
-		h.addTile(new Tile(6));
-		h.addTile(new Tile(6));
+		*/
+		h.addTile(new Tile(2));
+//		h.addTile(new Tile(3));
+		
 		h.sortHand();
 
 		System.out.println(h.toString());
-		System.out.println("\nHand is complete normal?: " + h.mChecker.isNormalComplete());
+		
+		TileList waits = h.mChecker.findTenpaiWaits();
+		System.out.print("Waits: ");
+		String waitString = "";
+		for (Tile t: waits) waitString += t.toString() + ", ";
+		System.out.println(waitString);
+		
+//		System.out.println("\nHand is complete normal?: " + h.mChecker.isNormalComplete());
 		
 		
-		DemoHandGen.main(null);
+//		DemoHandGen.main(null);
 	}
 
 	//satisfy compiler whining

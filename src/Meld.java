@@ -225,6 +225,15 @@ public class Meld implements Iterable<Tile>, Comparable<Meld> {
 		
 		return meldString;
 	}
+	public String toStringCompact(){
+		
+		String meldString = "";
+		//add the tiles to the string
+		for (Tile t: mTiles) meldString += t.toString() + " ";
+		if (meldString != "") meldString = meldString.substring(0, meldString.length() - 1);
+		
+		return meldString;
+	}
 	
 
 	//iterator, returns mTile's iterator
@@ -239,7 +248,7 @@ public class Meld implements Iterable<Tile>, Comparable<Meld> {
 		int tileCompare = getFirstTile().compareTo(other.getFirstTile());
 		if (tileCompare != 0) return tileCompare;
 		
-		//if the first tiles are the same, break the tie by meld type
+		//if the first tiles are the same, compare by meld type
 		return (mMeldType.compareTo(other.mMeldType));
 	}
 }

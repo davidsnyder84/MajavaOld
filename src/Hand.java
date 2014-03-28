@@ -53,7 +53,7 @@ public class Hand implements Iterable<Tile>{
 	public static final int MAX_NUM_MELDS = 5;
 
 	//for debug use
-	public static final boolean DEBUG_SHOW_MELDS_ALONG_WITH_HAND = true;
+	public static final boolean DEBUG_SHOW_MELDS_ALONG_WITH_HAND = false;
 	
 	
 	
@@ -340,21 +340,15 @@ public class Hand implements Iterable<Tile>{
 			System.out.println("+++Meld " + (i+1) + ": " + mMelds.get(i).toString());
 	}
 	
-	
-	
-	
-	
-	
-	/*
-	//stack functions (TODO I don't like these stack funcs here)
-	//returns true if all the meldtype stack for every tile is empty
-	public boolean mstackAllTileStacksAreEmpty(){
-		boolean allEmpty = true;
-		for (Tile t: mTiles) allEmpty = (allEmpty && t.mstackIsEmpty());
-		return allEmpty;
-	}*/
-	
-	
+	//prints all melds to the screen
+	public void showMeldsCompact(){
+		
+		String meldsString = "";
+		for (Meld m: mMelds)
+			meldsString += "[" + m.toStringCompact() + "] ";
+		
+		System.out.println(meldsString);
+	}
 	
 	
 	

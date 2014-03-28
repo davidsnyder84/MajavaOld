@@ -156,7 +156,6 @@ public class TileList implements Iterable<Tile>{
 		return mTiles.get(mTiles.size() - 1);
 	}
 	
-	
 	//returns multiple tiles in the list, at the given indices
 	public TileList getMultiple(ArrayList<Integer> indices){
 		TileList holder = new TileList();
@@ -168,8 +167,6 @@ public class TileList implements Iterable<Tile>{
 	}
 	public TileList getMultiple(MahList<Integer> indices){return getMultiple(indices.getArrayList());}
 	public TileList getMultiple(Integer... indices){return getMultiple(new MahList<Integer>(indices));}
-	
-	
 	
 	
 	
@@ -245,11 +242,12 @@ public class TileList implements Iterable<Tile>{
 	public MahList<Integer> findAllIndicesOf(Tile t, boolean allowCountingItself){
 		MahList<Integer> indices = new MahList<Integer>(2);
 		for (int i = 0; i < mTiles.size(); i++)
-			if (mTiles.get(i).equals(t))
+			if (mTiles.get(i).equals(t)){
 				if (mTiles.get(i) != t)
 					indices.add(i);
 				else if (allowCountingItself)
 					indices.add(i);
+			}
 		return indices;
 	}
 	//overloaded, omitting allowCountingItself will default to false (do not count itself)

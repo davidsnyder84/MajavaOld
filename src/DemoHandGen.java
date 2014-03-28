@@ -16,7 +16,7 @@ public class DemoHandGen {
 	public static void main(String[] args) {
 
 		random = new Random();
-		runSimulation(1000);
+		runTenpaiSimulation(1000);
 		
 	}
 	
@@ -35,10 +35,11 @@ public class DemoHandGen {
 		for (int i = 0; i < howManyTimes; i++){
 			
 			currentHand = generateCompleteHand();
-			
+
 			System.out.println(currentHand.toString() + "\n");
 			
-			success = currentHand.mChecker.isNormalComplete();
+			success = currentHand.mChecker.demoComplete();
+			currentHand.showMeldsCompact();
 			System.out.println("Hand is complete normal?: " + success);
 			
 			if (success == false){
@@ -79,10 +80,62 @@ public class DemoHandGen {
 	
 	
 	
+
+	public static void runTenpaiSimulation(int howManyTimes){
+		
+		Hand currentHand = null;
+		boolean success = true;
+		int numFailures = 0;
+		int totalNum = 0;
+		TileList waits = null;
+		String waitString = "";
+		
+		
+		
+		for (int i = 0; i < howManyTimes; i++){
+			
+			currentHand = generateTenpaiHand();
+
+			System.out.println(currentHand.toString() + "\n");
+			
+			
+			waits = currentHand.mChecker.findTenpaiWaits();
+			
+			
+			System.out.print("Waits: ");
+			waitString = "";
+			for (Tile t: waits) waitString += t.toString() + ", ";
+			
+			
+			if (waits.isEmpty()){
+				numFailures++;
+				System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+			}
+			else
+				System.out.println(waitString);
+			
+			System.out.println("\n\n");
+			totalNum++;
+		}
+		
+		
+
+		System.out.println("Total number of trials: " + totalNum);
+		System.out.println("Total number of failures: " + numFailures);
+	}
 	
 	
 	
-	
+	public static Hand generateTenpaiHand(){
+		
+		Hand hand = generateCompleteHand();
+
+		int removeIndex = random.nextInt(hand.getSize());
+		hand.removeTile(removeIndex);
+		
+		return hand; 
+	}
+		
 	
 	
 	public static Hand generateCompleteHand(){
