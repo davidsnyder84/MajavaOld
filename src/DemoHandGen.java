@@ -16,7 +16,7 @@ public class DemoHandGen {
 	public static void main(String[] args) {
 
 		random = new Random();
-		runSimulation(34);
+		runSimulation(50000);
 		
 	}
 	
