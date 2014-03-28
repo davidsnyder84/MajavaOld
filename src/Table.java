@@ -7,16 +7,21 @@ import utility.GenSort;
 
 
 /*
- Class: Table
- 
- data:
- 	p1.. p4 - four players. p1 is always east, p2 is always south, etc. 
- 	mWall - wall of tiles
- 	mRoundWind - the prevailing wind of the current round ('E' or 'S')
- 	mTurnNumber - what the fuck even is this
- 
- methods:
+Class: Table
+
+data:
+	p1, p2, p3, p4 - four players. p1 is always east, p2 is always south, etc. 
+	mWall - wall of tiles, includes the dead wall
 	
+	mGameType - length of game being played (single, tonpuusen, or hanchan)
+	
+	mRoundWind - the prevailing wind of the current round ('E' or 'S')
+	mWhoseTurn - whose turn it is (1,2,3,4 corresponds to E,S,W,N)
+	mReaction - will be NO_REACTION if no calls were made during a turn, will be something else otherwise
+	mGameIsOver - will be true if the game is over, false if not
+	mGameResult - the specific result of the game (reason for a draw game, or who won), is UNDECIDED if game is not over
+	
+methods:
 	mutators:
  	setCardName
 	setCardEffect
@@ -38,10 +43,28 @@ import utility.GenSort;
 public class Table {
 	
 	public static final int NUM_PLAYERS = 4;
-	
 	public static final char DEFAULT_ROUND_WIND = 'E';
 	
+	public static final int NO_REACTION = 0;
 	
+	public static final int GAME_TYPE_SINGLE = 0;
+	public static final int GAME_TYPE_TONPUUSEN = 1;
+	public static final int GAME_TYPE_HANCHAN = 2;
+	public static final int GAME_TYPE_DEFAULT = GAME_TYPE_SINGLE;
+	
+	
+	public static final int RESULT_UNDECIDED = -1;
+	public static final int RESULT_DRAW_WASHOUT = 0;
+	public static final int RESULT_DRAW_KYUUSHU = 1;
+	public static final int RESULT_DRAW_4KAN = 2;
+	public static final int RESULT_DRAW_4RIICHI = 3;
+	public static final int RESULT_DRAW_4WIND = 4;
+	public static final int RESULT_VICTORY_E = 5;
+	public static final int RESULT_VICTORY_S = 6;
+	public static final int RESULT_VICTORY_W = 7;
+	public static final int RESULT_VICTORY_N = 8;
+	
+	//for debug use
 	public static final boolean DO_SINGLE_PLAYER_GAME = true;
 	public static final boolean SHUFFLE_SEATS = false;
 	
@@ -49,25 +72,31 @@ public class Table {
 	
 	
 	private Player p1, p2, p3, p4;
-	
 	private Wall mWall;
 	
 	private char mRoundWind;
 	
+	private int mWhoseTurn;
+	private int mReaction;
+	
+	private int mGameType;
+	private boolean mGameIsOver;
+	private int mGameResult;
 	
 	
 	
 	/*
-	 No-arg Constructor
-	 initializes a table to make it ready for playing
-	 
-	 
-	 creates a player for each seat (4)
-	 creates the wall
-	 
-	 initializes round wind and info
+	1-arg Constructor
+	initializes a table to make it ready for playing
+	
+	input: gameType is the length of game that will be played (single, tonpuusen, or hanchan)
+	
+	creates a player for each seat (4)
+	creates the wall
+	
+	initializes round and game info
 	*/
-	public Table(){
+	public Table(int gameType){
 		
 		//creates a new player to sit at each seat
 		p1 = new Player(Player.SEAT_EAST);
@@ -78,86 +107,82 @@ public class Table {
 		//creates the wall
 		mWall = new Wall();
 		
-		//initializes round wind
+		//initializes round info
 		mRoundWind = DEFAULT_ROUND_WIND;
+		mWhoseTurn = 1;
+		mReaction = NO_REACTION;
+		mGameIsOver = false;
+		mGameResult = RESULT_UNDECIDED;
+		
+		if (gameType == GAME_TYPE_SINGLE || gameType == GAME_TYPE_TONPUUSEN || gameType == GAME_TYPE_HANCHAN)
+			mGameType = gameType;
+		else
+			mGameType = GAME_TYPE_DEFAULT;
+		
+	}
+	//no-arg constuctor, defaults to single round game
+	public Table(){
+		this(GAME_TYPE_DEFAULT);
 	}
 	
 	
 	
 	
 	/*
-	 method: play
-	 plays a new game of mahjong with four new players
+	method: play
+	plays a new game of mahjong with four new players
 	 
 	 
-	 (before play is called)
-	 	note: this is done in the Constructor
+	(before play is called)
+		note: this is done in the Constructor
 		4 players are created (empty seats, not assigned controllers)
 		wall/deadwall is set up
 		round wind = East
 	 (play is called)
 	 
 	 
-	 decide seat order
-	 deal hands
+	decide seat order
+	deal hands
 	 
-	 whoseTurn = 1;
-	 while (game is not over)
+	whoseTurn = 1;
+	while (game is not over)
+		mReaction = no reaction;
+		
+		//handle player turns here
+	 	if (it is p1's turn && game is not over)
+	 		do p1's turn
 	 	
-	 	if (whoseTurn == 1)
-	 		if (p1 needs to draw)
-	 			take tile from wall or dead wall depending on what p1 needs
-	 			add the tile to p1's hand
-	 		end if
+	 	if (it is p2's turn && no calls were made && game is not over)
+	 		do p2's turn
 	 		
-		 	q = p1.getDiscard, show what the player discarded
-		 	have other players react
-	 		whoseTurn++
-	 	end if
-	 	
-	 	^Do for each player
-	 	if (no reaction && whoseTurn == 2)
-	 		...
-	 	end if
+	 	if (it is p3's turn && no calls were made && game is not over)
+	 		do p3's turn
+	 		
+	 	if (it is p4's turn && no calls were made && game is not over)
+	 		do p4's turn
 
-	 	
+
 	 	//handle reactions here
 	 	if (reaction)
 	 		check who reacted
 	 		handle the reaction
 	 		whoseTurn = whoever reacted
 	 	end if
-	 	
-	 end while
+	end while
+	
+	display endgame result
 	*/
 	public void play()
 	{
-		
-		boolean gameIsOver = false;
-		int whoseTurn = 1;
-
-		//Tile discard = null;
-		Tile q = null;
-		Tile drawnTile = null;
-		
-		final int NO_REACTION = 0;
-		int reaction = NO_REACTION;
-		int drawNeeded = Player.DRAW_NONE;
-		
+		Tile discardedTile = null;
 		ArrayList<Tile> indicators = null;
 		
 		
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		//DEBUG INFO
+
+		//------------------------------------------------DEBUG INFO
 		System.out.println(mWall.toString() + "\n\n\n");
+		//------------------------------------------------DEBUG INFO
 		
 		
 		
@@ -172,7 +197,7 @@ public class Table {
 		p4.sortHand();
 		
 
-		//-----DEBUG INFO
+		//------------------------------------------------DEBUG INFO
 		System.out.println(mWall.toString());
 		indicators = mWall.getDoraIndicators();
 
@@ -182,211 +207,374 @@ public class Table {
 		
 		p1.showHand();p2.showHand();p3.showHand();p4.showHand();
 		System.out.println("\n\n\n");
-		//-----DEBUG INFO
+		//------------------------------------------------DEBUG INFO
 		
 		
-		whoseTurn = 1;
-		gameIsOver = false;
-		while (gameIsOver == false)
+		mWhoseTurn = 1;
+		mReaction = NO_REACTION;
+		mGameIsOver = false;
+		while (mGameIsOver == false)
 		{
-			reaction = NO_REACTION;
-
-			//do 1st player's turn
-			if (whoseTurn == 1)
-			{
-				//if the player needs to draw a tile, draw a tile
-				drawNeeded = p1.checkDrawNeeded();
-				if (drawNeeded != Player.DRAW_NONE)
-				{
-					//draw from wall or dead wall, depending on what player needs
-					if (drawNeeded == Player.DRAW_NORMAL)
-						drawnTile = mWall.takeTile();
-					else if (drawNeeded == Player.DRAW_KAN)
-						drawnTile = mWall.takeTileFromDeadWall();
-					
-					//add the tile to the player's hand
-					p1.addTileToHand(drawnTile);
-				}
-				
-				//get player's discard
-				q = p1.takeTurn();
-				System.out.println("\nPlayer1's discard: " + q.toString() + "\n");
-				reaction += p2.reactToDiscard(q);
-				reaction += p3.reactToDiscard(q);
-				reaction += p4.reactToDiscard(q);
-				whoseTurn++;
-			}
+			//handle player turns
+			if (mWhoseTurn == 1 && !mGameIsOver)
+				discardedTile = doPlayerTurn(p1);
 			
+			if (mReaction == NO_REACTION && mWhoseTurn == 2 && !mGameIsOver)
+				discardedTile = doPlayerTurn(p2);
 			
-			//do 2nd player's turn
-			if (reaction == NO_REACTION && whoseTurn == 2)
-			{
-				//if the player needs to draw a tile, draw a tile
-				drawNeeded = p2.checkDrawNeeded();
-				if (drawNeeded != Player.DRAW_NONE)
-				{
-					//draw from wall or dead wall, depending on what player needs
-					if (drawNeeded == Player.DRAW_NORMAL)
-						drawnTile = mWall.takeTile();
-					else if (drawNeeded == Player.DRAW_KAN)
-						drawnTile = mWall.takeTileFromDeadWall();
-					
-					//add the tile to the player's hand
-					p1.addTileToHand(drawnTile);
-				}
-				
-				//get player's discard
-				q = p2.takeTurn();
-				System.out.println("\n\nPlayer2's discard: " + q.toString());
-				reaction += p3.reactToDiscard(q);
-				reaction += p4.reactToDiscard(q);
-				reaction += p1.reactToDiscard(q);
-				whoseTurn++;
-			}
+			if (mReaction == NO_REACTION && mWhoseTurn == 3 && !mGameIsOver)
+				discardedTile = doPlayerTurn(p3);
 			
+			if (mReaction == NO_REACTION && mWhoseTurn == 4 && !mGameIsOver)
+				discardedTile = doPlayerTurn(p4);
 			
-			//do 3rd player's turn
-			if (reaction == NO_REACTION && whoseTurn == 3)
-			{
-				//if the player needs to draw a tile, draw a tile
-				drawNeeded = p3.checkDrawNeeded();
-				if (drawNeeded != Player.DRAW_NONE)
-				{
-					//draw from wall or dead wall, depending on what player needs
-					if (drawNeeded == Player.DRAW_NORMAL)
-						drawnTile = mWall.takeTile();
-					else if (drawNeeded == Player.DRAW_KAN)
-						drawnTile = mWall.takeTileFromDeadWall();
-					
-					//add the tile to the player's hand
-					p1.addTileToHand(drawnTile);
-				}
-				
-				//get player's discard
-				q = p3.takeTurn();
-				System.out.println("\n\nPlayer3's discard: " + q.toString());
-				reaction += p4.reactToDiscard(q);
-				reaction += p1.reactToDiscard(q);
-				reaction += p2.reactToDiscard(q);
-				whoseTurn++;
-			}
-			
-			
-			//do 4th player's turn
-			if (reaction == NO_REACTION && whoseTurn == 4)
-			{
-				//if the player needs to draw a tile, draw a tile
-				drawNeeded = p4.checkDrawNeeded();
-				if (drawNeeded != Player.DRAW_NONE)
-				{
-					//draw from wall or dead wall, depending on what player needs
-					if (drawNeeded == Player.DRAW_NORMAL)
-						drawnTile = mWall.takeTile();
-					else if (drawNeeded == Player.DRAW_KAN)
-						drawnTile = mWall.takeTileFromDeadWall();
-					
-					//add the tile to the player's hand
-					p1.addTileToHand(drawnTile);
-				}
-				
-				//get player's discard
-				q = p4.takeTurn();
-				System.out.println("\n\nPlayer4's discard: " + q.toString());
-				reaction += p1.reactToDiscard(q);
-				reaction += p2.reactToDiscard(q);
-				reaction += p3.reactToDiscard(q);
-				whoseTurn = 1;
-			}
 			
 			
 			
 			
 			//handle reactions here
-			if (reaction != NO_REACTION)
+			if (mReaction != NO_REACTION)
 			{
-				//oh gosh
-				System.out.println("*****Well gosh, it looks like somebody reacted to tile " + q.toString() + "!");
-				
-				//show who called
-				//change turn to whoever called's turn (this is flawed [when 2 calls happen])
-				if (p1.checkCallStatus() != Player.CALLED_NONE)
-				{
-					System.out.println("Player1 called!");
-					whoseTurn = 1;
-				}
-				
-				if (p2.checkCallStatus() != Player.CALLED_NONE)
-				{
-					System.out.println("Player2 called!");
-					whoseTurn = 2;
-				}
-				
-				if (p3.checkCallStatus() != Player.CALLED_NONE)
-				{
-					System.out.println("Player3 called!");
-					whoseTurn = 3;
-				}
-				
-				if (p4.checkCallStatus() != Player.CALLED_NONE)
-				{
-					System.out.println("Player4 called!");
-					whoseTurn = 4;
-				}
+				handleReaction(discardedTile);
 			}
 			
-			
-			
-			/*
-			mTurnNumber++;
-			System.out.println(mRoundWind + " Round, Turn number: " + mTurnNumber);
-			
-			//take turn, show pond
-			recentDiscard = p1.takeTurn();
-			p1.showPond();
-			
-			recentDiscard.toString();
-			*/
-			
 		}
+		
+		
+		displayGameResult();
+		
 	}
+	
+	
+	
+	
+	
 	
 	
 	
 	/*
-	private void doPlayerTurn(){
+	method: handleReaction
+	handles a player's turn, and the other players' reactions to the player's turn
+	
+	input: p is the player whose turn it is
+	
+	returns the tile that the player discarded
+	
+	
+	if (player needs to draw)
+		take tile from wall or dead wall depending on what player needs
+		if (there were no tiles left in the wall to take)
+			gameIsOver = true, result = washout
+			return null
+		else
+			add the tile to the player's hand
+		end if
+	end if
+	
+ 	discardedTile = player's chosen discard
+ 	display what the player discarded
+ 	get the other players' reactions to the discarded tile
+ 	(the players will "make a call", the call won't actually be handled yet)
+ 	
+	whoseTurn++
+	return discardedTile
+	
+	
+	
+	
+	
+	
+	
+	can 2 players call pon?: no, not enough tiles
+	can 2 players call kan?: no, not enough tiles
+	can 2 players call chi?: no, only shimocha can chi
+	1 chi, 1 pon?: yes
+	1 chi, 1 kan?: yes
+	
+	can 2 players call ron?: yes
+	can 3 players call ron?: yes
+	1 chi, 1 ron?: yes
+	1 chi, 2 ron?: yes
+	1 chi, 1 pon, 1 ron?: yes
+	
+	ron > pon/kan > chi
+	pon/kan > chi
+	
+	2 rons: decide by closest seat order
+	*/
+	private void handleReaction(Tile discardedTile){
 		
-		//do 1st player's turn
-		if (whoseTurn == 1)
+		//figure out who called the tile
+		Player callingPlayer = whoCalled();
+		
+		
+		//handle the call (have fun here)
+		
+		//at this point, the tile can definitely make a meld in the player's hand
+		//the player has said "yes, I want this tile in this meld specifically"
+		//the type of meld is known
+		//validity check has already been done
+		//just need to make the meld
+		
+		
+		
+
+		//show who made the call (todo: tell who got priority bumped when multiple calls happen)
+		System.out.println("*****Well gosh, it looks like somebody called tile " + discardedTile.toString() + "!");
+		
+		if (p1.checkCallStatus() != Player.CALLED_NONE)
 		{
-			//if the player needs to draw a tile, draw a tile
-			if (drawNeeded != Player.DRAW_NONE)
+			System.out.println("*****Player1 called!");
+		}
+		
+		if (p2.checkCallStatus() != Player.CALLED_NONE)
+		{
+			System.out.println("*****Player2 called!");
+		}
+		
+		if (p3.checkCallStatus() != Player.CALLED_NONE)
+		{
+			System.out.println("*****Player3 called!");
+		}
+		
+		if (p4.checkCallStatus() != Player.CALLED_NONE)
+		{
+			System.out.println("*****Player4 called!");
+		}
+		
+		
+		
+		//it is now the calling player's turn
+		mWhoseTurn = callingPlayer.getPlayerNumber();
+		
+		
+		//reset reaction to none (since reaction has been handled)
+		mReaction = NO_REACTION;
+	}
+	
+	
+	
+	public Player whoCalled(){
+		
+		Player callingPlayer = null;
+		
+		//this is set to true by default, because we know at LEAST one player called
+		boolean onlyOnePlayerCalled = true;
+		//this is false until a call is found
+		boolean alreadyFoundCall = false;
+		
+		//if this player called, foundCall = true
+		if (p1.called())
+		{
+			alreadyFoundCall = true;
+			callingPlayer = p1;
+		}
+		
+		//if this player called, and we have already found another call, onlyOnePlayerCalled = false
+		if (p2.called())
+			if (alreadyFoundCall)
+				onlyOnePlayerCalled = false;
+			else
 			{
-				//draw from wall or dead wall, depending on what player needs
-				if (drawNeeded == Player.DRAW_NORMAL)
-					drawnTile = mWall.takeTile();
-				else if (drawNeeded == Player.DRAW_KAN)
-					drawnTile = mWall.takeTileFromDeadWall();
-				
-				//add the tile to the player's hand
-				p1.addTileToHand(drawnTile);
+				alreadyFoundCall = true;
+				callingPlayer = p2;
 			}
+		
+		if (p3.called())
+			if (alreadyFoundCall)
+				onlyOnePlayerCalled = false;
+			else
+			{
+				alreadyFoundCall = true;
+				callingPlayer = p3;
+			}
+		
+		if (p4.called())
+			if (alreadyFoundCall)
+				onlyOnePlayerCalled = false;
+			else
+			{
+				alreadyFoundCall = true;
+				callingPlayer = p4;
+			}
+		
+		
+
+		//if only one player called, return that player
+		if (onlyOnePlayerCalled)
+		{
+			return callingPlayer;
+		}
+		
+		else
+		{	
+			//else, if more than one player called, figure out who has more priority
+			/*
+			can 2 players call pon?: no, not enough tiles
+			can 2 players call kan?: no, not enough tiles
+			can 2 players call chi?: no, only shimocha can chi
+			1 chi, 1 pon?: yes
+			1 chi, 1 kan?: yes
+			
+			can 2 players call ron?: yes
+			can 3 players call ron?: yes
+			1 chi, 1 ron?: yes
+			1 chi, 2 ron?: yes
+			1 chi, 1 pon, 1 ron?: yes
+			
+			ron > pon/kan > chi
+			pon/kan > chi
+			
+			2 rons: decide by closest seat order
+			
+			if >1 players called, and one of them called chi, the chi caller will NEVER have higher priority
+			*/
+			
+			//if 1 chi and 1 pon/kan, or 1 chi and 1 ron, the pon/kan/ron always gets higher priority
+			//so the chi is not even considered
+			Player callerPon = null, callerRon = null;
+			
+			//if p1 called something other than a chi...
+			if (p1.called() && p1.checkCallStatus() != Player.CALLED_CHI)
+				if (p1.checkCallStatus() == Player.CALLED_PON || p1.checkCallStatus() == Player.CALLED_KAN)
+					//if he called pon/kan, he is the pon caller (there can't be 2 pon callers, not enough tiles in the game)
+					callerPon = p1;
+				else if (callerRon == null)
+					//if he called ron, he is the ron caller (if there is already a ron caller, do nothing, because that caller has seat order priority)
+					callerRon = p1;
+			
+			//check p2
+			if (p2.called() && p2.checkCallStatus() != Player.CALLED_CHI)
+				if (p2.checkCallStatus() == Player.CALLED_PON || p2.checkCallStatus() == Player.CALLED_KAN)
+					callerPon = p2;
+				else if (callerRon == null)
+					callerRon = p2;
+
+			//check p3
+			if (p3.called() && p3.checkCallStatus() != Player.CALLED_CHI)
+				if (p3.checkCallStatus() == Player.CALLED_PON || p3.checkCallStatus() == Player.CALLED_KAN)
+					callerPon = p3;
+				else if (callerRon == null)
+					callerRon = p3;
+
+			//check p4
+			if (p4.called() && p4.checkCallStatus() != Player.CALLED_CHI)
+				if (p4.checkCallStatus() == Player.CALLED_PON || p4.checkCallStatus() == Player.CALLED_KAN)
+					callerPon = p4;
+				else if (callerRon == null)
+					callerRon = p4;
 			
 			
-			q = p1.takeTurn();
-			System.out.println("\nPlayer1's discard: " + q.toString() + "\n");
-			reaction += p2.reactToDiscard(q);
-			reaction += p3.reactToDiscard(q);
-			reaction += p4.reactToDiscard(q);
-			whoseTurn++;
+			//return the first ron caller, or return the pon caller if there was no ron caller
+			if (callerRon != null)
+				return callerRon;
+			else
+				return callerPon;
 		}
 		
 	}
+	
+	
+	
+	
+	
+	/*
+	method: doPlayerTurn
+	handles a player's turn, and the other players' reactions to the player's turn
+	
+	input: p is the player whose turn it is
+	
+	returns the tile that the player discarded
+	
+	
+	if (player needs to draw)
+		take tile from wall or dead wall depending on what player needs
+		if (there were no tiles left in the wall to take)
+			gameIsOver = true, result = washout
+			return null
+		else
+			add the tile to the player's hand
+		end if
+	end if
+	
+ 	discardedTile = player's chosen discard
+ 	display what the player discarded
+ 	get the other players' reactions to the discarded tile
+ 	(the players will "make a call", the call won't actually be handled yet)
+ 	
+	whoseTurn++
+	return discardedTile
 	*/
+	private Tile doPlayerTurn(Player p){
+
+		Tile discardedTile = null;
+		int drawNeeded = Player.DRAW_NONE;
+		Tile drawnTile = null;
+		
+		//handle drawing a tile
+		drawNeeded = p.checkDrawNeeded();
+		//if the player needs to draw a tile, draw a tile
+		if (drawNeeded != Player.DRAW_NONE)
+		{
+			//draw from wall or dead wall, depending on what player needs
+			if (drawNeeded == Player.DRAW_NORMAL)
+				drawnTile = mWall.takeTile();
+			else if (drawNeeded == Player.DRAW_KAN)
+				drawnTile = mWall.takeTileFromDeadWall();
+			
+			if (drawnTile == null)
+			{
+				System.out.println("-----End of wall reached. Cannot draw tile.");
+				mGameIsOver = true;
+				mGameResult = RESULT_DRAW_WASHOUT;
+				return null;
+			}
+			else
+			{
+				//add the tile to the player's hand
+				p.addTileToHand(drawnTile);
+			}
+		}
+		
+		//get player's discard
+		discardedTile = p.takeTurn();
+		System.out.println("\n\n\tTiles left: " + mWall.tilesLeftInWall());
+		//show the discarded tile, and the discarder's pond
+		System.out.println("\t" + p.getSeatWind() + " Player's discard: " + discardedTile.toString());
+		p.showPond();
+		
+		
+		//get reactions from the other players
+		mReaction += p.getShimocha().reactToDiscard(discardedTile);
+		mReaction += p.getToimen().reactToDiscard(discardedTile);
+		mReaction += p.getKamicha().reactToDiscard(discardedTile);
+		
+		//update turn indicator
+		mWhoseTurn++;
+		if (mWhoseTurn > NUM_PLAYERS)
+			mWhoseTurn = 1;
+		
+		//return the tile that was discarded
+		return discardedTile;
+	}
 	
 	
 	
 	
-	//decides how many humans are playing, and randomly assigns all players to a seat
+	
+	/*
+	method: decideSeats
+	decides how many humans are playing, and randomly assigns all players to a seat
+	
+	
+	numHumans = ask how many humans will be playing
+	make list of controllers, with the desired number of humans
+	
+	shuffle the list randomly
+	assign each of the controllers in the list to a seat
+	
+	return
+	*/
 	private void decideSeats(){
 
 		//figure out how many humans are playing
@@ -395,6 +583,7 @@ public class Table {
 			numHumans = 1;
 		else
 		{
+			@SuppressWarnings("resource")
 			Scanner keyboard = new Scanner(System.in);
 			System.out.println("How many humans will be playing? (Enter 1-4): ");
 			numHumans = keyboard.nextInt();
@@ -422,15 +611,72 @@ public class Table {
 		p2.setController(controllers.get(1));
 		p3.setController(controllers.get(2));
 		p4.setController(controllers.get(3));
+		
+		//assign neighbor links
+		p1.setNeighbors(p2, p3, p4);
+		p2.setNeighbors(p3, p4, p1);
+		p3.setNeighbors(p4, p1, p2);
+		p4.setNeighbors(p1, p2, p3);
 	}
 	
 	
 	
 	
+	public int getGameType(){
+		return mGameType;
+	}
 	
 	public char getRoundWind(){
 		return mRoundWind;
 	}
+	
+	public int getGameResult(){
+		return mGameResult;
+	}
+	
+	public boolean gameIsOver(){
+		return mGameIsOver;
+	}
+	
+	
+	public void displayGameResult(){
+
+		 if (mGameIsOver)
+			 System.out.println("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~\nGame over!\n~~~~~~~~~~~~~~~~~~~~~~~~~");
+		 String resultStr = "Result: ";
+		 
+		 if (mGameResult == RESULT_UNDECIDED)
+			 resultStr += "Undecided";
+		 if (mGameResult == RESULT_DRAW_WASHOUT)
+			 resultStr += "Washout";
+		 if (mGameResult == RESULT_DRAW_KYUUSHU)
+			 resultStr += "9 terminals abortive draw";
+		 if (mGameResult == RESULT_DRAW_4KAN)
+			 resultStr += "4 kans made";
+		 if (mGameResult == RESULT_DRAW_4RIICHI)
+			 resultStr += "4 riichis";
+		 if (mGameResult == RESULT_DRAW_4WIND)
+			 resultStr += "4 of same wind tile discarded";
+		 
+		 if (mGameResult == RESULT_VICTORY_E)
+			 resultStr += "East player wins!";
+		 if (mGameResult == RESULT_VICTORY_S)
+			 resultStr += "South player wins!";
+		 if (mGameResult == RESULT_VICTORY_W)
+			 resultStr += "West player wins!";
+		 if (mGameResult == RESULT_VICTORY_N)
+			 resultStr += "North player wins!";
+		 
+		 System.out.println(resultStr);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	

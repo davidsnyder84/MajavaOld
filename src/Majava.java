@@ -8,21 +8,6 @@ public class Majava {
 		
 		System.out.println("Welcome to Majava!");
 		
-		/*
-		int a;
-		Scanner keyboard = new Scanner(System.in);
-
-		System.out.print("Enter a1: ");
-		a = keyboard.nextInt();
-		System.out.println("a1 is " + a);
-		
-		System.out.print("Enter a1: ");
-		a = keyboard.nextInt();
-		System.out.println("a2 is " + a);
-		
-		keyboard.close();
-		*/
-		
 		
 		boolean keepgoing = true;
 		

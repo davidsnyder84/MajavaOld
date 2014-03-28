@@ -8,6 +8,7 @@ public class Meld {
 	public static final int MELD_TYPE_PON = 2;
 	public static final int MELD_TYPE_KAN = 3;
 	public static final int MELD_TYPE_PAIR = 5;
+	public static final int MELD_TYPE_GAY = 6;
 
 	public static final boolean DEFAULT_CLOSED_STATUS = true;
 	public static final int DEFAULT_MELD_TYPE = MELD_TYPE_UNKNOWN;
@@ -20,6 +21,8 @@ public class Meld {
 	private int mMeldType;
 	private boolean mClosed;
 	
+	private int mFu;
+	
 	private char mPlayerSeatWind;
 	
 	
@@ -28,10 +31,8 @@ public class Meld {
 	//Constructor, takes a list of tiles and a closed status (true/false)
 	public Meld(ArrayList<Tile> tiles, char playerWind, boolean closed){
 		
-		//add the tiles to the meld's list of tiles
-		mTiles = new ArrayList<Tile>(0);
-		for(Tile t: tiles)
-			mTiles.add(t);
+		//set the meld's list of tiles to the received list of tiles
+		mTiles = tiles;
 		
 		//update closed status
 		mClosed = closed;
@@ -48,6 +49,20 @@ public class Meld {
 	}
 	
 	/*
+	 public Meld(ArrayList<Tile> tiles, char playerWind, boolean closed){
+		
+		//add the tiles to the meld's list of tiles
+		mTiles = new ArrayList<Tile>(0);
+		for(Tile t: tiles)
+			mTiles.add(t);
+		
+		//update closed status
+		mClosed = closed;
+		mPlayerSeatWind = playerWind;
+		
+		//meld type
+		mMeldType = DEFAULT_MELD_TYPE;
+	}
 	public Meld(Tile t1, Tile t2, Tile t3, Tile t4){
 		ArrayList<Tile> tiles = new ArrayList<Tile>(0);
 		tiles.add(t1);
@@ -75,7 +90,8 @@ public class Meld {
 	public int calculateFu(){
 		int fu = 0;
 		
-		return fu;
+		mFu = fu;
+		return mFu;
 	}
 	
 	
@@ -92,6 +108,7 @@ public class Meld {
 	public boolean isClosed(){
 		return mClosed;
 	}
+	
 	
 	
 	//toString

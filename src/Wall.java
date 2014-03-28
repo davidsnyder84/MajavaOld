@@ -183,9 +183,15 @@ public class Wall {
 			mTiles.add(new Tile(i));
 		}
 		
+		//mark the red dora fives (1 in man, 2 in pin, 1 in sou)
+		mTiles.get((5-1) * 4).setRedDora();
+		mTiles.get(((5-1) + 9) * 4).setRedDora();
+		mTiles.get(((5-1) + 9) * 4 + 1).setRedDora();
+		mTiles.get(((5-1) + 9*2) * 4).setRedDora();
+		
 		//shuffle the wall
 		GenSort<Tile> sorter = new GenSort<Tile>(mTiles);
-		sorter.shuffle();
+		//sorter.shuffle();
 	}
 	
 	
@@ -208,10 +214,7 @@ public class Wall {
 		
 		//return null if the wall is empty
 		if (isEmpty())
-		{
-			System.out.println("-----End of wall reached. Cannot draw tile.");
 			return null;
-		}
 		
 		//draw the first tile from the wall
 		Tile drawnTile = mTiles.get(FIRST_TILE_IN_WALL);
@@ -261,10 +264,6 @@ public class Wall {
 		return mTiles.size();
 	}
 	
-
-	public int getSize(){
-		return mTiles.size();
-	}
 	
 	
 	
@@ -297,7 +296,7 @@ public class Wall {
 		
 		String dWallString = "DeadWall: " + mDeadWall.getSize() + "\n" + mDeadWall.toString();
 		
-		return ("Wall: " + getSize() + "\n" + wallString + "\n\n" + dWallString);
+		return ("Wall: " + tilesLeftInWall() + "\n" + wallString + "\n\n" + dWallString);
 	}
 	
 	

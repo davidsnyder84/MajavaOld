@@ -1,10 +1,6 @@
 import java.util.Scanner;
 
-/*
-kamicha - player to your left
-shimocha - player to your right
-toimen - player directly across 
-*/
+
 public class Player {
 	
 	public static final char SEAT_UNDECIDED = 'U';
@@ -25,6 +21,7 @@ public class Player {
 	public static final int CALLED_PON = 2;
 	public static final int CALLED_KAN = 3;
 	public static final int CALLED_RON = 5;
+	public static final int CALLED_GAY = 6;
 	
 	
 	public static final int DRAW_NONE = 0;
@@ -160,7 +157,7 @@ public class Player {
 		@SuppressWarnings("resource")
 		Scanner keyboard = new Scanner(System.in);
 		//disallow numbers outside the range of the hand size
-		while (chosenDiscard < 0 || chosenDiscard > mHand.getSize())
+		while (chosenDiscard < 1 || chosenDiscard > mHand.getSize())
 		{
 			System.out.print("\nWhich tile do you want to discard? (enter number): "); 
 			chosenDiscard = keyboard.nextInt();
@@ -218,21 +215,27 @@ public class Player {
 	public int reactToDiscard(Tile t)
 	{
 		int call = CALLED_NONE;
-		call = askSelfForReaction(t);
 		
-		mCallStatus = call;
-		
-		//update what the player will need to draw next turn
-		if (mCallStatus == CALLED_NONE)
-			//draw normally if no call
-			mDrawNeeded = DRAW_NORMAL;
-		else
-			//draw nothing if called chi/pon
-			mDrawNeeded = DRAW_NONE;
-		
-		//if called kan, do a kan draw
-		if (mCallStatus == CALLED_KAN)
-			mDrawNeeded = DRAW_KAN;
+		//if able to call the tile, ask self for reaction
+		if (ableToCallTile(t))
+		{
+			//ask self for reaction
+			call = askSelfForReaction(t);
+			
+			//update call status
+			mCallStatus = call;
+			
+			//update what the player will need to draw next turn
+			if (mCallStatus == CALLED_NONE)
+				//draw normally if no call
+				mDrawNeeded = DRAW_NORMAL;
+			else
+				//draw nothing if called chi/pon
+				mDrawNeeded = DRAW_NONE;
+			//if called kan, do a kan draw
+			if (mCallStatus == CALLED_KAN)
+				mDrawNeeded = DRAW_KAN;
+		}
 		
 		
 		return call;
@@ -261,7 +264,7 @@ public class Player {
 
 		@SuppressWarnings("resource")
 		Scanner keyboard = new Scanner(System.in);
-		System.out.print("Do you want to call? (enter 0 no, 1 yes): "); 
+		System.out.print("Do you want to call? (0-no, _-chi, 2-pon, _-kan, _-ron, 6-gay): "); 
 		call = keyboard.nextInt();
 		
 		return call;
@@ -276,6 +279,9 @@ public class Player {
 	
 	
 	
+	private boolean ableToCallTile(Tile t){
+		return true;
+	}
 	
 	
 	
@@ -305,11 +311,23 @@ public class Player {
 	
 	
 	
+	//accessors
 	public int getHandSize(){
 		return mHand.getSize();
 	}
 	public char getSeatWind(){
 		return mSeatWind;
+	}
+	//returns 1,2,3,4, corresponding to seat wind E,S,W,N
+	public int getPlayerNumber(){
+		if (mSeatWind == SEAT_EAST)
+			return 1;
+		else if (mSeatWind == SEAT_SOUTH)
+			return 2;
+		else if (mSeatWind == SEAT_WEST)
+			return 3;
+		else
+			return 4;
 	}
 	
 
@@ -323,11 +341,28 @@ public class Player {
 	public int checkCallStatus(){
 		return mCallStatus;
 	}
+	//returns true if the player called a tile
+	public boolean called(){
+		return (mCallStatus != CALLED_NONE);
+	}
+	
 	public int checkDrawNeeded(){
 		return mDrawNeeded;
 	}
 	public boolean checkRinshan(){
 		return mHoldingRinshanTile;
+	}
+	
+	//accessors for other players
+	//return references to mutable objects lol
+	public Player getKamicha(){
+		return linkKamicha;
+	}
+	public Player getToimen(){
+		return linkToimen;
+	}
+	public Player getShimocha(){
+		return linkShimocha;
 	}
 	
 	
@@ -348,6 +383,28 @@ public class Player {
 		return false;
 	}
 	
+	//mutators for other player links
+	/*
+	shimocha - player to your right
+	toimen - player directly across 
+	kamicha - player to your left
+	*/
+	public void setShimocha(Player p){
+		linkShimocha = p;
+	}
+	public void setToimen(Player p){
+		linkToimen = p;
+	}
+	public void setKamicha(Player p){
+		linkKamicha = p;
+	}
+	public void setNeighbors(Player shimo, Player toi, Player kami){
+		linkShimocha = shimo;
+		linkToimen = toi;
+		linkKamicha = kami;
+	}
+	
+	
 	
 	
 	//fill hand with demo values
@@ -367,7 +424,10 @@ public class Player {
 	
 	
 	public void showPond(){
-		System.out.println("\n" + mSeatWind + " Player's pond " + mController + ":\n" + mPond.toString());
+		System.out.println(mSeatWind + " Player's pond " + mController + ":\n" + mPond.toString());
+	}
+	public String getPondAsString(){
+		return (mSeatWind + " Player's pond:\n" + mPond.toString());
 	}
 	
 	public void showHand(){

@@ -18,6 +18,7 @@ public class Hand {
 	private ArrayList<Meld> mMelds;
 	
 	private boolean mClosed;
+	private int mNumMeldsMade; 
 	
 	private char mPlayerSeatWind;
 	
@@ -25,10 +26,11 @@ public class Hand {
 	
 	
 	public Hand(char playerWind){
-		mTiles = new ArrayList<Tile>(0);
-		mMelds = new ArrayList<Meld>(0);
+		mTiles = new ArrayList<Tile>(14);
+		mMelds = new ArrayList<Meld>(5);
 		
 		mClosed = DEFAULT_CLOSED_STATUS;
+		mNumMeldsMade = 0;
 		
 		mPlayerSeatWind = playerWind;
 	}
@@ -38,41 +40,8 @@ public class Hand {
 	
 	
 	
+	//demo values
 	public void fill(){
-		/*
-		mTiles.add(new Tile('m', '1'));
-		mTiles.add(new Tile('m', '1'));
-		mTiles.add(new Tile('m', '1'));
-		mTiles.add(new Tile('m', '2'));
-		mTiles.add(new Tile('m', '3'));
-		mTiles.add(new Tile('m', '4'));
-		mTiles.add(new Tile('m', '5'));
-		mTiles.add(new Tile('m', '6'));
-		mTiles.add(new Tile('m', '7'));
-		mTiles.add(new Tile('m', '8'));
-		mTiles.add(new Tile('m', '9'));
-		mTiles.add(new Tile('m', '9'));
-		mTiles.add(new Tile('m', '9'));
-		mTiles.add(new Tile('m', '7'));
-		*/
-		
-		/*
-		mTiles.add(new Tile(1, 'm', '1'));
-		mTiles.add(new Tile(1, 'm', '1'));
-		mTiles.add(new Tile(1, 'm', '1'));
-		mTiles.add(new Tile(2, 'm', '2'));
-		mTiles.add(new Tile(3, 'm', '3'));
-		mTiles.add(new Tile(4, 'm', '4'));
-		mTiles.add(new Tile(5, 'm', '5'));
-		mTiles.add(new Tile(6, 'm', '6'));
-		mTiles.add(new Tile(7, 'm', '7'));
-		mTiles.add(new Tile(8, 'm', '8'));
-		mTiles.add(new Tile(9, 'm', '9'));
-		mTiles.add(new Tile(9, 'm', '9'));
-		mTiles.add(new Tile(9, 'm', '9'));
-		mTiles.add(new Tile(7, 'm', '7'));
-		*/
-
 		mTiles.add(new Tile(1));
 		mTiles.add(new Tile(1));
 		mTiles.add(new Tile(1));
