@@ -90,7 +90,6 @@ public class MajaPlay {
 		h.addTile(new Tile("DR"));	//13
 		h.addTile(new Tile("m8"));	//14
 		*/
-		/*
 		h.addTile(new Tile(1));
 		h.addTile(new Tile(1));
 		h.addTile(new Tile(1));
@@ -105,16 +104,7 @@ public class MajaPlay {
 		h.addTile(new Tile(9));
 		h.addTile(new Tile(9));
 		h.addTile(new Tile(10));
-		*/
 		
-		h.addTile(new Tile(1));
-		h.addTile(new Tile(1));
-		h.addTile(new Tile(1));
-		h.addTile(new Tile(2));
-		h.addTile(new Tile(3));
-		h.addTile(new Tile(4));
-		h.addTile(new Tile(5));
-		h.addTile(new Tile(5));
 		h.sortHand();
 		
 		
