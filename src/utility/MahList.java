@@ -59,6 +59,7 @@ public class MahList <T extends Comparable<T> > implements Iterable<T>{
 	
 	
 	protected static final int DEFAULT_CAPACITY = 10;
+	public static final int NOT_FOUND = -1;
 	
 	
 	private ArrayList<T> mList;

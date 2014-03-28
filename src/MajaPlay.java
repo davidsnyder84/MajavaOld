@@ -12,7 +12,7 @@ public class MajaPlay {
 	public static void main(String[] args) {
 		
 		
-		//testCallPartners();
+		testCallPartners();
 		
 		//testHots();
 		
@@ -50,7 +50,7 @@ public class MajaPlay {
 		
 		//kokushiTenpaiTest();
 		
-		mahListPlay();
+		//mahListPlay();
 		
 		
 		System.out.println();
@@ -97,7 +97,6 @@ public class MajaPlay {
 	}
 	
 	
-	
 	public static void testCallPartners(){
 
 		final char ONWER_SEAT = Player.SEAT_SOUTH;
@@ -113,8 +112,66 @@ public class MajaPlay {
 		h.addTile(4);
 		h.addTile(5);
 		h.addTile(6);
+		h.addTile(32);
+		h.addTile(32);
+		h.addTile(33);
 		
-		q = new Tile(8);
+		MahList<Integer> discardIDs = new MahList<Integer>(1,2,3,4,5,6,7,8,9,10,11,30,31,32,33,34);
+		
+		
+		for (Integer id: discardIDs)
+		{
+			q = new Tile(id);
+			q.setOwner(Player.findKamichaOf(ONWER_SEAT));
+			h.checkCallableTile(q);
+			
+			System.out.println(h.toString());
+			System.out.println("\nDiscarded tile: " + q.toString());
+			
+			System.out.print("\n\tChi-L?: " + h.ableToChiL());
+			if (h.ableToChiL())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_L, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_L));
+			
+			System.out.print("\n\tChi-M?: " + h.ableToChiM());
+			if (h.ableToChiM())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_M, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_M));
+			
+			System.out.print("\n\tChi-H?: " + h.ableToChiH());
+			if (h.ableToChiH())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_H, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_CHI_H));
+			
+			System.out.print("\n\tPon?  : " + h.ableToPon());
+			if (h.ableToPon())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_PON, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_PON));
+
+			System.out.print("\n\tKan?  : " + h.ableToKan());
+			if (h.ableToKan())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_KAN, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_KAN));
+			
+			System.out.print("\n\tPair? : " + h.ableToPair());
+			if (h.ableToPair())	System.out.print(", Partners: " + h.partnerIndicesString(Meld.MELD_TYPE_PAIR, true) + ", Ind: " + h.partnerIndicesString(Meld.MELD_TYPE_PAIR));
+			System.out.println("\n\n\n\n");
+		}
+		
+	}
+	
+	
+	
+	public static void testCallPartnersOld(){
+
+		final char ONWER_SEAT = Player.SEAT_SOUTH;
+		Tile q = null;
+		Hand h = new Hand(ONWER_SEAT);
+
+		h.addTile(1);
+		h.addTile(2);
+		h.addTile(2);
+		h.addTile(3);
+		h.addTile(4);
+		h.addTile(4);
+		h.addTile(4);
+		h.addTile(5);
+		h.addTile(6);
+		h.addTile(32);
+		h.addTile(32);
+		h.addTile(33);
+		
+		q = new Tile(32);
 		q.setOwner(Player.findKamichaOf(ONWER_SEAT));
 		
 		

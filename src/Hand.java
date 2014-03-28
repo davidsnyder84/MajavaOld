@@ -78,7 +78,7 @@ public class Hand {
 	
 	public static final boolean DEFAULT_CLOSED_STATUS = true;
 	
-	private static final int NOT_FOUND = -1;
+	protected static final int NOT_FOUND = -1;
 	
 	
 	
@@ -282,7 +282,7 @@ public class Hand {
 	end if
 	return can
 	*/
-	private boolean __canChiType(ArrayList<Integer> storePartnersHere, int offset1, int offset2){
+	private boolean __canChiType(Tile candidate, ArrayList<Integer> storePartnersHere, int offset1, int offset2){
 		
 		//if this is true, the player can make a chi
 		boolean can = false;
@@ -290,11 +290,11 @@ public class Hand {
 		//decide who the chi partners should be (offset is decided based on chi type)
 		//search the hand for the desired chi partners (get the indices)
 		MahList<Integer> tempPartnerIndices = new MahList<Integer>(NUM_TILES_NEEDED_TO_CHI);
-		tempPartnerIndices.add(mTiles.indexOf(new Tile(mCallCandidate.getId() + offset1)));
-		tempPartnerIndices.add(mTiles.indexOf(new Tile(mCallCandidate.getId() + offset2)));
+		tempPartnerIndices.add(mTiles.indexOf(new Tile(candidate.getId() + offset1)));
+		tempPartnerIndices.add(mTiles.indexOf(new Tile(candidate.getId() + offset2)));
 		
 		//if both parters were found in the hand
-		if (tempPartnerIndices.getFirst() != NOT_FOUND && tempPartnerIndices.getLast() != NOT_FOUND){
+		if (tempPartnerIndices.getFirst() != MahList.NOT_FOUND && tempPartnerIndices.getLast() != MahList.NOT_FOUND){
 			can = true;
 			
 			//sore the indices of the partners in a partner list
@@ -302,18 +302,22 @@ public class Hand {
 		}
 		return can;
 	}
-	private boolean __canChiL(){
-		if (mCallCandidate.getFace() == '8' || mCallCandidate.getFace() == '9') return false;
-		return mCanChiL = __canChiType(mPartnerIndicesChiL, 1, 2);
+	private boolean __canChiL(Tile candidate){
+		if (candidate.getFace() == '8' || candidate.getFace() == '9') return false;
+		return mCanChiL = __canChiType(candidate, mPartnerIndicesChiL, 1, 2);
 	}
-	private boolean __canChiM(){
-		if (mCallCandidate.getFace() == '1' || mCallCandidate.getFace() == '9') return false;
-		return mCanChiM = __canChiType(mPartnerIndicesChiM, -1, 1);
+	private boolean __canChiM(Tile candidate){
+		if (candidate.getFace() == '1' || candidate.getFace() == '9') return false;
+		return mCanChiM = __canChiType(candidate, mPartnerIndicesChiM, -1, 1);
 	}
-	private boolean __canChiH(){
-		if (mCallCandidate.getFace() == '1' || mCallCandidate.getFace() == '2') return false;
-		return mCanChiH = __canChiType(mPartnerIndicesChiH, -2, -1);
+	private boolean __canChiH(Tile candidate){
+		if (candidate.getFace() == '1' || candidate.getFace() == '2') return false;
+		return mCanChiH = __canChiType(candidate, mPartnerIndicesChiH, -2, -1);
 	}
+	//overloaded. if no tile argument given, candidate = mCallCandidate is passsed
+	private boolean __canChiL(){return  __canChiL(mCallCandidate);}
+	private boolean __canChiM(){return  __canChiM(mCallCandidate);}
+	private boolean __canChiH(){return  __canChiH(mCallCandidate);}
 	
 	
 	
@@ -329,12 +333,12 @@ public class Hand {
 	end if
 	return can
 	*/
-	private boolean __canMultiType(int numPartnersNeeded, ArrayList<Integer> storePartnersHere){
+	private boolean __canMultiType(Tile candidate, ArrayList<Integer> storePartnersHere, int numPartnersNeeded){
 		boolean can = false;
 		
 		//count how many occurences of the tile, and store the indices of the occurences in tempPartnerIndices
 		MahList<Integer> tempPartnerIndices = new MahList<Integer>(numPartnersNeeded);
-		int count = __howManyOfThisTileInHand(mCallCandidate, tempPartnerIndices.getArrayList());
+		int count = __howManyOfThisTileInHand(candidate, tempPartnerIndices.getArrayList());
 		
 		//meld is possible if there are enough partners in the hand to form the meld
 		if (count >= numPartnersNeeded){
@@ -346,49 +350,51 @@ public class Hand {
 		}
 		return can;
 	}
-	private boolean __canPair(){
-		return mCanPair = __canMultiType(NUM_TILES_NEEDED_TO_PAIR, mPartnerIndicesPair);
+	private boolean __canPair(Tile candidate){
+		return mCanPair = __canMultiType(candidate, mPartnerIndicesPair, NUM_TILES_NEEDED_TO_PAIR);
 	}
-	private boolean __canPon(){
-		return mCanPon = __canMultiType(NUM_TILES_NEEDED_TO_PON, mPartnerIndicesPon);
+	private boolean __canPon(Tile candidate){
+		return mCanPon = __canMultiType(candidate, mPartnerIndicesPon, NUM_TILES_NEEDED_TO_PON);
 	}
-	private boolean __canKan(){
-		return mCanKan = __canMultiType(NUM_TILES_NEEDED_TO_KAN, mPartnerIndicesKan);
+	private boolean __canKan(Tile candidate){
+		return mCanKan = __canMultiType(candidate, mPartnerIndicesKan, NUM_TILES_NEEDED_TO_KAN);
 	}
+	//overloaded. if no tile argument given, candidate = mCallCandidate is passsed
+	private boolean __canPair(){return __canPair(mCallCandidate);}
+	private boolean __canPon(){return __canPon(mCallCandidate);}
+	private boolean __canKan(){return __canKan(mCallCandidate);}
+	
+	
 	
 	/*
 	private method: __howManyOfThisTileInHand
 	returns how many copies of tile t are in the hand
-	populates a list with the indices where t occurs, if one is provided
 	
-	input: t is the tile to look for, storeIndicesHere will hold the indices of the occurences of the tile
+	input: t is the tile to look for. if a list is provided, storeIndicesHere will be populated with the indices where t occurs 
 	
-	count = 0
-	for (each tile in the hand)
-		if (handtile and t have the same id)
-			count++
-			if (a non-null list was provided)
-				if (t and handtile are not the same physical tile): add the current index to the list
-		end if
-	end for
-	return count
+	current = find first index of t in the hand, return 0 if not found
+	while ((current < hand size) && (hand(current) and t have the same id))
+		if (hand(current) and t are not the same physical tile): add the current index to the list
+		current++
+	end while
+	return (number of indices found)
 	*/
 	private int __howManyOfThisTileInHand(Tile t, ArrayList<Integer> storeIndicesHere){
+		//finds the first occurence of t. if t is not found, returns 0
+		int current = mTiles.indexOf(t);
+		if (current == MahList.NOT_FOUND) return 0;
+		if (storeIndicesHere == null) storeIndicesHere = new ArrayList<Integer>();
 		
-		int count = 0;
-		for (int i = 0; i < mTiles.size(); i++)
-		{
-			//if handtile and t have the same ID, but aren't the same phsyical tile
-			//(basically, don't count t as its own partner)
-			if (mTiles.get(i).equals(t) && mTiles.get(i) != t)	
-			{
-				count++;
-				//store the index in the list, if one was provided
-				if (storeIndicesHere != null)
-					storeIndicesHere.add(i);
-			}
+		//store the current (first) index in the list, then move current the next index
+		storeIndicesHere.add(current++);
+		
+		//loops until it finds a tile that is not t (assumes the hand is sorted)
+		while (current < mTiles.size() && mTiles.get(current).equals(t)){
+			//if handtile and t aren't the same phsyical tile... (basically, don't count t as its own partner)
+			if (mTiles.get(current) != t) storeIndicesHere.add(current);
+			current++;
 		}
-		return count;
+		return storeIndicesHere.size();
 	}
 	//overloaded, omitting list argument simply returns the count, and doesn't populate any list
 	@SuppressWarnings("unused")
